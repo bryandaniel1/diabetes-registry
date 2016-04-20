@@ -95,5 +95,6 @@ password = Test1234?!
 	Otherwise, comment out the application's security constraint in diabetesregistry/WEB-INF/web.xml and access the running application by pointing a web browser to http://localhost:8080/diabetesregistry
 
 **d)** storage encryption:
+
 	A default key used for database encryption of sensitive attributes is assigned in the WelcomeServlet.  Modify this key assignment according to user requirements.
 
