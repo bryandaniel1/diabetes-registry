@@ -11,7 +11,7 @@ B - build MySQL database
 
 C - build application
 
-D - run application
+D - deploy application
 
 E - notes
 
@@ -65,13 +65,17 @@ http://www.jfree.org/jfreechart/download.html and download
 	
 	- jfreechart-1.0.19 from the tomcat_jars directory
 
-b) Open the project in NetBeans and verify the program compiles and runs.  Build the application and place the WAR file from the dist folder into the Tomcat/webapps directory.
+b) Open the project in NetBeans and verify the program compiles and runs.  Build the application to produce a WAR file in the dist folder.
 
-Section D - run application
+Section D - deploy application
 
-a) Run the application by executing the startup file in the Tomcat/bin directory.
+a) Place the WAR file in the Tomcat/webapps directory.
 
-b) Stop the application by executing the shutdown file in the Tomcat/bin directory.
+b) Run the application by executing the startup file in the Tomcat/bin directory.
+
+c) View the application by pointing the browser to https://localhost:8443/diabetesregistry for a connection with SSL/TLS implemented.  Otherwise, point the browser to http://localhost:8080/diabetesregistry.
+
+d) Stop the application by executing the shutdown file in the Tomcat/bin directory.
 	
 
 Section E - notes
