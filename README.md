@@ -46,20 +46,20 @@ https://netbeans.org/downloads/
 
 Go to 
 
-<a href="https://jstl.java.net/download.html" target="_blank">https://jstl.java.net/download.html</a> and download 
+https://jstl.java.net/download.html and download 
 
 		- javax.servlet.jsp.jstl-api-1.2.1.jar
 		
 		- javax.servlet.jsp.jstl-1.2.1.jar
 Go to 
 
-<a href="https://dev.mysql.com/downloads/connector/j/" target="_blank">https://dev.mysql.com/downloads/connector/j/</a> and download
+https://dev.mysql.com/downloads/connector/j/ and download
 
 		- MySQL Connector/J
 		
 Go to 
 
-<a href="http://www.jfree.org/jfreechart/download.html" target="_blank">http://www.jfree.org/jfreechart/download.html</a> and download
+http://www.jfree.org/jfreechart/download.html and download
 
 	- jcommon-1.0.23
 	
