@@ -46,24 +46,24 @@ https://netbeans.org/downloads/
 
 Go to 
 
-https://jstl.java.net/download.html and download 
+<a href="https://jstl.java.net/download.html" target="_blank">https://jstl.java.net/download.html</a> and download 
 
 		- javax.servlet.jsp.jstl-api-1.2.1.jar
 		
 		- javax.servlet.jsp.jstl-1.2.1.jar
 Go to 
 
-https://dev.mysql.com/downloads/connector/j/ and download
+<a href="https://dev.mysql.com/downloads/connector/j/" target="_blank">https://dev.mysql.com/downloads/connector/j/</a> and download
 
 		- MySQL Connector/J
 		
 Go to 
 
-http://www.jfree.org/jfreechart/download.html and download
+<a href="http://www.jfree.org/jfreechart/download.html" target="_blank">http://www.jfree.org/jfreechart/download.html</a> and download
 
-	- jcommon-1.0.23 from the tomcat_jars directory
+	- jcommon-1.0.23
 	
-	- jfreechart-1.0.19 from the tomcat_jars directory
+	- jfreechart-1.0.19
 
 **b)** Open the project in NetBeans and verify the program compiles and runs.  Build the application to produce a WAR file in the dist folder.
 
@@ -86,7 +86,9 @@ username = joeUser
 
 password = Test1234?!
 
-**b)** The default user is associated with a default clinic, named "Test Clinic".  The registration key for this clinic is “#1registrationKey”.
+**b)** The default user is associated with a default clinic, named "Test Clinic".  The registration key for this clinic is
+
+“#1registrationKey”.
 
 **c)** SSL/TLS:
 
