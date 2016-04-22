@@ -1,0 +1,544 @@
+/* 
+    Created on : Oct 30, 2015, 2:29:59 PM
+    Author     : Bryan Daniel
+*/
+/*html page*/
+html{
+    background-image: radial-gradient(#F0F0F0, #99CCFF);
+    height: 100%;
+}
+
+body {
+    margin: 0 auto;
+    padding: 0 40px 20px;
+    min-width: 640px;
+    max-width: 1160px;  
+}
+
+/*The site title at top left*/
+#title{
+    padding: 0% 20% 0% 2%;
+    float: left;    
+}
+
+/* Links ***/
+a:link { color: #0000CC; }
+a:visited { color: #330066; }
+a:hover, a:focus, a:active { color: #1b46c3; }
+
+/* Main navigation ***/
+nav {
+    clear: both;
+    text-transform: uppercase;
+    transition: font-size .2s ease-in-out;
+    padding-top: 5%;
+}
+
+#nav-main{
+    padding-top: 0%;
+}
+
+nav ul {
+    margin: 0;
+    list-style: none;
+}
+
+nav li {
+    float: left;
+    border: 1px solid #000000;
+    box-shadow: 2px 2px 8px rgba(0,0,0,.25);
+    background-color: #fc0;
+    background-image: linear-gradient(to bottom, #F0F0F0 5%, #99CCFF 100%);
+}
+
+nav a:link,
+nav a:visited {
+    display: block;
+    padding: .5em 10px;
+    text-decoration: none;
+}
+
+nav:after {
+    content: ".";
+    display: block;
+    clear: both;
+    height: 0;
+    visibility: hidden;
+}
+
+/*Labels*/
+label{
+    margin-right: 0;
+    text-align: right;
+}
+
+/*Content backdrop for main pages, signin, and register*/
+#signinpage, #registerpage, .pagecontent{
+    float: left;
+    display: block;
+    margin: 5% 2%;    
+    background-color: #F0F0F0;
+    border: 1px solid black;
+    height: 100%;
+    box-shadow: 2px 2px 8px rgba(0,0,0,.25);
+}
+
+#registerpage, .pagecontent{
+    width: 90%;
+}
+
+.pagecontent{
+    margin: 2% 5%;
+}
+
+/*Content headings*/
+h1, h2, h3{
+    color: #000000;
+    text-align: center;
+}
+
+/*Content for signin and register*/
+#signinpart, #registerpart{
+    float: left;
+    width: 90%;
+    margin: 2% 2%;    
+    background-color: #F0F0F0;    
+}
+
+/*Error messages*/
+.error{
+    color: red;
+    text-align: center;
+}
+
+/*Success messages*/
+.success{
+    color: blue;
+    text-align: center;
+}
+#errorpage{
+    width: 90%;
+    float: left;
+    display: block;
+    margin: 5% 2%;    
+    background-color: #F0F0F0;
+    border: 1px solid black;
+    height: 100%;
+    box-shadow: 2px 2px 8px rgba(0,0,0,.25);
+}
+
+/* buttons ***/
+.button, .homepagebutton{
+    word-wrap: normal;
+    cursor: pointer;
+    border: 1px solid #000000;
+    float: left;
+    margin: 5% 5%;
+    padding: 2% 5%;
+    color: #000000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    background-color: #fc0;
+    background-image: linear-gradient(to bottom, #F0F0F0 5%, #99CCFF 100%);
+}
+
+.homepagebutton{
+    margin: 5% 5%;
+    padding: 20% 20%;
+    width: 100%;
+    height: 100%;
+}
+
+#dataentrybutton, #treatmentbutton, #newnotebutton,
+#previousnotebutton{
+    float: right;
+    width: 25%;
+    height: 25%;
+    margin: 3% 7%;
+    box-shadow: 2px 2px 8px rgba(0,0,0,.25);
+}
+
+/*Signin and register page text entry*/
+.forminstructions, .signinlabels,
+#id, #password{
+    float: left;
+}
+
+.forminstructions{
+    margin: 2% 30%;
+}
+
+.signinlabels, #signinbutton, #registerbutton{
+    margin: 2% 2% 2% 20%;
+}
+
+#id, #password{
+    margin: 2% 20% 2% 2%;
+}
+
+/*User name and sign out link in 
+upper right corner*/
+#usersignout{
+    float: right;
+}
+
+/*Tables*/
+table, .content{
+    margin: 5% 0%;    
+    background-color: #F0F0F0;
+    border: 1px solid black;
+    column-gap: 0;
+    box-shadow: 2px 2px 8px rgba(0,0,0,.25);
+}
+
+.content{
+    height: 100%;
+}
+
+table{
+    table-layout: fixed;
+}
+
+.patientform{
+    border: none;
+}
+
+#demographicTable{
+    width: 30%;
+    float: left;
+}
+
+#userTable{
+    width: 45%;
+    float: left;
+    margin: 2% 2%;
+}
+
+#userAccessControlTable{
+    width: 45%;
+    float: right;
+    margin: 2% 2%;
+}
+
+.datatable{
+    clear: both;
+}
+
+tr{
+    background-color: #F0F0F0;
+    border: 1px solid black;
+}
+
+td{
+    width: 22%;
+    padding: 2%;    
+}
+
+.hometable{
+    border: none;
+}
+
+/* Registration page and patient select***/
+#registertable, .patientselect{
+    border: none;
+    margin: 0%;
+    clear: both;
+}
+
+.patientselect{
+    width: 100%;
+}
+
+#registerinstructions{
+    margin: 2% 20%;
+}
+
+.dataregisterlabels{
+    width: 20%;
+    text-align: right;
+}
+
+/*text*/
+.contentText{
+    margin: 2% 5%;
+}
+
+/*Data enty*/
+.dataentrylabel, #datadate{
+    float: left;
+    margin: 5% 3%;
+}
+
+.dataentry{
+    word-wrap: break-word;
+}
+
+.clinicids, .dataentrycheckbox{
+    float: left;
+    margin: 2% 3%;
+}
+
+#tshcheckboxcell, #removeuserlabel, 
+#terminateuserlabel{
+    width: 85%;
+    float: left;
+    font-size: .9em;
+}
+
+.datacells{
+    width: 35%;
+    float: left;
+    font-size: .9em;
+}
+.datacells2{
+    width: 60%;
+    float: left;
+    font-size: .9em;
+}
+#aceorarblabel{
+    clear: left;
+    float: left;
+}
+#aceorarb{
+    float: left;
+    margin: 1% 2%;
+}
+#acorpc{
+    margin-right: 20%;
+}
+#poc{
+    margin-right: 30%;
+}
+#classdate, #erdate, #influenzadate,
+#pcv13date, #ppsv23date, #hepbdate,
+#tdapdate, #zosterdate, .vaccineentrydate{
+    margin: 0%;
+    float: left;
+}
+.units{
+    font-size: .7em;
+    margin: 0%;
+    float: left;
+}
+.historyunits{
+    font-size: .7em;
+    margin: 0%;
+}
+#a1cunits, #glucoseunits, .bpunits{
+    margin-left: 3%;
+    margin-bottom: 5%;
+    font-size: .7em;
+}
+.vaccineentrydate{
+    width: 44%;
+}
+#screening{
+    width: 70%;
+}
+#eye,#foot,#telephone,#psychological{
+    float: right;
+    width: 40%;
+}
+#datadate{
+    float: left;
+    width: 20%;
+}
+
+/*History page*/
+.outoftarget{
+    background-color: #FF6666;
+}
+
+.missing{
+    background-color: #FFFF66;
+}
+
+.legend{
+    float: right;
+    margin-right: 3%;
+    text-align: right;
+}
+
+.historytable, img, .statstable{
+    clear: both;
+    margin: 5%;
+}
+
+img{
+    box-shadow: 2px 2px 8px rgba(0,0,0,.25);
+}
+
+.imgbox{
+    margin: 0%;
+    padding: 0%;
+    height:550px;
+    width: 780px;
+    overflow: scroll;
+}
+
+.minitable{
+    border: 1px solid #000000;
+    box-shadow: 2px 2px 8px rgba(0,0,0,.25);
+    margin: 1%;    
+    float: left;
+    width: 35%;
+    font-size: .9em;
+    text-align: left;
+}
+
+.minitable th{
+    text-align: center;
+}
+
+#historyselecttable{
+    border: none;
+    box-shadow: none;
+}
+
+#notetable{
+    width: 90%;    
+}
+
+#note{
+    word-wrap: break-word;
+}
+/**
+*Admin page
+*/
+#admin-nav{
+    float: left;
+    margin-right: 2%;
+}
+
+#admin-nav li{
+    float: left;
+    clear: left;
+    margin-top: 5%;
+}
+
+/*admin form tables*/
+.adminText{
+    margin: 2%;
+    padding: 2%;
+    border: none;
+}
+
+/**
+*Footer
+*/
+footer{
+    clear: both;
+    text-align: left;
+    height: 100px;   
+}
+
+.footertext{
+    margin-top: 40%;
+    margin-bottom: 5%;
+}
+
+/**
+*Progress note
+*/
+.progressDemographicTable{
+    width: 30%;
+    float: left;
+    margin: 2% 2%;
+}
+
+.progressTable{
+    border: none;
+    width: 65%;
+    float: right;
+    clear: right;
+}
+
+#newnotebutton,
+#previousnotebutton{
+    float: right;
+    clear: right;
+}
+
+.progressDataTable{
+    border: none;
+    clear: both;
+}
+
+.progressCells{
+    float: left;
+    text-align: right;
+    font-size: .9em;
+}
+
+.progressText{
+    font-size: .9em;
+}
+
+#noteCreatedDate, #previousNoteDate{
+    float: left;
+    width: 26%;
+    margin-top: 4%;
+}
+
+#waistProgress{
+    float: right;
+}
+
+#viewpdfbutton{
+    float:right;
+    clear: right;
+    margin: 3% 12%;
+}
+
+
+#lastclassdate{
+    padding-left: 9%;
+}
+
+/**
+*Call list page
+*/
+.calllisttable{
+    clear: both;
+    border: none;
+    width: 100%;
+}
+
+.calllisttable th, .calllisttable td{
+    padding: 2%;
+    word-wrap: normal;
+}
+
+#calllistemail{
+    word-wrap: break-word;
+}
+
+.calllistpassword{
+    float: left;
+}
+
+#calllistpasswordlabel{
+    clear: left;
+}
+
+#calllistbutton{
+    float: left;
+    clear: left;
+    width: 25%;
+    height: 25%;
+    margin: 3% 7%;
+    box-shadow: 2px 2px 8px rgba(0,0,0,.25);
+}
+
+/**
+*Stats page
+*/
+.treatmentclass{
+    text-align: right;
+}
+
+/**
+*Quality page
+*/
+.highlighteddate{
+    color: green;
+}

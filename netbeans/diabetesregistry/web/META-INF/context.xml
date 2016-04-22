@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context path="/diabetesregistry">
+    <!-- the diabetes registry database -->
+    <Resource name="jdbc/diabetes_registry" type="javax.sql.DataSource" auth="Container" 
+              driverClassName="com.mysql.jdbc.Driver" 
+              url="jdbc:mysql://localhost:3306/diabetes_registry?autoReconnect=true&amp;useInformationSchema=true" 
+              username="registry_user" password="somePassword"
+              testWhileIdle="true"
+              testOnBorrow="true"
+              testOnReturn="false"
+              validationQuery="SELECT 1"
+              validationInterval="30000" logAbandoned="true" 
+              removeAbandoned="true" removeAbandonedTimeout="60" 
+              maxActive="100" maxIdle="30" maxWait="10000" />
+</Context>
