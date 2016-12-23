@@ -18,7 +18,7 @@ E - notes
 
 ###Section A - requirements
 
-**a)** Download and install MySQL Community Server and Workbench from 
+**a)** Download and install MySQL Community Server 5.7 and Workbench from 
 
 http://dev.mysql.com/downloads/
 
@@ -30,7 +30,7 @@ http://www.oracle.com/technetwork/java/javase/downloads/index.html
 
 https://tomcat.apache.org
 
-**d)** Download and install NetBeans IDE from
+**d)** Download and install NetBeans 8 IDE from
 
 https://netbeans.org/downloads/
 
@@ -42,7 +42,7 @@ https://netbeans.org/downloads/
 
 ###Section C - build application
 
-**a)** Place the following jar files in the Tomcat/lib directory:
+**a)** Place the following JAR files in the Tomcat/lib directory:
 
 Go to 
 
@@ -65,7 +65,17 @@ http://www.jfree.org/jfreechart/download.html and download
 	
 	- jfreechart-1.0.19
 
-**b)** Open the project in NetBeans and verify the program compiles and runs.  Build the application to produce a WAR file in the dist folder.
+**b)** Open the project in NetBeans to finish building the application.  Three more JAR files must be added to the project:
+
+ - commons-lang3-3.4.jar found at https://commons.apache.org/proper/commons-lang/download_lang.cgi
+
+ - javax.mail-1.5.1.jar found at http://mvnrepository.com/artifact/javax.mail/javax.mail-api/1.5.1
+
+ - pdfbox-app-1.8.11.jar found at https://pdfbox.apache.org/download.cgi
+
+Right-click on the Libraries node in the Projects view and select the 'Add JAR/Folder' option to find the downloaded JAR files and add them to the project.
+
+**c)** Once the program compiles, build the application by selecting the 'Clean and Build Project' menu item in the 'Run' menu to produce a WAR file in the dist folder.
 
 ###Section D - deploy application
 
