@@ -18,7 +18,6 @@ package controller;
 import clinic.Clinic;
 import clinic.EmailMessage;
 import clinic.Patient;
-import clinic.User;
 import data.AdministrationIO;
 import data.CallListIO;
 import data.PatientIO;
