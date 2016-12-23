@@ -34,6 +34,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -62,7 +63,9 @@ import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.HistogramDataset;
 
 /**
- * Creates a line chart to display a longitudinal view of patient results
+ * This class handles the responsibility of drawing and returning charts and
+ * graphs. The getChart method uses the request parameters to determine which
+ * chart must be drawn.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -88,7 +91,10 @@ public class ChartAndGraphServlet extends HttpServlet {
     }
 
     /**
-     * Creates the appropriate chart for the patient history page
+     * Creates the appropriate chart for the patient history page or the
+     * statistics page. Line charts are created to display a longitudinal view
+     * of patient results on the history page. The statistics page includes pie
+     * charts, bar charts, histograms, and box and whisker charts.
      *
      * @param request servlet request
      * @param response servlet response
@@ -102,12 +108,6 @@ public class ChartAndGraphServlet extends HttpServlet {
         final int WIDTH_INCREASE_THRESHOLD = 18;
         final int INCREMENTAL_INCREASE_THRESHOLD = 22;
         final int INCREMENTAL_INCREASE_IN_PIXELS = 30;
-        final int TREATMENT_CLASS_ZERO_INDEX = 0;
-        final int TREATMENT_CLASS_ONE_INDEX = 1;
-        final int TREATMENT_CLASS_TWO_INDEX = 2;
-        final int TREATMENT_CLASS_THREE_INDEX = 3;
-        final int TREATMENT_CLASS_FOUR_INDEX = 4;
-        final int TREATMENT_CLASS_FIVE_INDEX = 5;
         final int TREATMENT_CLASS_UNKNOWN_INDEX = 6;
         int width = 640;
         int height = 450;
@@ -1683,21 +1683,11 @@ public class ChartAndGraphServlet extends HttpServlet {
                         = (Stats) session.getAttribute("classCountsTreatmentStats");
                 DefaultPieDataset dataset = new DefaultPieDataset();
 
-                /* add the data */
-                dataset.setValue(treatmentData.getGroups().get(treatmentClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getCategory(),
-                        treatmentData.getGroups().get(treatmentClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getValue());
-                dataset.setValue(treatmentData.getGroups().get(treatmentClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getCategory(),
-                        treatmentData.getGroups().get(treatmentClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getValue());
-                dataset.setValue(treatmentData.getGroups().get(treatmentClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getCategory(),
-                        treatmentData.getGroups().get(treatmentClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getValue());
-                dataset.setValue(treatmentData.getGroups().get(treatmentClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getCategory(),
-                        treatmentData.getGroups().get(treatmentClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getValue());
-                dataset.setValue(treatmentData.getGroups().get(treatmentClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getCategory(),
-                        treatmentData.getGroups().get(treatmentClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getValue());
-                dataset.setValue(treatmentData.getGroups().get(treatmentClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getCategory(),
-                        treatmentData.getGroups().get(treatmentClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getValue());
-                dataset.setValue(treatmentData.getGroups().get(treatmentClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getCategory(),
-                        treatmentData.getGroups().get(treatmentClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getValue());
+                /* add the treatment data to the dataset */
+                for (int i = 0; i < TREATMENT_CLASS_UNKNOWN_INDEX + 1; i++) {
+                    dataset.setValue(treatmentData.getGroups().get(treatmentClassCountsIndex).get(i).getCategory(),
+                            treatmentData.getGroups().get(treatmentClassCountsIndex).get(i).getValue());
+                }
 
                 /* remove reference */
                 session.setAttribute("classCountsTreatmentStats", null);
@@ -1735,37 +1725,17 @@ public class ChartAndGraphServlet extends HttpServlet {
                 final DefaultCategoryDataset dataset
                         = new DefaultCategoryDataset();
 
-                /* females data */
-                dataset.addValue(treatmentData.getGroups().get(femaleClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getValue(),
-                        "Female", treatmentData.getGroups().get(femaleClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(femaleClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getValue(),
-                        "Female", treatmentData.getGroups().get(femaleClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(femaleClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getValue(),
-                        "Female", treatmentData.getGroups().get(femaleClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(femaleClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getValue(),
-                        "Female", treatmentData.getGroups().get(femaleClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(femaleClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getValue(),
-                        "Female", treatmentData.getGroups().get(femaleClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(femaleClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getValue(),
-                        "Female", treatmentData.getGroups().get(femaleClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(femaleClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getValue(),
-                        "Female", treatmentData.getGroups().get(femaleClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getCategory());
+                HashMap<Integer, String> genderMap = new HashMap<>();
+                genderMap.put(maleClassCountsIndex, "Male");
+                genderMap.put(femaleClassCountsIndex, "Female");
 
-                /* males data */
-                dataset.addValue(treatmentData.getGroups().get(maleClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getValue(),
-                        "Male", treatmentData.getGroups().get(maleClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(maleClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getValue(),
-                        "Male", treatmentData.getGroups().get(maleClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(maleClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getValue(),
-                        "Male", treatmentData.getGroups().get(maleClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(maleClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getValue(),
-                        "Male", treatmentData.getGroups().get(maleClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(maleClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getValue(),
-                        "Male", treatmentData.getGroups().get(maleClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(maleClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getValue(),
-                        "Male", treatmentData.getGroups().get(maleClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(maleClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getValue(),
-                        "Male", treatmentData.getGroups().get(maleClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getCategory());
+                /* load data for males and females into the dataset */
+                for (int i = femaleClassCountsIndex; i > maleClassCountsIndex - 1; i--) {
+                    for (int j = 0; j < TREATMENT_CLASS_UNKNOWN_INDEX + 1; j++) {
+                        dataset.addValue(treatmentData.getGroups().get(i).get(j).getValue(),
+                                genderMap.get(i), treatmentData.getGroups().get(i).get(j).getCategory());
+                    }
+                }
 
                 /* remove reference */
                 session.setAttribute("genderClassCountsTreatmentStats", null);
@@ -1813,117 +1783,22 @@ public class ChartAndGraphServlet extends HttpServlet {
                 final DefaultCategoryDataset dataset
                         = new DefaultCategoryDataset();
 
-                /* whites data */
-                dataset.addValue(treatmentData.getGroups().get(whiteClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getValue(),
-                        "White", treatmentData.getGroups().get(whiteClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(whiteClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getValue(),
-                        "White", treatmentData.getGroups().get(whiteClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(whiteClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getValue(),
-                        "White", treatmentData.getGroups().get(whiteClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(whiteClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getValue(),
-                        "White", treatmentData.getGroups().get(whiteClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(whiteClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getValue(),
-                        "White", treatmentData.getGroups().get(whiteClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(whiteClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getValue(),
-                        "White", treatmentData.getGroups().get(whiteClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(whiteClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getValue(),
-                        "White", treatmentData.getGroups().get(whiteClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getCategory());
+                HashMap<Integer, String> raceMap = new HashMap<>();
+                raceMap.put(whiteClassCountsIndex, "White");
+                raceMap.put(africanAmericanClassCountsIndex, "African American");
+                raceMap.put(asianPacificIslanderClassCountsIndex, "Asian/Pacific Islander");
+                raceMap.put(americanIndianAlaskaNativeClassCountsIndex, "American Indian/Alaska Native");
+                raceMap.put(hispanicClassCountsIndex, "Hispanic");
+                raceMap.put(middleEasternClassCountsIndex, "Middle Eastern");
+                raceMap.put(otherClassCountsIndex, "Other");
 
-                /* African Americans data */
-                dataset.addValue(treatmentData.getGroups().get(africanAmericanClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getValue(),
-                        "African American", treatmentData.getGroups().get(africanAmericanClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(africanAmericanClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getValue(),
-                        "African American", treatmentData.getGroups().get(africanAmericanClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(africanAmericanClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getValue(),
-                        "African American", treatmentData.getGroups().get(africanAmericanClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(africanAmericanClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getValue(),
-                        "African American", treatmentData.getGroups().get(africanAmericanClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(africanAmericanClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getValue(),
-                        "African American", treatmentData.getGroups().get(africanAmericanClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(africanAmericanClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getValue(),
-                        "African American", treatmentData.getGroups().get(africanAmericanClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(africanAmericanClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getValue(),
-                        "African American", treatmentData.getGroups().get(africanAmericanClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getCategory());
-
-                /* Asians/Pacific Islanders data */
-                dataset.addValue(treatmentData.getGroups().get(asianPacificIslanderClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getValue(),
-                        "Asians/Pacific Islander", treatmentData.getGroups().get(asianPacificIslanderClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(asianPacificIslanderClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getValue(),
-                        "Asians/Pacific Islander", treatmentData.getGroups().get(asianPacificIslanderClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(asianPacificIslanderClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getValue(),
-                        "Asians/Pacific Islander", treatmentData.getGroups().get(asianPacificIslanderClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(asianPacificIslanderClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getValue(),
-                        "Asians/Pacific Islander", treatmentData.getGroups().get(asianPacificIslanderClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(asianPacificIslanderClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getValue(),
-                        "Asians/Pacific Islander", treatmentData.getGroups().get(asianPacificIslanderClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(asianPacificIslanderClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getValue(),
-                        "Asians/Pacific Islander", treatmentData.getGroups().get(asianPacificIslanderClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(asianPacificIslanderClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getValue(),
-                        "Asians/Pacific Islander", treatmentData.getGroups().get(asianPacificIslanderClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getCategory());
-
-                /* American Indians/Alaska Natives data */
-                dataset.addValue(treatmentData.getGroups().get(americanIndianAlaskaNativeClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getValue(),
-                        "American Indian/Alaska Native", treatmentData.getGroups().get(americanIndianAlaskaNativeClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(americanIndianAlaskaNativeClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getValue(),
-                        "American Indian/Alaska Native", treatmentData.getGroups().get(americanIndianAlaskaNativeClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(americanIndianAlaskaNativeClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getValue(),
-                        "American Indian/Alaska Native", treatmentData.getGroups().get(americanIndianAlaskaNativeClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(americanIndianAlaskaNativeClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getValue(),
-                        "American Indian/Alaska Native", treatmentData.getGroups().get(americanIndianAlaskaNativeClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(americanIndianAlaskaNativeClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getValue(),
-                        "American Indian/Alaska Native", treatmentData.getGroups().get(americanIndianAlaskaNativeClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(americanIndianAlaskaNativeClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getValue(),
-                        "American Indian/Alaska Native", treatmentData.getGroups().get(americanIndianAlaskaNativeClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(americanIndianAlaskaNativeClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getValue(),
-                        "American Indian/Alaska Native", treatmentData.getGroups().get(americanIndianAlaskaNativeClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getCategory());
-
-                /* Hispanics data */
-                dataset.addValue(treatmentData.getGroups().get(hispanicClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getValue(),
-                        "Hispanic", treatmentData.getGroups().get(hispanicClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(hispanicClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getValue(),
-                        "Hispanic", treatmentData.getGroups().get(hispanicClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(hispanicClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getValue(),
-                        "Hispanic", treatmentData.getGroups().get(hispanicClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(hispanicClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getValue(),
-                        "Hispanic", treatmentData.getGroups().get(hispanicClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(hispanicClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getValue(),
-                        "Hispanic", treatmentData.getGroups().get(hispanicClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(hispanicClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getValue(),
-                        "Hispanic", treatmentData.getGroups().get(hispanicClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(hispanicClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getValue(),
-                        "Hispanic", treatmentData.getGroups().get(hispanicClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getCategory());
-
-                /* Middle Easterners data */
-                dataset.addValue(treatmentData.getGroups().get(middleEasternClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getValue(),
-                        "Middle Eastern", treatmentData.getGroups().get(middleEasternClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(middleEasternClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getValue(),
-                        "Middle Eastern", treatmentData.getGroups().get(middleEasternClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(middleEasternClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getValue(),
-                        "Middle Eastern", treatmentData.getGroups().get(middleEasternClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(middleEasternClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getValue(),
-                        "Middle Eastern", treatmentData.getGroups().get(middleEasternClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(middleEasternClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getValue(),
-                        "Middle Eastern", treatmentData.getGroups().get(middleEasternClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(middleEasternClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getValue(),
-                        "Middle Eastern", treatmentData.getGroups().get(middleEasternClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(middleEasternClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getValue(),
-                        "Middle Eastern", treatmentData.getGroups().get(middleEasternClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getCategory());
-
-                /* other ethnicities data */
-                dataset.addValue(treatmentData.getGroups().get(otherClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getValue(),
-                        "Other", treatmentData.getGroups().get(otherClassCountsIndex).get(TREATMENT_CLASS_ZERO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(otherClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getValue(),
-                        "Other", treatmentData.getGroups().get(otherClassCountsIndex).get(TREATMENT_CLASS_ONE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(otherClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getValue(),
-                        "Other", treatmentData.getGroups().get(otherClassCountsIndex).get(TREATMENT_CLASS_TWO_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(otherClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getValue(),
-                        "Other", treatmentData.getGroups().get(otherClassCountsIndex).get(TREATMENT_CLASS_THREE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(otherClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getValue(),
-                        "Other", treatmentData.getGroups().get(otherClassCountsIndex).get(TREATMENT_CLASS_FOUR_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(otherClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getValue(),
-                        "Other", treatmentData.getGroups().get(otherClassCountsIndex).get(TREATMENT_CLASS_FIVE_INDEX).getCategory());
-                dataset.addValue(treatmentData.getGroups().get(otherClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getValue(),
-                        "Other", treatmentData.getGroups().get(otherClassCountsIndex).get(TREATMENT_CLASS_UNKNOWN_INDEX).getCategory());
+                /* load data for each race into the dataset */
+                for (int i = whiteClassCountsIndex; i < otherClassCountsIndex + 1; i++) {
+                    for (int j = 0; j < TREATMENT_CLASS_UNKNOWN_INDEX + 1; j++) {
+                        dataset.addValue(treatmentData.getGroups().get(i).get(j).getValue(),
+                                raceMap.get(i), treatmentData.getGroups().get(i).get(j).getCategory());
+                    }
+                }
 
                 /* remove reference */
                 session.setAttribute("raceClassCountsTreatmentStats", null);
