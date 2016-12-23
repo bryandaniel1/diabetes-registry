@@ -58,6 +58,12 @@ public class WelcomeServlet extends HttpServlet {
                 session.setAttribute("message", "You must sign in to access the registry.");
                 break;
             case "1":
+		/**
+                 * This key needs to be created, read from an external file, or
+                 * received from the user.
+                 */
+                ServletContext sc = request.getServletContext();
+                sc.setAttribute("referenceCharacters", "theDatabaseKey");
                 url = "/welcome/index.jsp";
                 break;
         }
