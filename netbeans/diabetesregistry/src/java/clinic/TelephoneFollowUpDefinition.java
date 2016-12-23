@@ -16,7 +16,7 @@
 package clinic;
 
 /**
- * Describes a telephone follow-up status and its definition
+ * The class represents a telephone follow-up status and its definition
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -24,9 +24,13 @@ package clinic;
 public class TelephoneFollowUpDefinition {
 
     /**
-     * Instance variables
+     * The code
      */
     private String code;
+
+    /**
+     * The code definition
+     */
     private String definition;
 
     /**

@@ -25,12 +25,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import util.HashAndSaltUtil;
 import util.StringUtil;
 
 /**
- * The registration controller
+ * This HttpServlet class coordinates the activities of the user registration
+ * page.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -38,7 +38,8 @@ import util.StringUtil;
 public class RegistrationServlet extends HttpServlet {
 
     /**
-     * Handles the HTTP <code>GET</code> method.
+     * Handles the HTTP <code>GET</code> method. This method invokes the doPost
+     * method for all requests.
      *
      * @param request servlet request
      * @param response servlet response
@@ -52,7 +53,9 @@ public class RegistrationServlet extends HttpServlet {
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Handles the HTTP <code>POST</code> method. This method coordinates the
+     * navigation of the registration page and processes the requests for
+     * registrations of new and existing users.
      *
      * @param request servlet request
      * @param response servlet response
@@ -62,7 +65,6 @@ public class RegistrationServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
         String url = "/register/index.jsp";
         String action = request.getParameter("action");
         String message = null;

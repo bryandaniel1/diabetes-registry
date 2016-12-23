@@ -27,10 +27,18 @@ import java.sql.Date;
 public class A1cResult {
 
     /**
-     * Instance variables
+     * The date the A1C was measured
      */
     private Date date;
+
+    /**
+     * The value of the A1C measurement
+     */
     private BigDecimal value;
+
+    /**
+     * Indicates whether the measurement was taken at the point of care
+     */
     private boolean poc;
 
     /**
@@ -46,7 +54,7 @@ public class A1cResult {
      *
      * @param date the date
      * @param value the value
-     * @param poc the boolean for location
+     * @param poc the boolean for location (point of care)
      */
     public A1cResult(Date date, BigDecimal value, boolean poc) {
         this.date = date;

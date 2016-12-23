@@ -18,7 +18,7 @@ package clinic;
 import java.io.Serializable;
 
 /**
- * Represents a clinic
+ * This class represents a clinic.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -26,12 +26,28 @@ import java.io.Serializable;
 public class Clinic implements Serializable {
 
     /**
-     * Instance variables
+     * The clinic ID
      */
     private int clinicId;
+
+    /**
+     * The clinic name
+     */
     private String clinicName;
+
+    /**
+     * The clinic address
+     */
     private String address;
+
+    /**
+     * The clinic phone number
+     */
     private String phoneNumber;
+
+    /**
+     * The email address of the clinic
+     */
     private String emailAddress;
 
     /**
@@ -155,7 +171,7 @@ public class Clinic implements Serializable {
     /**
      * Returns a string listing clinic attributes
      *
-     * @return
+     * @return the clinic attributes string
      */
     @Override
     public String toString() {

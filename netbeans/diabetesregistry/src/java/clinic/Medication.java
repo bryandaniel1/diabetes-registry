@@ -18,7 +18,7 @@ package clinic;
 import java.sql.Date;
 
 /**
- * Represents a patient medication
+ * This class represents a patient's medication.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016

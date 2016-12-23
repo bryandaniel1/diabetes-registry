@@ -24,16 +24,16 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * The sign out controller
+ * This HttpServlet class coordinates the sign out activity.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
  */
 public class SignOutServlet extends HttpServlet {
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
-     * Handles the HTTP <code>GET</code> method.
+     * Handles the HTTP <code>GET</code> method. This method invokes the doPost
+     * method for all requests.
      *
      * @param request servlet request
      * @param response servlet response
@@ -47,7 +47,8 @@ public class SignOutServlet extends HttpServlet {
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Handles the HTTP <code>POST</code> method. This method coordinates the
+     * navigation of the sign-out page and processes sign-out requests.
      *
      * @param request servlet request
      * @param response servlet response

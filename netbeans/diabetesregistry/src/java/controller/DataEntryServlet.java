@@ -34,7 +34,8 @@ import util.SessionObjectUtil;
 import util.StringUtil;
 
 /**
- * Coordinates the data entry activity
+ * This HttpServlet class coordinates the input processing for the data entry
+ * page.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -42,7 +43,8 @@ import util.StringUtil;
 public class DataEntryServlet extends HttpServlet {
 
     /**
-     * Handles the HTTP <code>GET</code> method.
+     * Handles the HTTP <code>GET</code> method. This method invokes the doPost
+     * method for all requests.
      *
      * @param request servlet request
      * @param response servlet response
@@ -56,7 +58,9 @@ public class DataEntryServlet extends HttpServlet {
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Handles the HTTP <code>POST</code> method. This method coordinates the
+     * navigation of the data entry page and processes the requests for saving
+     * patient measurements and other data related to patient care.
      *
      * @param request servlet request
      * @param response servlet response

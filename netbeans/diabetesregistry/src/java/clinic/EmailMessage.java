@@ -16,15 +16,26 @@
 package clinic;
 
 /**
- * Contains the subject and content of an email message
+ * This class contains the subject and content of an email message.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
  */
 public class EmailMessage {
 
+    /**
+     * The subject
+     */
     private String subject;
+
+    /**
+     * The language used for the message
+     */
     private String language;
+
+    /**
+     * The message content
+     */
     private String message;
 
     /**

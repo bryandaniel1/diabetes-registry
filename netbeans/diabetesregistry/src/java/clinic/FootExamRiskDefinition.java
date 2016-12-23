@@ -16,7 +16,7 @@
 package clinic;
 
 /**
- * Describes a foot exam risk category and its definition
+ * This class represents a foot exam risk category and its definition.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -24,9 +24,13 @@ package clinic;
 public class FootExamRiskDefinition {
 
     /**
-     * Instance variables
+     * The foot exam risk category
      */
     private String riskCategory;
+
+    /**
+     * The category definition
+     */
     private String definition;
 
     /**

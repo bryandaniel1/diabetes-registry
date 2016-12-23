@@ -45,7 +45,8 @@ import util.SessionObjectUtil;
 import util.StringUtil;
 
 /**
- * Coordinates the retrieval of patient information
+ * This HttpServlet class coordinates the retrieval of patient information on
+ * the patient history page.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -53,7 +54,8 @@ import util.StringUtil;
 public class PatientHistoryServlet extends HttpServlet {
 
     /**
-     * Handles the HTTP <code>GET</code> method.
+     * Handles the HTTP <code>GET</code> method. This method invokes the doPost
+     * method for all requests.
      *
      * @param request servlet request
      * @param response servlet response
@@ -67,7 +69,10 @@ public class PatientHistoryServlet extends HttpServlet {
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Handles the HTTP <code>POST</code> method. This method coordinates the
+     * navigation of the patient history page and processes the requests for
+     * viewing a dashboard of recent measurements or a measurement-specific
+     * history.
      *
      * @param request servlet request
      * @param response servlet response

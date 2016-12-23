@@ -18,7 +18,7 @@ package clinic;
 import java.sql.Date;
 
 /**
- * Represents the result of a psychological screening
+ * This class represents the result of a psychological screening.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -26,11 +26,23 @@ import java.sql.Date;
 public class PsychologicalScreeningResult {
 
     /**
-     * Instance variables
+     * The date of the screening
      */
     private Date date;
+
+    /**
+     * The score
+     */
     private int score;
+
+    /**
+     * The severity
+     */
     private String severity;
+
+    /**
+     * The proposed actions
+     */
     private String proposedActions;
 
     /**

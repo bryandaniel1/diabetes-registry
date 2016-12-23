@@ -16,16 +16,31 @@
 package clinic;
 
 /**
- * Contains the new strings required for a registration key change
+ * This class contains the new strings required for a registration key change
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
  */
 public class ClinicRegistration {
 
+    /**
+     * The clinic for which the registration is concerned
+     */
     private Clinic clinic;
+    
+    /**
+     * The hashed key string
+     */
     private String hashedKey;
+    
+    /**
+     * The salt string
+     */
     private String salt;
+    
+    /**
+     * The key sent to the administrator's email address
+     */
     private String emailKey;
 
     /**

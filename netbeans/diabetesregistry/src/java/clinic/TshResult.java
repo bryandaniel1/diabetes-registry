@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 import java.sql.Date;
 
 /**
- * Represents a patient's TSH result
+ * This class represents a patient's TSH result.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -27,10 +27,18 @@ import java.sql.Date;
 public class TshResult {
 
     /**
-     * Instance variables
+     * The date recorded
      */
     private Date date;
+
+    /**
+     * The value of the measurement
+     */
     private BigDecimal value;
+
+    /**
+     * Indication of thyroid treatment
+     */
     private boolean onThyroidTreatment;
 
     /**

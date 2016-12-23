@@ -18,14 +18,21 @@ package clinic;
 import java.math.BigDecimal;
 
 /**
- * Represents a healthy target range for a measurement
+ * This class represents a healthy target range for a patient's measurement.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
  */
 public class HealthyTarget {
 
+    /**
+     * The upper bound of the healthy range
+     */
     private BigDecimal upperBound;
+
+    /**
+     * The lower bound of the healthy range
+     */
     private BigDecimal lowerBound;
 
     /**

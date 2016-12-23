@@ -35,7 +35,8 @@ import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 /**
- * Shows a PDF document containing progress note information
+ * This HttpServlet class shows a PDF document containing progress note
+ * information.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -43,8 +44,9 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 public class PDFServlet extends HttpServlet {
 
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
+     * This method processes requests from the progress note page for both HTTP
+     * <code>GET</code> and <code>POST</code> methods. The progress note data
+     * retrieved from the request is written as a PDF document.
      *
      * @param request servlet request
      * @param response servlet response
@@ -222,21 +224,27 @@ public class PDFServlet extends HttpServlet {
                 content.drawString("" + nullCheck(progressNote.getAllergies()));
                 content.endText();
 
-                yPosition -= 20;
-                if (yPosition < 0) {
-                    content.close();
-                    page = new PDPage();
-                    doc.addPage(page);
-                    content = new PDPageContentStream(doc, page);
-                    yPosition = 750;
+                note = (String) nullCheck(progressNote.getMedications());
+                note = WordUtils.wrap(note, ADDRESS_LINE_LENGTH, "\n", true);
+                noteLines = note.split("\n");
+
+                for (String s : noteLines) {
+                    yPosition -= 20;
+                    if (yPosition < 0) {
+                        content.close();
+                        page = new PDPage();
+                        doc.addPage(page);
+                        content = new PDPageContentStream(doc, page);
+                        yPosition = 750;
+                    }
+                    content.beginText();
+                    content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                    content.moveTextPositionByAmount(xPosition, yPosition);
+                    content.drawString("Medications: ");
+                    content.setFont(PDType1Font.HELVETICA, 16);
+                    content.drawString(s);
+                    content.endText();
                 }
-                content.beginText();
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
-                content.moveTextPositionByAmount(xPosition, yPosition);
-                content.drawString("Medications: ");
-                content.setFont(PDType1Font.HELVETICA, 16);
-                content.drawString("" + nullCheck(progressNote.getMedications()));
-                content.endText();
 
                 yPosition -= 20;
                 if (yPosition < 0) {

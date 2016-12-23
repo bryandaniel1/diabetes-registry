@@ -31,7 +31,7 @@ import util.DatabaseUtil;
 public class RegistrationIO {
 
     /**
-     * Constant
+     * Constant to set any new user's administrator indicator to false
      */
     private static final Integer administrator = 0;
 

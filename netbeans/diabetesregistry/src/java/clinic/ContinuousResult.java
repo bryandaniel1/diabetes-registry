@@ -20,7 +20,8 @@ import java.math.BigDecimal;
 import java.sql.Date;
 
 /**
- * Represents a continuous measurement for a patient
+ * This class represents a continuous measurement for a patient. This type of
+ * object may hold laboratory measurements for a patient.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -28,9 +29,13 @@ import java.sql.Date;
 public class ContinuousResult implements Serializable {
 
     /**
-     * Instance variables
+     * The date of the measurement
      */
     private Date date;
+
+    /**
+     * The value of the measurement
+     */
     private BigDecimal value;
 
     /**

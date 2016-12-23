@@ -32,7 +32,7 @@ public class BooleanResult {
     private boolean value;
 
     /**
-     * Default
+     * Default constructor
      */
     public BooleanResult() {
         date = null;

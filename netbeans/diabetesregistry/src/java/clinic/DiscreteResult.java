@@ -18,7 +18,8 @@ package clinic;
 import java.sql.Date;
 
 /**
- * Represents a discrete measurement for a patient
+ * This class represents a discrete measurement for a patient. This type of
+ * object may hold unit measurements for a patient.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -26,13 +27,17 @@ import java.sql.Date;
 public class DiscreteResult {
 
     /**
-     * Instance variables
+     * The date recorded
      */
     private Date date;
+    
+    /**
+     * The value of the measurement
+     */
     private int value;
 
     /**
-     * Default
+     * Default constructor
      */
     public DiscreteResult() {
         date = null;

@@ -18,7 +18,7 @@ package clinic;
 import java.util.ArrayList;
 
 /**
- * Represents a record of patient treatment
+ * This class represents a record of patient treatment.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -26,9 +26,13 @@ import java.util.ArrayList;
 public class TreatmentHistory {
 
     /**
-     * Instance variables
+     * The list of therapies
      */
     private ArrayList<Therapy> therapies;
+
+    /**
+     * The list of medications
+     */
     private ArrayList<Medication> medications;
 
     /**

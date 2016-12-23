@@ -20,7 +20,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 
 /**
- * Represents a diabetes registry user
+ * This class represents a diabetes registry user.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -28,16 +28,48 @@ import java.util.ArrayList;
 public class User implements Serializable {
 
     /**
-     * Instance variables
+     * The username
      */
     private String userName;
+
+    /**
+     * The user's first name
+     */
     private String firstName;
+
+    /**
+     * The user's last name
+     */
     private String lastName;
+
+    /**
+     * The job title
+     */
     private String jobTitle;
+
+    /**
+     * The list of clinics associated with the user
+     */
     private ArrayList<Clinic> clinics;
+
+    /**
+     * Indication of whether the user is an administrator
+     */
     private boolean administrator;
+
+    /**
+     * Indication of whether the user is active
+     */
     private boolean active;
+
+    /**
+     * The date the user registered
+     */
     private Timestamp dateJoined;
+
+    /**
+     * The last login of the user
+     */
     private Timestamp lastLogin;
 
     /**

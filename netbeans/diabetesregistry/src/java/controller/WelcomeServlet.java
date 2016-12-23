@@ -16,7 +16,6 @@
 package controller;
 
 import java.io.IOException;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -24,8 +23,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * Contains the GET method to direct to the appropriate page a user who is
- * trying to sign in
+ * This HttpServlet class contains the GET method to direct a user who is trying
+ * to sign in to the appropriate page
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -33,7 +32,9 @@ import javax.servlet.http.HttpSession;
 public class WelcomeServlet extends HttpServlet {
 
     /**
-     * Handles the HTTP <code>GET</code> method.
+     * Handles the HTTP <code>GET</code> method. This method directs users who
+     * are not signed in to the sign-in page and users who just signed in to the
+     * welcome page.
      *
      * @param request servlet request
      * @param response servlet response
@@ -57,12 +58,6 @@ public class WelcomeServlet extends HttpServlet {
                 session.setAttribute("message", "You must sign in to access the registry.");
                 break;
             case "1":
-                /**
-                 * This key needs to be created, read from an external file, or
-                 * received from the user.
-                 */
-                ServletContext sc = request.getServletContext();
-                sc.setAttribute("referenceCharacters", "theDatabaseKey");
                 url = "/welcome/index.jsp";
                 break;
         }

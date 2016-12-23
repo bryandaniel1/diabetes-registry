@@ -16,7 +16,7 @@
 package clinic;
 
 /**
- * Holds the references for healthy target ranges
+ * This class holds the references for healthy target ranges.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -24,27 +24,103 @@ package clinic;
 public class HealthyTargetReference {
 
     /**
-     * Instance variables
+     * The healthy target for A1C
      */
     private HealthyTarget a1c;
+
+    /**
+     * The healthy target for ALT
+     */
     private HealthyTarget alt;
+
+    /**
+     * The healthy target for AST
+     */
     private HealthyTarget ast;
+
+    /**
+     * The healthy target for diastolic blood pressure
+     */
     private HealthyTarget bloodPressureDiastole;
+
+    /**
+     * The healthy target for systolic blood pressure
+     */
     private HealthyTarget bloodPressureSystole;
+
+    /**
+     * The healthy target for BMI
+     */
     private HealthyTarget bmi;
+
+    /**
+     * The healthy target for creatinine
+     */
     private HealthyTarget creatinine;
+
+    /**
+     * The healthy target for eGFR
+     */
     private HealthyTarget egfr;
+
+    /**
+     * The healthy target for fasting glucose
+     */
     private HealthyTarget glucoseAc;
+
+    /**
+     * The healthy target for female HDL
+     */
     private HealthyTarget hdlFemale;
+
+    /**
+     * The healthy target for male HDL
+     */
     private HealthyTarget hdlMale;
+
+    /**
+     * The healthy target for LDL
+     */
     private HealthyTarget ldl;
+
+    /**
+     * The healthy target for physical activity
+     */
     private HealthyTarget physicalActivity;
+
+    /**
+     * The healthy target for PSA
+     */
     private HealthyTarget psa;
+
+    /**
+     * The healthy target for T4
+     */
     private HealthyTarget t4;
+
+    /**
+     * The healthy target for triglycerides
+     */
     private HealthyTarget triglycerides;
+
+    /**
+     * The healthy target for TSH
+     */
     private HealthyTarget tsh;
+
+    /**
+     * The healthy target for UACR
+     */
     private HealthyTarget uacr;
+
+    /**
+     * The healthy target for female waist
+     */
     private HealthyTarget waistFemale;
+
+    /**
+     * The healthy target for male waist
+     */
     private HealthyTarget waistMale;
 
     /**
@@ -76,26 +152,26 @@ public class HealthyTargetReference {
     /**
      * Parameterized constructor
      *
-     * @param a1c
-     * @param alt
-     * @param ast
-     * @param bloodPressureDiastole
-     * @param bloodPressureSystole
-     * @param bmi
-     * @param creatinine
-     * @param egfr
-     * @param glucoseAc
-     * @param hdlFemale
-     * @param hdlMale
-     * @param ldl
-     * @param physicalActivity
-     * @param psa
-     * @param t4
-     * @param triglycerides
-     * @param tsh
-     * @param uacr
-     * @param waistFemale
-     * @param waistMale
+     * @param a1c the target A1C
+     * @param alt the target ALT
+     * @param ast the target AST
+     * @param bloodPressureDiastole the target diastolic blood pressure
+     * @param bloodPressureSystole the target systolic blood pressure
+     * @param bmi the target BMI
+     * @param creatinine the target creatinine
+     * @param egfr the target eGFR
+     * @param glucoseAc the target glucose AC
+     * @param hdlFemale the target HDL for females
+     * @param hdlMale the target HDL for males
+     * @param ldl the target LDL
+     * @param physicalActivity the target physical activity in weekly minutes
+     * @param psa the target PSA
+     * @param t4 the target T4
+     * @param triglycerides the target triglycerides
+     * @param tsh the target TSH
+     * @param uacr the target UACR
+     * @param waistFemale the target waist measurement for females
+     * @param waistMale the target waist measurement for males
      */
     public HealthyTargetReference(HealthyTarget a1c, HealthyTarget alt, HealthyTarget ast,
             HealthyTarget bloodPressureDiastole, HealthyTarget bloodPressureSystole,

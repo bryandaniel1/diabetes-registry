@@ -18,7 +18,8 @@ package clinic;
 import java.math.BigDecimal;
 
 /**
- * Contains a category and an associated value for statistical representation
+ * This class contains a category and an associated value for statistical
+ * representation.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -26,10 +27,18 @@ import java.math.BigDecimal;
 public class CategoricalValue {
 
     /**
-     * Instance variables
+     * The descriptive category
      */
     private String category;
+
+    /**
+     * The decimal value
+     */
     private BigDecimal value;
+
+    /**
+     * The numerical category
+     */
     private int numericalCategory;
 
     /**

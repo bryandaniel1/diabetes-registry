@@ -26,11 +26,23 @@ import java.sql.Date;
 public class BloodPressureResult {
 
     /**
-     * Instance variables
+     * The date the blood pressure was measured
      */
     private Date date;
+
+    /**
+     * The systolic value of the blood pressure measurement
+     */
     private int systolicValue;
+
+    /**
+     * The diastolic value of the blood pressure measurement
+     */
     private int diastolicValue;
+
+    /**
+     * Indicates if the patient is on an ACE or ARB treatment
+     */
     private boolean aceOrArb;
 
     /**
@@ -56,7 +68,7 @@ public class BloodPressureResult {
     }
 
     /**
-     * Get the systolicValue of date
+     * Get the value of date
      *
      * @return the systolicValue of date
      */
@@ -65,27 +77,27 @@ public class BloodPressureResult {
     }
 
     /**
-     * Set the systolicValue of date
+     * Set the value of date
      *
-     * @param date new systolicValue of date
+     * @param date new value of date
      */
     public void setDate(Date date) {
         this.date = date;
     }
 
     /**
-     * Get the systolicValue of systolicValue
+     * Get the value of systolicValue
      *
-     * @return the systolicValue of systolicValue
+     * @return the value of systolicValue
      */
     public int getSystolicValue() {
         return systolicValue;
     }
 
     /**
-     * Set the systolicValue of systolicValue
+     * Set the value of systolicValue
      *
-     * @param sValue new systolicValue of systolicValue
+     * @param sValue new value of systolicValue
      */
     public void setSystolicValue(int sValue) {
         this.systolicValue = sValue;

@@ -16,7 +16,8 @@
 package clinic;
 
 /**
- * Describes a psychological screening value and reference information
+ * This class describes a psychological screening value and reference
+ * information.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -24,10 +25,18 @@ package clinic;
 public class PsychologicalScreeningReference {
 
     /**
-     * Instance variables
+     * The score
      */
     private int score;
+
+    /**
+     * The severity
+     */
     private String severity;
+
+    /**
+     * The proposed actions
+     */
     private String proposedActions;
 
     /**

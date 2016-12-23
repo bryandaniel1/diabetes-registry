@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 import java.sql.Date;
 
 /**
- * Contains all the data necessary for patient data entry
+ * This class contains all the variables necessary for patient data entry.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -27,51 +27,223 @@ import java.sql.Date;
 public class DataEntryContainer {
 
     /**
-     * Instance variables
+     * The patient ID
      */
     private Integer patientId;
+
+    /**
+     * The A1C measurement
+     */
     private BigDecimal a1c;
+
+    /**
+     * The fasting glucose measurement
+     */
     private BigDecimal glucoseAc;
+
+    /**
+     * The postprandial glucose measurement
+     */
     private BigDecimal glucosePc;
+
+    /**
+     * The LDL measurement
+     */
     private BigDecimal ldl;
+
+    /**
+     * The LDL measurement after myocardial infarction
+     */
     private BigDecimal ldlPostMi;
+
+    /**
+     * Indication of statin treatment
+     */
     private Boolean onStatin;
+
+    /**
+     * The HDL measurement
+     */
     private BigDecimal hdl;
+
+    /**
+     * The triglycerides measurement
+     */
     private BigDecimal triglycerides;
+
+    /**
+     * The TSH measurement
+     */
     private BigDecimal tsh;
+
+    /**
+     * Indication of thyroid treatment
+     */
     private Boolean onThyroidTreatment;
+
+    /**
+     * The T4 measurement
+     */
     private BigDecimal t4;
+
+    /**
+     * The UACR measurement
+     */
     private BigDecimal uacr;
+
+    /**
+     * The eGFR measurement
+     */
     private BigDecimal egfr;
+
+    /**
+     * The creatinine measurement
+     */
     private BigDecimal creatinine;
+
+    /**
+     * The BMI measurement
+     */
     private BigDecimal bmi;
+
+    /**
+     * The waist measurement
+     */
     private BigDecimal waist;
+
+    /**
+     * The systolic blood pressure measurement
+     */
     private Integer bloodPressureSystole;
+
+    /**
+     * The diastolic blood pressure measurement
+     */
     private Integer bloodPressureDiastole;
+
+    /**
+     * The class attendance date
+     */
     private Date classDate;
+
+    /**
+     * The eye screening score
+     */
     private String eye;
+
+    /**
+     * The foot screening score
+     */
     private String foot;
+
+    /**
+     * The psychological screening score
+     */
     private Integer psychologicalScreening;
+
+    /**
+     * The minutes of physical activity for the week
+     */
     private Integer physicalActivity;
+
+    /**
+     * The date of the influenza vaccine
+     */
     private Date influenzaVaccineDate;
+
+    /**
+     * The date of the PCV13 vaccine
+     */
     private Date pcv13Date;
+
+    /**
+     * The date of the PPSV23 vaccine
+     */
     private Date ppsv23Date;
+
+    /**
+     * The date of the hepatitis vaccine
+     */
     private Date hepatitisBDate;
+
+    /**
+     * The date of the TDAP vaccine
+     */
     private Date tdapDate;
+
+    /**
+     * The date of the zoster vaccine
+     */
     private Date zosterDate;
+
+    /**
+     * Indicates whether the patient is a smoker
+     */
     private Boolean smoking;
+
+    /**
+     * The telephone follow-up code
+     */
     private String telephoneFollowUp;
+
+    /**
+     * The AST measurement
+     */
     private BigDecimal ast;
+
+    /**
+     * The ALT measurement
+     */
     private BigDecimal alt;
+
+    /**
+     * The PSA measurement
+     */
     private BigDecimal psa;
+
+    /**
+     * The patient's compliance with treatment on a numerical scale
+     */
     private BigDecimal compliance;
+
+    /**
+     * The date of hospitalization
+     */
     private Date hospitalizationDate;
+
+    /**
+     * The note topic
+     */
     private String noteTopic;
+
+    /**
+     * The note content
+     */
     private String note;
+
+    /**
+     * The date of data entry
+     */
     private Date dateEntered;
+
+    /**
+     * Indicates whether the measurement was taken at the point of care
+     */
     private Boolean poc;
+
+    /**
+     * Indicates if the patient is on an ACE or ARB treatment
+     */
     private Boolean aceOrArb;
+
+    /**
+     * The username
+     */
     private String userName;
+
+    /**
+     * The clinic ID
+     */
     private Integer clinicId;
 
     /**
@@ -127,50 +299,50 @@ public class DataEntryContainer {
     /**
      * Parameterized constructor
      *
-     * @param patientId patient id
-     * @param a1c a1c
-     * @param glucoseAc glucose AC
-     * @param glucosePc glucose PC
-     * @param ldl LDL
-     * @param ldlPostMi LDL post MI
-     * @param onStatin LDL on statin
-     * @param hdl HDL
-     * @param triglycerides triglycerides
-     * @param tsh TSH
-     * @param onThyroidTreatment TSH on thyroid treatment
-     * @param t4 T4
-     * @param uacr UACR
-     * @param egfr eGFR
-     * @param creatinine creatinine
-     * @param bmi BMI
-     * @param waist waist measurement
-     * @param bloodPressureSystole systolic blood pressure
-     * @param bloodPressureDiastole diastolic blood pressure
-     * @param classDate date class attended
-     * @param eye eye screening score
-     * @param foot foot screening score
-     * @param psychologicalScreening psychological screening score
-     * @param physicalActivity weekly minutes of physical activity
-     * @param influenzaVaccineDate date of flu vaccine
-     * @param pcv13Date date of PCV-13 vaccine
-     * @param ppsv23Date date of PPSV-23 vaccine
-     * @param hepatitisBDate date of Hepatitis B vaccine
-     * @param tdapDate date of TDAP vaccine
-     * @param zosterDate date of zoster vaccine
-     * @param smoking smoking status
-     * @param telephoneFollowUp telephone follow up
-     * @param ast AST
-     * @param alt ALT
-     * @param psa PSA
-     * @param compliance patient-reported compliance
-     * @param hospitalizationDate date of ER visit
-     * @param noteTopic not topic
-     * @param note note content
-     * @param dateEntered date entered
-     * @param poc point of care
-     * @param aceOrArb ACE or ARB
-     * @param userName user name
-     * @param clinicId clinic id
+     * @param patientId patient ID
+     * @param a1c the A1C measurement
+     * @param glucoseAc the glucose AC measurement
+     * @param glucosePc the glucose PC measurement
+     * @param ldl the LDL measurement
+     * @param ldlPostMi the LDL post MI measurement
+     * @param onStatin the LDL on statin indicator
+     * @param hdl the HDL measurement
+     * @param triglycerides the triglycerides measurement
+     * @param tsh the TSH measurement
+     * @param onThyroidTreatment the TSH on thyroid treatment indicator
+     * @param t4 the T4 measurement
+     * @param uacr the UACR measurement
+     * @param egfr the eGFR measurement
+     * @param creatinine the creatinine measurement
+     * @param bmi the BMI measurement
+     * @param waist the waist measurement
+     * @param bloodPressureSystole the systolic blood pressure
+     * @param bloodPressureDiastole the diastolic blood pressure
+     * @param classDate the date class attended
+     * @param eye the eye screening score
+     * @param foot the foot screening score
+     * @param psychologicalScreening the psychological screening score
+     * @param physicalActivity the weekly minutes of physical activity
+     * @param influenzaVaccineDate the date of flu vaccine
+     * @param pcv13Date the date of PCV-13 vaccine
+     * @param ppsv23Date the date of PPSV-23 vaccine
+     * @param hepatitisBDate the date of Hepatitis B vaccine
+     * @param tdapDate the date of TDAP vaccine
+     * @param zosterDate the date of zoster vaccine
+     * @param smoking the smoking status indicator
+     * @param telephoneFollowUp telephone follow up indicator
+     * @param ast the AST measurement
+     * @param alt the ALT measurement
+     * @param psa the PSA measurement
+     * @param compliance the patient-reported compliance
+     * @param hospitalizationDate the date of ER visit
+     * @param noteTopic the note topic
+     * @param note the note content
+     * @param dateEntered the date entered
+     * @param poc the point of care indicator
+     * @param aceOrArb the ACE or ARB indicator
+     * @param userName the user name
+     * @param clinicId the clinic ID
      */
     public DataEntryContainer(Integer patientId, BigDecimal a1c,
             BigDecimal glucoseAc, BigDecimal glucosePc, BigDecimal ldl,

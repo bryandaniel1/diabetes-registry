@@ -32,7 +32,7 @@ import javax.servlet.http.HttpSession;
 import util.SessionObjectUtil;
 
 /**
- * Coordinates the functions of the call lists page
+ * This HttpServlet class coordinates the functions of the call lists page.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -40,7 +40,8 @@ import util.SessionObjectUtil;
 public class CallListServlet extends HttpServlet {
 
     /**
-     * Handles the HTTP <code>GET</code> method.
+     * Handles the HTTP <code>GET</code> method. This method invokes the doPost
+     * method for all requests.
      *
      * @param request servlet request
      * @param response servlet response
@@ -54,7 +55,9 @@ public class CallListServlet extends HttpServlet {
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Handles the HTTP <code>POST</code> method. This method processes the
+     * requests for retrieving patient call lists and sending reminder email
+     * messages to patients.
      *
      * @param request servlet request
      * @param response servlet response
@@ -66,7 +69,6 @@ public class CallListServlet extends HttpServlet {
             throws ServletException, IOException {
         final int EMPTY_VALUE = 0;
         HttpSession session = request.getSession();
-        User user = (User) session.getAttribute("user");
         String url = "/calllists/index.jsp";
         boolean validData = true;
         String message;
@@ -195,11 +197,13 @@ public class CallListServlet extends HttpServlet {
     }
 
     /**
-     * This method sends messages concerning an updated clinic.
-     *
-     * @param adminEmail the administrator's email
-     * @param registrationKey the registration key
-     * @param updatedClinic the updated clinic
+     * This method sends reminder messages to a list of patients.
+     * 
+     * @param emailPatients the list of patients to be sent messages
+     * @param adminEmail the administrator email address
+     * @param messages the list of messages to send
+     * @param emailPassword the password
+     * @param request the request object
      */
     private void sendBatchEmail(ArrayList<Patient> emailPatients, String adminEmail,
             ArrayList<EmailMessage> messages, String emailPassword,

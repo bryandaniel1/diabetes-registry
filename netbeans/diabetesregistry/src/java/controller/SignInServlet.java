@@ -30,7 +30,7 @@ import javax.servlet.http.HttpSession;
 import util.HashAndSaltUtil;
 
 /**
- * Coordinates the sign in activity
+ * This HttpServlet class coordinates the sign in activity.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -38,7 +38,8 @@ import util.HashAndSaltUtil;
 public class SignInServlet extends HttpServlet {
 
     /**
-     * Handles the HTTP <code>GET</code> method.
+     * Handles the HTTP <code>GET</code> method. This method invokes the doPost
+     * method for all requests.
      *
      * @param request servlet request
      * @param response servlet response
@@ -52,7 +53,8 @@ public class SignInServlet extends HttpServlet {
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Handles the HTTP <code>POST</code> method. This method coordinates the
+     * navigation of the sign-in page and processes sign-in requests.
      *
      * @param request servlet request
      * @param response servlet response

@@ -21,47 +21,186 @@ import java.sql.Date;
 import java.util.ArrayList;
 
 /**
- * Holds all the details for a patient's progress note
+ * This class holds all the details for a patient's progress note.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016s
  */
 public class ProgressNote implements Serializable {
 
+    /**
+     * The patient
+     */
     private Patient patient;
+
+    /**
+     * The date of the progress note
+     */
     private Date dateCreated;
+
+    /**
+     * Indicates if the patient has medical insurance
+     */
     private boolean medicalInsurance;
+
+    /**
+     * The patient's shoe size
+     */
     private String shoeSize;
+
+    /**
+     * Indicates if the patient is allergic to medications
+     */
     private boolean allergicToMedications;
+
+    /**
+     * The description of allergies
+     */
     private String allergies;
+
+    /**
+     * The weight
+     */
     private BigDecimal weight;
+
+    /**
+     * The height in feet
+     */
     private Integer heightFeet;
+
+    /**
+     * The remainder of the patient's height in inches
+     */
     private Integer heightInches;
+
+    /**
+     * The goal for weight reduction
+     */
     private BigDecimal weightReductionGoal;
+
+    /**
+     * The pulse
+     */
     private Integer pulse;
+
+    /**
+     * The number of respirations measured
+     */
     private Integer respirations;
+
+    /**
+     * The patient's temperature
+     */
     private BigDecimal temperature;
+
+    /**
+     * Indicates a foot screening was performed
+     */
     private boolean footScreening;
+
+    /**
+     * The description of medications
+     */
     private String medications;
+
+    /**
+     * The A1C measurement
+     */
     private BigDecimal a1c;
+
+    /**
+     * The glucose measurement
+     */
     private BigDecimal glucose;
+
+    /**
+     * The waist measurement
+     */
     private BigDecimal waist;
+
+    /**
+     * The systolic blood pressure
+     */
     private Integer bpSystole;
+
+    /**
+     * The diastolic blood pressure
+     */
     private Integer bpDiastole;
+
+    /**
+     * Indication of an ACE or ARB treatment
+     */
     private boolean aceOrArb;
+
+    /**
+     * The BMI measurement
+     */
     private BigDecimal bmi;
+
+    /**
+     * The date of the last class attended
+     */
     private Date lastClassDate;
+
+    /**
+     * The eye screening result
+     */
     private String eyeScreeningCategory;
+
+    /**
+     * The foot screening result
+     */
     private String footScreeningCategory;
+
+    /**
+     * The psychological screening result
+     */
     private Integer psychologicalScreening;
+
+    /**
+     * The physical activity during the week measured in minutes
+     */
     private Integer physicalActivity;
+
+    /**
+     * The smoking status
+     */
     private Boolean smoking;
+
+    /**
+     * The patient's compliance with treatment
+     */
     private BigDecimal compliance;
+
+    /**
+     * The note for the nurse or dietitian
+     */
     private String nurseOrDietitianNote;
+
+    /**
+     * The subjective section of the note
+     */
     private String subjective;
+
+    /**
+     * The objective section of the note
+     */
     private String objective;
+
+    /**
+     * The assessment section of the note
+     */
     private String assessment;
+
+    /**
+     * The plan section of the note
+     */
     private String plan;
+
+    /**
+     * The list of note writers
+     */
     private ArrayList<NoteAuthor> updatedBy;
 
     /**

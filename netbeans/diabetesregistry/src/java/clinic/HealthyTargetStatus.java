@@ -16,7 +16,7 @@
 package clinic;
 
 /**
- * Holds the healthy target status values for a patient
+ * This class holds the healthy target status values for a patient.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -24,43 +24,183 @@ package clinic;
 public class HealthyTargetStatus {
 
     /**
-     * Instance variables
+     * A1C out-of-target indication
      */
     private boolean a1cOutOfTarget;
+
+    /**
+     * Glucose AC out-of-target indication
+     */
     private boolean glucoseacOutOfTarget;
+
+    /**
+     * Glucose PC out-of-target indication
+     */
     private boolean glucosepcOutOfTarget;
+
+    /**
+     * Indicates if the last glucose measurement was AC
+     */
     private boolean lastGlucoseFasting;
+
+    /**
+     * LDL out-of-target indication
+     */
     private boolean ldlOutOfTarget;
+
+    /**
+     * LDL post MI out-of-target indication
+     */
     private boolean ldlPostMiOutOfTarget;
+
+    /**
+     * Male HDL out-of-target indication
+     */
     private boolean hdlMaleOutOfTarget;
+
+    /**
+     * Female HDL out-of-target indication
+     */
     private boolean hdlFemaleOutOfTarget;
+
+    /**
+     * Triglycerides out-of-target indication
+     */
     private boolean triglyceridesOutOfTarget;
+
+    /**
+     * TSH out-of-target indication
+     */
     private boolean tshOutOfTarget;
+
+    /**
+     * T4 out-of-target indication
+     */
     private boolean t4OutOfTarget;
+
+    /**
+     * UACR out-of-target indication
+     */
     private boolean uacrOutOfTarget;
+
+    /**
+     * eGFR out-of-target indication
+     */
     private boolean egfrOutOfTarget;
+
+    /**
+     * Creatinine out-of-target indication
+     */
     private boolean creatinineOutOfTarget;
+
+    /**
+     * BMI out-of-target indication
+     */
     private boolean bmiOutOfTarget;
+
+    /**
+     * Male waist out-of-target indication
+     */
     private boolean waistMaleOutOfTarget;
+
+    /**
+     * Female waist out-of-target indication
+     */
     private boolean waistFemaleOutOfTarget;
+
+    /**
+     * Systolic blood pressure out-of-target indication
+     */
     private boolean systolicBloodPressureOutOfTarget;
+
+    /**
+     * Diastolic blood pressure out-of-target indication
+     */
     private boolean diastolicBloodPressureOutOfTarget;
+
+    /**
+     * Class attendance out-of-target indication
+     */
     private boolean classAttendanceOutOfTarget;
+
+    /**
+     * Eye screening score out-of-target indication
+     */
     private boolean eyeScreeningOutOfTarget;
+
+    /**
+     * Foot screening score out-of-target indication
+     */
     private boolean footScreeningOutOfTarget;
+
+    /**
+     * Psychological screening score out-of-target indication
+     */
     private boolean psychologicalScreeningOutOfTarget;
+
+    /**
+     * Physical activity out-of-target indication
+     */
     private boolean physicalActivityOutOfTarget;
+
+    /**
+     * Influenza vaccine out-of-target indication
+     */
     private boolean influenzaVaccineOutOfTarget;
+
+    /**
+     * PCV13 vaccine out-of-target indication
+     */
     private boolean pcv13VaccineOutOfTarget;
+
+    /**
+     * PPSV23 vaccine out-of-target indication
+     */
     private boolean ppsv23VaccineOutOfTarget;
+
+    /**
+     * Hepatitis B vaccine out-of-target indication
+     */
     private boolean hepatitisBVaccineOutOfTarget;
+
+    /**
+     * TDAP vaccine out-of-target indication
+     */
     private boolean tdapVaccineOutOfTarget;
+
+    /**
+     * Zoster vaccine out-of-target indication
+     */
     private boolean zosterVaccineOutOfTarget;
+
+    /**
+     * Smoking status out-of-target indication
+     */
     private boolean smokingStatusOutOfTarget;
+
+    /**
+     * Telephone follow-up out-of-target indication
+     */
     private boolean telephoneFollowUpOutOfTarget;
+
+    /**
+     * AST out-of-target indication
+     */
     private boolean astOutOfTarget;
+
+    /**
+     * ALT out-of-target indication
+     */
     private boolean altOutOfTarget;
+
+    /**
+     * PSA out-of-target indication
+     */
     private boolean psaOutOfTarget;
+
+    /**
+     * Hospitalization out-of-target indication
+     */
     private boolean hospitalizationOutOfTarget;
 
     /**
@@ -72,42 +212,54 @@ public class HealthyTargetStatus {
     /**
      * Parameterized constructor
      *
-     * @param a1cOutOfTarget
-     * @param glucoseacOutOfTarget
-     * @param glucosepcOutOfTarget
-     * @param lastGlucoseFasting
-     * @param ldlOutOfTarget
-     * @param ldlPostMiOutOfTarget
-     * @param hdlMaleOutOfTarget
-     * @param hdlFemaleOutOfTarget
-     * @param triglyceridesOutOfTarget
-     * @param tshOutOfTarget
-     * @param t4OutOfTarget
-     * @param uacrOutOfTarget
-     * @param egfrOutOfTarget
-     * @param creatinineOutOfTarget
-     * @param bmiOutOfTarget
-     * @param waistMaleOutOfTarget
-     * @param waistFemaleOutOfTarget
-     * @param systolicBloodPressureOutOfTarget
-     * @param diastolicBloodPressureOutOfTarget
-     * @param classAttendanceOutOfTarget
-     * @param eyeScreeningOutOfTarget
-     * @param footScreeningOutOfTarget
-     * @param psychologicalScreeningOutOfTarget
-     * @param physicalActivityOutOfTarget
-     * @param influenzaVaccineOutOfTarget
-     * @param pcv13VaccineOutOfTarget
-     * @param ppsv23VaccineOutOfTarget
-     * @param hepatitisBVaccineOutOfTarget
-     * @param tdapVaccineOutOfTarget
-     * @param zosterVaccineOutOfTarget
-     * @param smokingStatusOutOfTarget
-     * @param telephoneFollowUpOutOfTarget
-     * @param astOutOfTarget
-     * @param altOutOfTarget
-     * @param psaOutOfTarget
-     * @param hospitalizationOutOfTarget
+     * @param a1cOutOfTarget A1C out-of-target indication
+     * @param glucoseacOutOfTarget glucose AC out-of-target indication
+     * @param glucosepcOutOfTarget glucose PC out-of-target indication
+     * @param lastGlucoseFasting indicates if the last glucose measurement was
+     * AC
+     * @param ldlOutOfTarget LDL out-of-target indication
+     * @param ldlPostMiOutOfTarget LDL after myocardial infarction out-of-target
+     * indication
+     * @param hdlMaleOutOfTarget male HDL out-of-target indication
+     * @param hdlFemaleOutOfTarget female HDL out-of-target indication
+     * @param triglyceridesOutOfTarget triglycerides out-of-target indication
+     * @param tshOutOfTarget TSH out-of-target indication
+     * @param t4OutOfTarget T4 out-of-target indication
+     * @param uacrOutOfTarget UACR out-of-target indication
+     * @param egfrOutOfTarget eGFR out-of-target indication
+     * @param creatinineOutOfTarget creatinine out-of-target indication
+     * @param bmiOutOfTarget BMI out-of-target indication
+     * @param waistMaleOutOfTarget male waist out-of-target indication
+     * @param waistFemaleOutOfTarget female waist out-of-target indication
+     * @param systolicBloodPressureOutOfTarget systolic BP out-of-target
+     * indication
+     * @param diastolicBloodPressureOutOfTarget diastolic BP out-of-target
+     * indication
+     * @param classAttendanceOutOfTarget class attendance out-of-target
+     * indication
+     * @param eyeScreeningOutOfTarget eye screening score out-of-target
+     * indication
+     * @param footScreeningOutOfTarget foot screening score out-of-target
+     * indication
+     * @param psychologicalScreeningOutOfTarget psychological screening score
+     * out-of-target indication
+     * @param physicalActivityOutOfTarget physical activity out-of-target
+     * indication
+     * @param influenzaVaccineOutOfTarget flu vaccine out-of-target indication
+     * @param pcv13VaccineOutOfTarget PCV13 vaccine out-of-target indication
+     * @param ppsv23VaccineOutOfTarget PPSV23 vaccine out-of-target indication
+     * @param hepatitisBVaccineOutOfTarget hepatitis B vaccine out-of-target
+     * indication
+     * @param tdapVaccineOutOfTarget TDAP vaccine out-of-target indication
+     * @param zosterVaccineOutOfTarget zoster vaccine out-of-target indication
+     * @param smokingStatusOutOfTarget smoking status out-of-target indication
+     * @param telephoneFollowUpOutOfTarget telephone follow-up out-of-target
+     * indication
+     * @param astOutOfTarget AST out-of-target indication
+     * @param altOutOfTarget ALT out-of-target indication
+     * @param psaOutOfTarget PSA out-of-target indication
+     * @param hospitalizationOutOfTarget hospitalization out-of-target
+     * indication
      */
     public HealthyTargetStatus(boolean a1cOutOfTarget, boolean glucoseacOutOfTarget,
             boolean glucosepcOutOfTarget, boolean lastGlucoseFasting, boolean ldlOutOfTarget,

@@ -18,7 +18,7 @@ package clinic;
 import java.util.ArrayList;
 
 /**
- * Contains the reference information used by the application
+ * This class contains the reference information used by the application.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -26,20 +26,68 @@ import java.util.ArrayList;
 public class ReferenceContainer {
 
     /**
-     * Instance variables
+     * The list of quality references
      */
     private ArrayList<QualityReference> qualityReferences;
+
+    /**
+     * The list of therapies
+     */
     private ArrayList<Therapy> therapies;
+
+    /**
+     * The list of medications
+     */
     private ArrayList<Medication> medications;
+
+    /**
+     * The list of psychological screening references
+     */
     private ArrayList<PsychologicalScreeningReference> psychologicalScreeningReferences;
+
+    /**
+     * The list of telephone follow-up definitions
+     */
     private ArrayList<TelephoneFollowUpDefinition> telephoneFollowUpDefinitions;
+
+    /**
+     * The list of
+     */
     private ArrayList<FootExamRiskDefinition> footExamRiskDefinitions;
+
+    /**
+     * The list of eye exam definitions
+     */
     private ArrayList<EyeExamDefinition> eyeExamDefinitions;
+
+    /**
+     * The list of clinics
+     */
     private ArrayList<Clinic> clinics;
+
+    /**
+     * The list of note topics
+     */
     private ArrayList<String> noteTopics;
+
+    /**
+     * The list of languages
+     */
     private ArrayList<String> languages;
+
+    /**
+     * The list of reasons for inactivity
+     */
     private ArrayList<String> reasonsForInactivity;
+
+    /**
+     * The list of email message subjects
+     */
     private ArrayList<String> emailMessageSubjects;
+
+    /**
+     * The references for healthy targets
+     */
     private HealthyTargetReference healthyTargets;
 
     /**

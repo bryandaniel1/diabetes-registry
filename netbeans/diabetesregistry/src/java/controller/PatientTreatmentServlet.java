@@ -31,7 +31,8 @@ import util.SessionObjectUtil;
 import util.StringUtil;
 
 /**
- * Coordinates the treatment entry activity
+ * This HttpServlet class coordinates the treatment entry activity on the
+ * treatment page.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -39,7 +40,8 @@ import util.StringUtil;
 public class PatientTreatmentServlet extends HttpServlet {
 
     /**
-     * Handles the HTTP <code>GET</code> method.
+     * Handles the HTTP <code>GET</code> method. This method invokes the doPost
+     * method for all requests.
      *
      * @param request servlet request
      * @param response servlet response
@@ -53,7 +55,9 @@ public class PatientTreatmentServlet extends HttpServlet {
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Handles the HTTP <code>POST</code> method. This method coordinates the
+     * navigation of the treatment page and processes the requests for
+     * documenting a patient's prescribed medications.
      *
      * @param request servlet request
      * @param response servlet response

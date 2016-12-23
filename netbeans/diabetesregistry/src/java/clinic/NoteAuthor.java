@@ -19,17 +19,32 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
- * Holds a user and a time stamp to indicate when the user updated a progress
- * note
+ * This class holds a user and a time stamp to indicate when the user updated a
+ * progress note.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
  */
 public class NoteAuthor implements Serializable {
 
+    /**
+     * The user's first name
+     */
     private String firstName;
+
+    /**
+     * The user's last name
+     */
     private String lastName;
+
+    /**
+     * The user's job title
+     */
     private String jobTitle;
+
+    /**
+     * The timestamp
+     */
     private Timestamp timeStamp;
 
     /**

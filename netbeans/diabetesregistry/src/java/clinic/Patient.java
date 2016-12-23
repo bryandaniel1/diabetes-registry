@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.sql.Date;
 
 /**
- * Represents a patient
+ * This class represents a patient.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -27,19 +27,63 @@ import java.sql.Date;
 public class Patient implements Serializable {
 
     /**
-     * Instance variables
+     * The patient ID
      */
     private int patientId;
+
+    /**
+     * The patient's first name
+     */
     private String firstName;
+
+    /**
+     * The patient's last name
+     */
     private String lastName;
+
+    /**
+     * The birth date
+     */
     private Date birthDate;
+
+    /**
+     * The home address
+     */
     private String address;
+
+    /**
+     * The telephone number for the patient
+     */
     private String contactNumber;
+
+    /**
+     * The gender
+     */
     private String gender;
+
+    /**
+     * The race
+     */
     private String race;
+
+    /**
+     * The email address
+     */
     private String emailAddress;
+
+    /**
+     * The patient's language
+     */
     private String language;
+
+    /**
+     * The reason for inactivity if the patient is inactive
+     */
     private String reasonForInactivity;
+
+    /**
+     * The patient's start date
+     */
     private Date startDate;
 
     /**
@@ -61,7 +105,7 @@ public class Patient implements Serializable {
     /**
      * Parameterized constructor
      *
-     * @param patientId the patient id
+     * @param patientId the patient ID
      * @param firstName the first name
      * @param lastName the last name
      * @param birthDate the birth date

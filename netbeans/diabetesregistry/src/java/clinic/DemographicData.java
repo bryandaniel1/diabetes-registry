@@ -20,23 +20,66 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 
 /**
- * Holds demographic data for a patient population
+ * This class holds demographic data for a patient population.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
  */
 public class DemographicData implements Serializable {
 
+    /**
+     * The total number of patients
+     */
     private int totalPatients;
+
+    /**
+     * The male percentage of patients
+     */
     private BigDecimal percentMale;
+
+    /**
+     * The female percentage of patients
+     */
     private BigDecimal percentFemale;
+
+    /**
+     * The white percentage of patients
+     */
     private BigDecimal percentWhite;
+
+    /**
+     * The African American percentage of patients
+     */
     private BigDecimal percentAfricanAmerican;
+
+    /**
+     * The Asian percentage of patients
+     */
     private BigDecimal percentAsian;
+
+    /**
+     * The Indian percentage of patients
+     */
     private BigDecimal percentIndian;
+
+    /**
+     * The Hispanic percentage of patients
+     */
     private BigDecimal percentHispanic;
+
+    /**
+     * The Middle Eastern percentage of patients
+     */
     private BigDecimal percentMiddleEastern;
+
+    /**
+     * The percentage of patients of other ethnicity
+     */
     private BigDecimal percentOther;
+
+    /**
+     * The list of patient ages
+     */
     private ArrayList<Integer> ages;
 
     /**
@@ -70,7 +113,10 @@ public class DemographicData implements Serializable {
      * @param percentOther percent other race
      * @param ages all patient ages
      */
-    public DemographicData(int totalPatients, BigDecimal percentMale, BigDecimal percentFemale, BigDecimal percentWhite, BigDecimal percentAfricanAmerican, BigDecimal percentAsian, BigDecimal percentIndian, BigDecimal percentHispanic, BigDecimal percentMiddleEastern, BigDecimal percentOther, ArrayList<Integer> ages) {
+    public DemographicData(int totalPatients, BigDecimal percentMale, BigDecimal percentFemale,
+            BigDecimal percentWhite, BigDecimal percentAfricanAmerican, BigDecimal percentAsian,
+            BigDecimal percentIndian, BigDecimal percentHispanic, BigDecimal percentMiddleEastern,
+            BigDecimal percentOther, ArrayList<Integer> ages) {
         this.totalPatients = totalPatients;
         this.percentMale = percentMale;
         this.percentFemale = percentFemale;

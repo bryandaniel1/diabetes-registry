@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 import java.sql.Date;
 
 /**
- * Represents a patient's LDL result
+ * This class represents a patient's LDL measurement.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -27,11 +27,23 @@ import java.sql.Date;
 public class LdlResult {
 
     /**
-     * Instance variables
+     * The date recorded
      */
     private Date date;
+
+    /**
+     * The value of the measurement
+     */
     private BigDecimal value;
+
+    /**
+     * Indicates that the measurement was after a myocardial infarction
+     */
     private boolean postMi;
+
+    /**
+     * Indicates that the patient is on statin treatment
+     */
     private boolean onStatin;
 
     /**
@@ -48,7 +60,7 @@ public class LdlResult {
      * @param date the date
      * @param value the value
      * @param postMi the boolean for post MI
-     * @param onStatin LDL on statin
+     * @param onStatin on statin
      */
     public LdlResult(Date date, BigDecimal value, boolean postMi,
             boolean onStatin) {

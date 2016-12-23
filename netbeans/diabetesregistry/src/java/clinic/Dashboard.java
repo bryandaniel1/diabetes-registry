@@ -19,7 +19,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 
 /**
- * Holds the most recent information for a patient
+ * This class holds the most recent information gathered for a patient.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -27,40 +27,168 @@ import java.util.ArrayList;
 public class Dashboard {
 
     /**
-     * Instance variables
+     * The A1C measurement
      */
     private A1cResult a1c;
+
+    /**
+     * The glucose measurement
+     */
     private ContinuousResult glucose;
+
+    /**
+     * The LDL measurement
+     */
     private LdlResult ldl;
+
+    /**
+     * The HDL measurement
+     */
     private ContinuousResult hdl;
+
+    /**
+     * The triglycerides measurement
+     */
     private ContinuousResult triglycerides;
+
+    /**
+     * The TSH measurement
+     */
     private TshResult tsh;
+
+    /**
+     * The T4 measurement
+     */
     private ContinuousResult t4;
+
+    /**
+     * The UACR measurement
+     */
     private ContinuousResult uacr;
+
+    /**
+     * The eGFR measurement
+     */
     private ContinuousResult egfr;
+
+    /**
+     * The creatinine measurement
+     */
     private ContinuousResult creatinine;
+
+    /**
+     * The BMI measurement
+     */
     private ContinuousResult bmi;
+
+    /**
+     * The waist measurement
+     */
     private ContinuousResult waist;
+
+    /**
+     * The blood pressure measurement
+     */
     private BloodPressureResult bloodPressure;
+
+    /**
+     * The date of the last class attended by the patient
+     */
     private Date lastClass;
+
+    /**
+     * The eye screening result
+     */
     private CategoricalResult eyeScreening;
+
+    /**
+     * The foot screening result
+     */
     private CategoricalResult footScreening;
+
+    /**
+     * The psychological screening result
+     */
     private PsychologicalScreeningResult psychologicalScreening;
+
+    /**
+     * The patient's minutes of physical activity for the week
+     */
     private DiscreteResult physicalActivity;
+
+    /**
+     * The date of the influenza vaccine
+     */
     private Date influenzaVaccine;
+
+    /**
+     * The date of the PCV13 vaccine
+     */
     private Date pcv13Vaccine;
+
+    /**
+     * The date of the PPSV23 vaccine
+     */
     private Date ppsv23Vaccine;
+
+    /**
+     * The date of the hepatitis vaccine
+     */
     private Date hepatitisBVaccine;
+
+    /**
+     * The date of the TDAP vaccine
+     */
     private Date tdapVaccine;
+
+    /**
+     * The date of the zoster vaccine
+     */
     private Date zosterVaccine;
+
+    /**
+     * Indicates whether the patient is a smoker
+     */
     private BooleanResult smokingStatus;
+
+    /**
+     * The telephone follow-up code
+     */
     private CategoricalResult telephoneFollowUp;
+
+    /**
+     * The AST measurement
+     */
     private ContinuousResult ast;
+
+    /**
+     * The ALT measurement
+     */
     private ContinuousResult alt;
+
+    /**
+     * The PSA measurement
+     */
     private ContinuousResult psa;
+
+    /**
+     * The date of hospitalization
+     */
     private Date er;
+
+    /**
+     * The healthy-target status of the patient
+     */
     private HealthyTargetStatus hts;
+
+    /**
+     * The therapy of the patient
+     */
     private Therapy therapy;
+
+    /**
+     * The list of the patient's medications
+     */
     private ArrayList<Medication> medications;
 
     /**

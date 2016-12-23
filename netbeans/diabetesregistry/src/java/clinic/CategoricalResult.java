@@ -19,7 +19,8 @@ import java.io.Serializable;
 import java.sql.Date;
 
 /**
- * Represents a patient's categorical result
+ * This class represents a patient's categorical result. This type of object may
+ * hold notes or other information regarding patient health.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -27,10 +28,18 @@ import java.sql.Date;
 public class CategoricalResult implements Serializable {
 
     /**
-     * Instance variables
+     * The category
      */
     private String category;
+
+    /**
+     * The definition
+     */
     private String definition;
+
+    /**
+     * The date recorded
+     */
     private Date dateRecorded;
 
     /**

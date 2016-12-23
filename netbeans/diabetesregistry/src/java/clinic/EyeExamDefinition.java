@@ -16,7 +16,7 @@
 package clinic;
 
 /**
- * Describes an eye exam code and its definition
+ * This class represents an eye exam code and its definition.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -24,9 +24,13 @@ package clinic;
 public class EyeExamDefinition {
 
     /**
-     * Instance variables
+     * The eye exam code
      */
     private String code;
+
+    /**
+     * The code definition
+     */
     private String definition;
 
     /**

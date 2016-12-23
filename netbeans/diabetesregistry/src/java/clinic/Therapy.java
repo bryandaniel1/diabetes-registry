@@ -18,7 +18,7 @@ package clinic;
 import java.sql.Date;
 
 /**
- * Represents a therapy
+ * This class represents a therapy.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016

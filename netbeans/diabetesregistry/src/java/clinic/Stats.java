@@ -20,7 +20,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 
 /**
- * Contains data for statistical representation of clinic population health
+ * This class contains data for statistical representation of clinic population
+ * health.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -28,10 +29,18 @@ import java.util.ArrayList;
 public class Stats implements Serializable {
 
     /**
-     * Instance variables
+     * The statistic as a mean value
      */
     private BigDecimal average;
+
+    /**
+     * The statistic as a percentage
+     */
     private BigDecimal percentage;
+
+    /**
+     * Multiple lists of values for statistical representation
+     */
     private ArrayList<ArrayList<CategoricalValue>> groups;
 
     /**

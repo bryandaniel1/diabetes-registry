@@ -33,7 +33,7 @@ import util.StringUtil;
 import util.HashAndSaltUtil;
 
 /**
- * Coordinates administration functions
+ * This HttpServlet class coordinates administration functions.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -41,7 +41,8 @@ import util.HashAndSaltUtil;
 public class AdministrationServlet extends HttpServlet {
 
     /**
-     * Handles the HTTP <code>GET</code> method.
+     * Handles the HTTP <code>GET</code> method. This method invokes the doPost
+     * method for all requests.
      *
      * @param request servlet request
      * @param response servlet response
@@ -55,7 +56,10 @@ public class AdministrationServlet extends HttpServlet {
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Handles the HTTP <code>POST</code> method. This method coordinates the
+     * navigation of the administration page and processes the requests for
+     * adding a clinic to the registry, updating an existing clinic, and
+     * updating user access.
      *
      * @param request servlet request
      * @param response servlet response

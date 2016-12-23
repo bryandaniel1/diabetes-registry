@@ -63,7 +63,7 @@ import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.HistogramDataset;
 
 /**
- * This class handles the responsibility of drawing and returning charts and
+ * This HttpServlet class handles the responsibility of drawing charts and
  * graphs. The getChart method uses the request parameters to determine which
  * chart must be drawn.
  *
@@ -75,7 +75,8 @@ public class ChartAndGraphServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Handles the HTTP <code>GET</code> method.
+     * Handles the HTTP <code>GET</code> method. This method invokes the
+     * getChart method to draw the appropriate chart.
      *
      * @param request servlet request
      * @param response servlet response
@@ -86,7 +87,7 @@ public class ChartAndGraphServlet extends HttpServlet {
         try {
             getChart(request, response);
         } catch (IOException e) {
-            System.out.println("exception");
+            System.err.println("IO exception in ChartAndGraphServlet");
         }
     }
 

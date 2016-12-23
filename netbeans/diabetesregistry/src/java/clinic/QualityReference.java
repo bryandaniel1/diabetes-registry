@@ -16,7 +16,7 @@
 package clinic;
 
 /**
- * Represents a quality role and responsibility
+ * This class represents a quality role and responsibility.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016

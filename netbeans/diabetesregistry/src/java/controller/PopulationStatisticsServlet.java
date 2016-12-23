@@ -30,7 +30,8 @@ import javax.servlet.http.HttpSession;
 import util.SessionObjectUtil;
 
 /**
- * Coordinates the statistics data retrieval process
+ * This HttpServlet class coordinates the statistics data retrieval process for
+ * the statistics page.
  *
  * @author Bryan Daniel
  * @version 1, April 8, 2016
@@ -38,7 +39,8 @@ import util.SessionObjectUtil;
 public class PopulationStatisticsServlet extends HttpServlet {
 
     /**
-     * Handles the HTTP <code>GET</code> method.
+     * Handles the HTTP <code>GET</code> method. This method invokes the doPost
+     * method for all requests.
      *
      * @param request servlet request
      * @param response servlet response
@@ -52,7 +54,9 @@ public class PopulationStatisticsServlet extends HttpServlet {
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Handles the HTTP <code>POST</code> method. This method coordinates the
+     * navigation of the statistics page and processes the requests for
+     * retrieving statistical information on the selected clinic population.
      *
      * @param request servlet request
      * @param response servlet response
@@ -165,6 +169,7 @@ public class PopulationStatisticsServlet extends HttpServlet {
                             break;
                     }
                 }
+                break;
             }
             default:
                 break;
