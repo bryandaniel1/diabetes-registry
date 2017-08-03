@@ -51,7 +51,7 @@ public class CallListIO {
      * @param clinicId the clinic ID
      * @param subject the call list subject
      * @param referenceCharacters the character string
-     * @return the list of patients
+     * @return the list of patients or null if no results are found
      */
     public static ArrayList<Patient> getCallList(int clinicId, String subject,
             Object referenceCharacters) {
@@ -100,7 +100,8 @@ public class CallListIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CallListIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getCallList method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -119,7 +120,7 @@ public class CallListIO {
      *
      * @param clinicId the clinic ID
      * @param subject the call list subject
-     * @return the list of patients
+     * @return the list of patients or null if no results are found
      */
     public static ArrayList<EmailMessage> getEmailMessages(int clinicId, String subject) {
         ArrayList<EmailMessage> emailMessages = new ArrayList<>();
@@ -150,7 +151,8 @@ public class CallListIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CallListIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getEmailMessages method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);

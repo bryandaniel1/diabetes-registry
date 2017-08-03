@@ -83,7 +83,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getA1c method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -131,7 +132,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getPsa method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -179,7 +181,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getAlt method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -227,7 +230,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getAst method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -277,7 +281,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getBP method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -325,7 +330,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getBmi method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -371,7 +377,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getClass method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -419,7 +426,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getCreatinine method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -467,7 +475,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getEgfr method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -516,7 +525,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getEye method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -565,7 +575,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getFoot method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -613,7 +624,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getGlucose method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -661,7 +673,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getHdl method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -707,7 +720,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getHepB method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -753,7 +767,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getER method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -799,7 +814,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getInfluenza method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -849,7 +865,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getLdl method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -898,7 +915,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getAllNotes method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -946,7 +964,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getCompliance method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -992,7 +1011,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getPcv13 method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -1040,7 +1060,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getPhysical method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -1086,7 +1107,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getPpsv23 method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -1137,7 +1159,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getPsychological method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -1185,7 +1208,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getSmoking method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -1233,7 +1257,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getT4 method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -1279,7 +1304,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getTdap method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -1328,7 +1354,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getTelephone method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -1376,7 +1403,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getTriglycerides method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -1425,7 +1453,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getTsh method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -1473,7 +1502,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getUacr method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -1521,7 +1551,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getWaist method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -1567,7 +1598,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getZoster method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -2304,7 +2336,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getPatientDashboard method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -2351,7 +2384,8 @@ public class PatientHistoryIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientHistoryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getNotes method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);

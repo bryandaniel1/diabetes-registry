@@ -166,7 +166,8 @@ public class ProgressNoteIO {
             progressNote.setUpdatedBy(noteAuthors);
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ProgressNoteIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getProgressNote method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -474,7 +475,8 @@ public class ProgressNoteIO {
                 return false;
             }
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ProgressNoteIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the saveProgressNote method.", ex);
         } finally {
             DatabaseUtil.closeCallableStatement(cs);
             pool.freeConnection(connection);
@@ -513,7 +515,8 @@ public class ProgressNoteIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ProgressNoteIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getProgressDates method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);

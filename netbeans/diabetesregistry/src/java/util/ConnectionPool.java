@@ -17,6 +17,8 @@ package util;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
@@ -48,7 +50,8 @@ public class ConnectionPool {
             InitialContext ic = new InitialContext();
             dataSource = (DataSource) ic.lookup("java:/comp/env/jdbc/diabetes_registry");
         } catch (NamingException e) {
-            System.err.println(e);
+            Logger.getLogger(ConnectionPool.class.getName()).log(Level.SEVERE,
+                    "An exception occurred in the ConnectionPool constructor.", e);
         }
     }
 
@@ -73,7 +76,8 @@ public class ConnectionPool {
         try {
             return dataSource.getConnection();
         } catch (SQLException e) {
-            System.err.println(e);
+            Logger.getLogger(ConnectionPool.class.getName()).log(Level.SEVERE,
+                    "An exception occurred in the getConnection method.", e);
             return null;
         }
     }
@@ -87,7 +91,8 @@ public class ConnectionPool {
         try {
             c.close();
         } catch (SQLException e) {
-            System.err.println(e);
+            Logger.getLogger(ConnectionPool.class.getName()).log(Level.SEVERE,
+                    "An exception occurred in the freeConnection method.", e);
         }
     }
 

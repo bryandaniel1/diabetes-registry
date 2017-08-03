@@ -81,7 +81,8 @@ public class PatientIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getPatients method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -166,7 +167,8 @@ public class PatientIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the updatePatient method.", ex);
         } finally {
             DatabaseUtil.closeCallableStatement(cs);
             pool.freeConnection(connection);
@@ -242,7 +244,8 @@ public class PatientIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the addPatient method.", ex);
         } finally {
             DatabaseUtil.closeCallableStatement(cs);
             pool.freeConnection(connection);

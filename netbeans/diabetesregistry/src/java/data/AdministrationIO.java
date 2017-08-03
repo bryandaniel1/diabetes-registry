@@ -69,7 +69,8 @@ public class AdministrationIO {
             return clinic;
 
         } catch (SQLException e) {
-            System.err.println(e);
+            Logger.getLogger(AdministrationIO.class.getName()).log(Level.SEVERE, 
+                        "An exception occurred in the getClinic method.", e);
             return null;
         } finally {
             DatabaseUtil.closeResultSet(rs);
@@ -120,7 +121,8 @@ public class AdministrationIO {
             }
 
         } catch (SQLException e) {
-            System.err.println(e);
+            Logger.getLogger(AdministrationIO.class.getName()).log(Level.SEVERE, 
+                        "An exception occurred in the addClinic method.", e);
             return false;
         } finally {
             DatabaseUtil.closeCallableStatement(cs);
@@ -182,11 +184,11 @@ public class AdministrationIO {
                 connection.rollback();
                 connection.setAutoCommit(true);
             } catch (SQLException e) {
-                Logger.getLogger(ReferencesIO.class.getName())
-                        .log(Level.SEVERE, null, e);
+                Logger.getLogger(AdministrationIO.class.getName()).log(Level.SEVERE, 
+                        "An exception occurred in the updateClinic method.", e);
             }
-            Logger.getLogger(ReferencesIO.class.getName())
-                    .log(Level.SEVERE, null, ex);
+            Logger.getLogger(AdministrationIO.class.getName()).log(Level.SEVERE, 
+                        "An exception occurred in the updateClinic method.", ex);
         } finally {
             DatabaseUtil.closeCallableStatement(cs);
             pool.freeConnection(connection);
@@ -221,7 +223,8 @@ public class AdministrationIO {
             }
 
         } catch (SQLException e) {
-            System.err.println(e);
+            Logger.getLogger(AdministrationIO.class.getName()).log(Level.SEVERE, 
+                        "An exception occurred in the getUserNames method.", e);
             return null;
         } finally {
             DatabaseUtil.closeResultSet(rs);
@@ -287,7 +290,8 @@ public class AdministrationIO {
             }
 
         } catch (SQLException e) {
-            System.err.println(e);
+            Logger.getLogger(AdministrationIO.class.getName()).log(Level.SEVERE, 
+                        "An exception occurred in the getUserDetails method.", e);
             return null;
         } finally {
             DatabaseUtil.closeResultSet(rs);
@@ -373,11 +377,11 @@ public class AdministrationIO {
                 connection.rollback();
                 connection.setAutoCommit(true);
             } catch (SQLException e) {
-                Logger.getLogger(ReferencesIO.class.getName())
-                        .log(Level.SEVERE, null, e);
+                Logger.getLogger(AdministrationIO.class.getName()).log(Level.SEVERE, 
+                        "An exception occurred in the updateUserAccess method.", e);
             }
-            Logger.getLogger(ReferencesIO.class.getName())
-                    .log(Level.SEVERE, null, ex);
+            Logger.getLogger(AdministrationIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the updateUserAccess method.", ex);
         } finally {
             DatabaseUtil.closeCallableStatement(cs);
             pool.freeConnection(connection);

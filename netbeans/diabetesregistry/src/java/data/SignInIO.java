@@ -23,6 +23,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import util.DatabaseUtil;
 
 /**
@@ -62,7 +64,8 @@ public class SignInIO {
             return result;
 
         } catch (SQLException e) {
-            System.err.println(e);
+            Logger.getLogger(SignInIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the retrieveSalt method.", e);
             return result;
         } finally {
             DatabaseUtil.closeResultSet(rs);
@@ -111,7 +114,8 @@ public class SignInIO {
             return result;
 
         } catch (SQLException e) {
-            System.err.println(e);
+            Logger.getLogger(SignInIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the validateUser method.", e);
             return result;
         } finally {
             DatabaseUtil.closeResultSet(rs);
@@ -174,7 +178,8 @@ public class SignInIO {
             return user;
 
         } catch (SQLException e) {
-            System.err.println(e);
+            Logger.getLogger(SignInIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getUser method.", e);
             return null;
         } finally {
             DatabaseUtil.closeResultSet(rs);

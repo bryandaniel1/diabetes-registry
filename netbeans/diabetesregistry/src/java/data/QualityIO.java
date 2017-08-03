@@ -70,7 +70,8 @@ public class QualityIO {
             connection.commit();
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(QualityIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the saveChecklist method.", ex);
         } finally {
             DatabaseUtil.closeCallableStatement(cs);
             pool.freeConnection(connection);
@@ -112,7 +113,8 @@ public class QualityIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(QualityIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getChecklistDates method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -165,7 +167,8 @@ public class QualityIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(QualityIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getChecklistItems method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -218,7 +221,8 @@ public class QualityIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(QualityIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getMostRecentChecklistItems method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);

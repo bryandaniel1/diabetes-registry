@@ -93,7 +93,8 @@ public class PopulationStatisticsIO {
             demographicData.setAges(ages);
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PopulationStatisticsIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getDemographicData method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -270,7 +271,8 @@ public class PopulationStatisticsIO {
             glycemicStats[1] = glycemicStatsByTreatment;
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PopulationStatisticsIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getGlycemicControl method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -433,7 +435,8 @@ public class PopulationStatisticsIO {
             bmiStats[1] = femaleBmi;
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PopulationStatisticsIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getBodyMassStatistics method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);
@@ -1681,7 +1684,8 @@ public class PopulationStatisticsIO {
             treatmentStats.setGroups(groups);
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PopulationStatisticsIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getTreatmentStatistics method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);

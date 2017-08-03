@@ -79,11 +79,11 @@ public class PatientTreatmentIO {
                 connection.rollback();
                 connection.setAutoCommit(true);
             } catch (SQLException e) {
-                Logger.getLogger(ReferencesIO.class.getName())
-                        .log(Level.SEVERE, null, e);
+                Logger.getLogger(PatientTreatmentIO.class.getName()).log(Level.SEVERE, 
+                        "An exception occurred in the addTreatment method.", e);
             }
-            Logger.getLogger(ReferencesIO.class.getName())
-                    .log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientTreatmentIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the addTreatment method.", ex);
         } finally {
             DatabaseUtil.closeCallableStatement(cs);
             pool.freeConnection(connection);
@@ -156,7 +156,8 @@ public class PatientTreatmentIO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PatientTreatmentIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the getTreatments method.", ex);
         } finally {
             DatabaseUtil.closeResultSet(rs);
             DatabaseUtil.closeCallableStatement(cs);

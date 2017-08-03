@@ -18,6 +18,8 @@ package util;
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class closes database objects
@@ -38,7 +40,8 @@ public class DatabaseUtil {
                 cs.close();
             }
         } catch (SQLException e) {
-            System.err.println(e);
+            Logger.getLogger(DatabaseUtil.class.getName()).log(Level.SEVERE,
+                    "An exception occurred in the closeCallableStatement method.", e);
         }
     }
 
@@ -53,7 +56,8 @@ public class DatabaseUtil {
                 rs.close();
             }
         } catch (SQLException e) {
-            System.err.println(e);
+            Logger.getLogger(DatabaseUtil.class.getName()).log(Level.SEVERE,
+                    "An exception occurred in the closeResultSet method.", e);
         }
     }
 }

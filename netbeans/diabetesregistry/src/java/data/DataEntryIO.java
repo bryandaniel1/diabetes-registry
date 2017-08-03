@@ -37,7 +37,7 @@ public class DataEntryIO {
      *
      * @param dec the data entry container
      * @param referenceCharacters the character string
-     * @return the boolean indicating success of the operation
+     * @return the boolean indicating success or failure of the operation
      */
     public static boolean addResults(DataEntryContainer dec,
             Object referenceCharacters) {
@@ -366,7 +366,8 @@ public class DataEntryIO {
                 return false;
             }
         } catch (SQLException ex) {
-            Logger.getLogger(ReferencesIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DataEntryIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the addResults method.", ex);
         } finally {
             DatabaseUtil.closeCallableStatement(cs);
             pool.freeConnection(connection);

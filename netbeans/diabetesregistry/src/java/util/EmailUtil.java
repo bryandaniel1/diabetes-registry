@@ -101,6 +101,8 @@ public class EmailUtil {
             transport.sendMessage(message, message.getAllRecipients());
 
         } catch (MessagingException me) {
+            Logger.getLogger(EmailUtil.class.getName()).log(Level.SEVERE,
+                    "An exception occurred in the sendMail method.", me);
             return false;
         } finally {
             try {
@@ -108,7 +110,8 @@ public class EmailUtil {
                     transport.close();
                 }
             } catch (MessagingException e) {
-                System.err.println("Unable to close email transport connection.");
+                Logger.getLogger(EmailUtil.class.getName()).log(Level.SEVERE,
+                        "Unable to close email transport connection.", e);
             }
         }
         return true;
@@ -196,6 +199,8 @@ public class EmailUtil {
             }
 
         } catch (MessagingException me) {
+            Logger.getLogger(EmailUtil.class.getName()).log(Level.SEVERE,
+                    "An exception occurred in the sendBatchMail method.", me);
             return false;
         } finally {
             try {
@@ -203,7 +208,8 @@ public class EmailUtil {
                     transport.close();
                 }
             } catch (MessagingException e) {
-                System.err.println("Unable to close email transport connection.");
+                Logger.getLogger(EmailUtil.class.getName()).log(Level.SEVERE,
+                        "Unable to close email transport connection.", e);
             }
         }
         return true;
@@ -241,13 +247,15 @@ public class EmailUtil {
             }
 
         } catch (ParserConfigurationException | SAXException | IOException ex) {
-            Logger.getLogger(EmailUtil.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(EmailUtil.class.getName()).log(Level.SEVERE,
+                    "An exception occurred in the getMailHost method.", ex);
         } finally {
             if (input != null) {
                 try {
                     input.close();
                 } catch (IOException ex) {
-                    Logger.getLogger(EmailUtil.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(EmailUtil.class.getName()).log(Level.SEVERE,
+                            "An exception occurred in the getMailHost method.", ex);
                 }
             }
         }

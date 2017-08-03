@@ -20,6 +20,8 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import util.DatabaseUtil;
 
 /**
@@ -66,7 +68,8 @@ public class RegistrationIO {
             return clinicId;
 
         } catch (SQLException e) {
-            System.err.println(e);
+            Logger.getLogger(RegistrationIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the checkRegistrationKey method.", e);
             return null;
         } finally {
             DatabaseUtil.closeResultSet(rs);
@@ -104,7 +107,8 @@ public class RegistrationIO {
             return clinicSalt;
 
         } catch (SQLException e) {
-            System.err.println(e);
+            Logger.getLogger(RegistrationIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the retrieveClinicSalt method.", e);
             return null;
         } finally {
             DatabaseUtil.closeResultSet(rs);
@@ -162,7 +166,8 @@ public class RegistrationIO {
             }
 
         } catch (SQLException e) {
-            System.err.println(e);
+            Logger.getLogger(RegistrationIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the registerUser method.", e);
             return false;
         } finally {
             DatabaseUtil.closeResultSet(rs);
@@ -211,7 +216,8 @@ public class RegistrationIO {
             }
 
         } catch (SQLException e) {
-            System.err.println(e);
+            Logger.getLogger(RegistrationIO.class.getName()).log(Level.SEVERE, 
+                    "An exception occurred in the registerExistingUser method.", e);
             return false;
         } finally {
             DatabaseUtil.closeResultSet(rs);
