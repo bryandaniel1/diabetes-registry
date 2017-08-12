@@ -1,9 +1,9 @@
 # diabetes-registry
 This diabetes registry source code can be used to build a system for saving and tracking health information on patients with diabetes.
 
-##Diabetes Registry Setup and Run Instructions
+## Diabetes Registry Setup and Run Instructions
 
-##Sections
+## Sections
 
 A - requirements
 
@@ -16,7 +16,7 @@ D - deploy application
 E - notes
 
 
-###Section A - requirements
+### Section A - requirements
 
 **a)** Download and install MySQL Community Server 5.7 and Workbench from 
 
@@ -34,7 +34,7 @@ https://tomcat.apache.org
 
 https://netbeans.org/downloads/
 
-###Section B - build MySQL database
+### Section B - build MySQL database
 
 **a)** In Workbench, open and execute the file named "createdbscript.sql" found in the db directory.
 
@@ -77,7 +77,7 @@ Right-click on the Libraries node in the Projects view and select the 'Add JAR/F
 
 **c)** Once the program compiles, build the application by selecting the 'Clean and Build Project' menu item in the 'Run' menu to produce a WAR file in the dist folder.
 
-###Section D - deploy application
+### Section D - deploy application
 
 **a)** Place the WAR file in the Tomcat/webapps directory.
 
@@ -88,7 +88,7 @@ Right-click on the Libraries node in the Projects view and select the 'Add JAR/F
 **d)** Stop the application by executing the shutdown file in the Tomcat/bin directory.
 	
 
-###Section E - notes
+### Section E - notes
 
 **a)** A default user is provided with the following credentials:
 
