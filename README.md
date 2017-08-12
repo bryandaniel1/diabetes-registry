@@ -40,7 +40,7 @@ https://netbeans.org/downloads/
 
 **b)** In Workbench, open and execute the file named "data_dump.sql" found in the db directory.
 
-###Section C - build application
+### Section C - build application
 
 **a)** Place the following JAR files in the Tomcat/lib directory:
 
