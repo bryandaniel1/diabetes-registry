@@ -90,15 +90,13 @@ Right-click on the Libraries node in the Projects view and select the 'Add JAR/F
 
 ### Section E - notes
 
-**a)** A default user is provided with the following credentials:
+**a)** By running the data_dump.sql file after createdbscript.sql, a default user is provided with the following credentials:
 
 username = joeUser
 
 password = Test1234?!
 
-**b)** The default user is associated with a default clinic, named "Test Clinic".  The registration key for this clinic is
-
-“#1registrationKey”.
+**b)** A default clinic, named "Test Clinic", is also provided by running the data_dump.sql file.
 
 **c)** SSL/TLS:
 
@@ -108,5 +106,5 @@ password = Test1234?!
 
 **d)** storage encryption:
 
-	A default key used for database encryption of sensitive attributes is assigned in the WelcomeServlet.  Modify this key assignment according to user requirements.
+	A default key used for database encryption of sensitive attributes is stored in the clinic number value in configuration.xml.  The value of the default key can be modified in the configuration file before use.
 
