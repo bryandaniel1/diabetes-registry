@@ -22,14 +22,20 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import utility.SessionObjectUtility;
 
 /**
  * This HttpServlet class coordinates the sign out activity.
  *
  * @author Bryan Daniel
- * @version 1, April 8, 2016
+ * @version 2, March 16, 2017
  */
 public class SignOutServlet extends HttpServlet {
+
+    /**
+     * Serial version UID
+     */
+    private static final long serialVersionUID = 7174245216767468823L;
 
     /**
      * Handles the HTTP <code>GET</code> method. This method invokes the doPost
@@ -68,8 +74,7 @@ public class SignOutServlet extends HttpServlet {
 
         switch (action) {
             case "Go to sign-in page.":
-                session.setAttribute("user", null);
-                url = "/index.jsp";
+                session.setAttribute(SessionObjectUtility.USER, null);
                 break;
             case "signout":
                 Cookie c = new Cookie("user", null);
@@ -77,7 +82,6 @@ public class SignOutServlet extends HttpServlet {
                 c.setPath("/");
                 response.addCookie(c);
                 session.invalidate();
-                url = "/index.jsp";
                 break;
         }
         getServletContext().getRequestDispatcher(url)

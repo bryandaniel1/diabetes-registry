@@ -15,15 +15,19 @@
     </filter>
     <filter>
         <filter-name>HeadersFilter</filter-name>
-        <filter-class>util.HeadersFilter</filter-class>
+        <filter-class>filter.HeadersFilter</filter-class>
     </filter>
     <filter>
         <filter-name>UserFilter</filter-name>
-        <filter-class>util.UserFilter</filter-class>
+        <filter-class>filter.UserFilter</filter-class>
     </filter>
     <filter>
         <filter-name>AdministrationFilter</filter-name>
-        <filter-class>util.AdministrationFilter</filter-class>
+        <filter-class>filter.AdministrationFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>PasswordManagementFilter</filter-name>
+        <filter-class>filter.PasswordManagementFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>Remote Address Filter</filter-name>
@@ -57,9 +61,14 @@
         <filter-name>AdministrationFilter</filter-name>
         <url-pattern>/admin/*</url-pattern>
     </filter-mapping>
+    <filter-mapping>
+        <filter-name>PasswordManagementFilter</filter-name>
+        <url-pattern>/changepassword/*</url-pattern>
+        <url-pattern>/changemanagement/*</url-pattern>
+    </filter-mapping>
     <listener>
         <description>ServletContextListener</description>
-        <listener-class>util.ReferencesUtil</listener-class>
+        <listener-class>listener.DiabetesRegistryListener</listener-class>
     </listener>
     <servlet>
         <servlet-name>SignInServlet</servlet-name>
@@ -73,10 +82,6 @@
         <error-code>404</error-code>
         <location>/error_404.jsp</location>
     </error-page>
-    <servlet>
-        <servlet-name>RegistrationServlet</servlet-name>
-        <servlet-class>controller.RegistrationServlet</servlet-class>
-    </servlet>
     <servlet>
         <servlet-name>QualityServlet</servlet-name>
         <servlet-class>controller.QualityServlet</servlet-class>
@@ -125,6 +130,10 @@
         <servlet-name>PDFServlet</servlet-name>
         <servlet-class>controller.PDFServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>PasswordManagementServlet</servlet-name>
+        <servlet-class>controller.PasswordManagementServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SignInServlet</servlet-name>
         <url-pattern>/signin</url-pattern>
@@ -132,11 +141,6 @@
     <servlet-mapping>
         <servlet-name>SignOutServlet</servlet-name>
         <url-pattern>/signout</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>RegistrationServlet</servlet-name>
-        <url-pattern>/register</url-pattern>
-        <url-pattern>/existinguser</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>QualityServlet</servlet-name>
@@ -188,6 +192,10 @@
         <servlet-name>PDFServlet</servlet-name>
         <url-pattern>/viewpdf</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PasswordManagementServlet</servlet-name>
+        <url-pattern>/changepassword</url-pattern>
+    </servlet-mapping>
     <session-config>
         <session-timeout>
             30
@@ -202,4 +210,5 @@
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
         </user-data-constraint>
     </security-constraint>
+    <distributable/>
 </web-app>

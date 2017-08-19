@@ -15,11 +15,8 @@
  */
 package controller;
 
-import clinic.CategoricalResult;
-import clinic.Patient;
-import clinic.User;
-import data.PatientIO;
-import data.QualityIO;
+import data.PatientDataAccess;
+import data.QualityDataAccess;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
@@ -28,16 +25,26 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import util.SessionObjectUtil;
-import util.StringUtil;
+import registry.CategoricalResult;
+import registry.Patient;
+import registry.ReferenceContainer;
+import registry.User;
+import utility.SessionObjectUtility;
+import utility.StringUtility;
 
 /**
- * This HttpServlet class coordinates the activities of the quality checklist page.
+ * This HttpServlet class coordinates the activities of the quality checklist
+ * page.
  *
  * @author Bryan Daniel
- * @version 1, April 8, 2016
+ * @version 2, March 16, 2017
  */
 public class QualityServlet extends HttpServlet {
+
+    /**
+     * Serial version UID
+     */
+    private static final long serialVersionUID = 1407603459965007333L;
 
     /**
      * Handles the HTTP <code>GET</code> method. This method invokes the doPost
@@ -67,19 +74,12 @@ public class QualityServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        final int EMPTY_VALUE = 0;
-        int index = 0;
         HttpSession session = request.getSession();
-        User user = (User) session.getAttribute("user");
         String url = "/quality/index.jsp";
+        int clinicId = ReferenceContainer.CLINIC_ID;
+        User user = (User) session.getAttribute(SessionObjectUtility.USER);
         ArrayList<Patient> patients;
         String message;
-        int clinicId;
-        if (session.getAttribute("clinicId") == null) {
-            clinicId = EMPTY_VALUE;
-        } else {
-            clinicId = (int) session.getAttribute("clinicId");
-        }
         String action = request.getParameter("action");
 
         if (action == null) {
@@ -88,49 +88,26 @@ public class QualityServlet extends HttpServlet {
 
         switch (action) {
             case "get list":
-                if ((clinicId == EMPTY_VALUE)
-                        && (user.getClinics().size() > EMPTY_VALUE)) {
-                    clinicId = user.getClinics().get(index).getClinicId();
-                    session.setAttribute("clinicId", clinicId);
-                }
-                patients = (ArrayList<Patient>) session.getAttribute("patients");
+                patients = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.PATIENTS);
                 if (patients == null) {
-                    patients = PatientIO.getPatients(clinicId,
+                    patients = PatientDataAccess.getPatients(clinicId,
                             session.getServletContext()
                             .getAttribute("referenceCharacters"));
-                    session.setAttribute("patients", patients);
-                }
-                url = "/quality/index.jsp";
-                break;
-            case "getClinic":
-                String clinicSelect = request.getParameter("clinicselect");
-                try {
-                    clinicId = Integer.parseInt(clinicSelect);
-                    patients = PatientIO.getPatients(clinicId,
-                            session.getServletContext()
-                            .getAttribute("referenceCharacters"));
-                    session.setAttribute("clinicId", clinicId);
-                    session.setAttribute("patients", patients);
-                    SessionObjectUtil.resetClinicObjects(session);
-                    url = "/quality/index.jsp";
-                } catch (NumberFormatException nfe) {
-                    message = "clinic id invalid";
-                    request.setAttribute("errorMessage", message);
+                    session.setAttribute(SessionObjectUtility.PATIENTS, patients);
                 }
                 break;
             case "getPatient":
                 String patientSelect = request.getParameter("patientselect");
                 try {
                     int patientId = Integer.parseInt(patientSelect);
-                    patients = (ArrayList<Patient>) session.getAttribute("patients");
+                    patients = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.PATIENTS);
                     for (Patient p : patients) {
                         if (p.getPatientId() == patientId) {
-                            session.setAttribute("patient", p);
-                            SessionObjectUtil.resetPatientObjects(session);
+                            session.setAttribute(SessionObjectUtility.PATIENT, p);
+                            SessionObjectUtility.resetPatientObjects(session);
                             break;
                         }
                     }
-                    url = "/quality/index.jsp";
                 } catch (NumberFormatException nfe) {
                     message = "patient id invalid";
                     request.setAttribute("errorMessage", message);
@@ -138,14 +115,14 @@ public class QualityServlet extends HttpServlet {
                 break;
             case "saveChecklist":
                 boolean validData = true;
-                Patient patient = (Patient) session.getAttribute("patient");
+                Patient patient = (Patient) session.getAttribute(SessionObjectUtility.PATIENT);
                 int patientId = patient.getPatientId();
 
                 /* validating date entered */
                 String dateEnteredString = request.getParameter("checklistDate");
                 Date checklistDate = null;
                 if ((dateEnteredString != null) && (dateEnteredString.trim().length() != 0)) {
-                    if (StringUtil.dateCheck(dateEnteredString)) {
+                    if (StringUtility.dateCheck(dateEnteredString)) {
                         checklistDate = Date.valueOf(dateEnteredString);
                     } else {
                         message = "The date entered does not conform to the pattern, "
@@ -159,23 +136,17 @@ public class QualityServlet extends HttpServlet {
                     validData = false;
                 }
 
-                /* verifying a clinic ID is selected*/
-                if (clinicId == EMPTY_VALUE) {
-                    message = "You must select a clinic.";
-                    request.setAttribute("errorMessage", message);
-                    validData = false;
-                }
                 if (validData) {
                     String[] checklistItems = request.getParameterValues("list");
                     if ((checklistItems != null) && (checklistItems.length > 0)) {
-                        boolean dataSaved = QualityIO.saveChecklist(patientId,
+                        boolean dataSaved = QualityDataAccess.saveChecklist(patientId,
                                 checklistDate, checklistItems, user.getUserName(),
                                 clinicId);
                         if (dataSaved) {
                             ArrayList<CategoricalResult> recentChecklistItems
-                                    = QualityIO.getMostRecentChecklistItems(patientId,
+                                    = QualityDataAccess.getMostRecentChecklistItems(patientId,
                                             clinicId);
-                            session.setAttribute("recentChecklistItems", recentChecklistItems);
+                            session.setAttribute(SessionObjectUtility.RECENT_CHECKLIST_ITEMS, recentChecklistItems);
                             message = "Checklist saved successfully";
                             request.setAttribute("message", message);
                         }
@@ -184,19 +155,20 @@ public class QualityServlet extends HttpServlet {
                         request.setAttribute("errorMessage", message);
                     }
                 }
-                url = "/quality/index.jsp";
+                break;
+            default:
                 break;
         }
 
-        Patient p = (Patient) session.getAttribute("patient");
-        if ((p != null) && (clinicId != EMPTY_VALUE)) {
+        Patient p = (Patient) session.getAttribute(SessionObjectUtility.PATIENT);
+        if (p != null) {
             ArrayList<CategoricalResult> recentChecklistItems
-                    = (ArrayList<CategoricalResult>) session.getAttribute("recentChecklistItems");
+                    = (ArrayList<CategoricalResult>) session.getAttribute(SessionObjectUtility.RECENT_CHECKLIST_ITEMS);
             if (recentChecklistItems == null) {
                 recentChecklistItems
-                        = QualityIO.getMostRecentChecklistItems(p.getPatientId(),
+                        = QualityDataAccess.getMostRecentChecklistItems(p.getPatientId(),
                                 clinicId);
-                session.setAttribute("recentChecklistItems", recentChecklistItems);
+                session.setAttribute(SessionObjectUtility.RECENT_CHECKLIST_ITEMS, recentChecklistItems);
             }
         }
 

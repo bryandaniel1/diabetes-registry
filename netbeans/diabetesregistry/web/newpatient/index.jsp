@@ -17,7 +17,7 @@
         <input type="hidden" name="action" value="add">
         <table class="patientform">
             <tr>
-                <td class="dataregisterlabels">
+                <td class="datalabels">
                     <label for="firstName">First Name:</label>
                 </td>
                 <td>
@@ -25,7 +25,7 @@
                 </td><td></td>
             </tr>
             <tr>
-                <td class="dataregisterlabels">
+                <td class="datalabels">
                     <label for="lastName">Last Name:</label>
                 </td>
                 <td>
@@ -33,7 +33,7 @@
                 </td><td></td>
             </tr>
             <tr>
-                <td class="dataregisterlabels">
+                <td class="datalabels">
                     <label for="birthDate">Birth Date:</label>
                 </td>
                 <td>
@@ -41,7 +41,7 @@
                 </td><td></td>
             </tr>
             <tr>
-                <td class="dataregisterlabels">
+                <td class="datalabels">
                     <label for="address">Address:</label>
                 </td>
                 <td>
@@ -49,7 +49,7 @@
                 </td>
             </tr>
             <tr>
-                <td class="dataregisterlabels">
+                <td class="datalabels">
                     <label for="phoneNumber">Phone Number:</label>
                 </td>
                 <td>
@@ -57,7 +57,7 @@
                 </td><td></td>
             </tr>
             <tr>
-                <td class="dataregisterlabels">
+                <td class="datalabels">
                     <label for="gender">Gender:</label>
                 </td>
                 <td>
@@ -70,7 +70,7 @@
             </tr>
             <tr>
             <tr>
-                <td class="dataregisterlabels">
+                <td class="datalabels">
                     <label for="ethnicity">Race:</label>
                 </td>
                 <td>
@@ -87,19 +87,7 @@
                 </td><td></td>
             </tr>
             <tr>
-                <td class="dataregisterlabels">
-                    <label for="firstName">Clinic:</label>
-                </td>
-                <td>
-                    <select id="clinicid" name="clinicId">
-                        <c:forEach var="clinic" items="${user.clinics}">
-                            <option value="${clinic.clinicId}"><c:out value="${clinic.clinicName}"/></option>                        
-                        </c:forEach>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td class="dataregisterlabels">
+                <td class="datalabels">
                     <label for="email">Email:</label>
                 </td>
                 <td>
@@ -107,7 +95,7 @@
                 </td>
             </tr>
             <tr>
-                <td class="dataregisterlabels">
+                <td class="datalabels">
                     <label for="language">Language:</label>
                 </td>
                 <td>
@@ -120,7 +108,7 @@
                 </td>
             </tr>
             <tr>
-                <td class="dataregisterlabels">
+                <td class="datalabels">
                     <label for="startDate">Start Date:</label>
                 </td>
                 <td>

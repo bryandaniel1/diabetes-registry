@@ -15,24 +15,10 @@
  */
 package controller;
 
-import clinic.A1cResult;
-import clinic.BloodPressureResult;
-import clinic.BooleanResult;
-import clinic.CategoricalResult;
-import clinic.ContinuousResult;
-import clinic.Dashboard;
-import clinic.DiscreteResult;
-import clinic.LdlResult;
-import clinic.Patient;
-import clinic.PsychologicalScreeningResult;
-import clinic.QualityReference;
-import clinic.TreatmentHistory;
-import clinic.TshResult;
-import clinic.User;
-import data.PatientHistoryIO;
-import data.PatientIO;
-import data.PatientTreatmentIO;
-import data.QualityIO;
+import data.PatientDataAccess;
+import data.PatientHistoryDataAccess;
+import data.PatientTreatmentDataAccess;
+import data.QualityDataAccess;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
@@ -41,17 +27,36 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import util.SessionObjectUtil;
-import util.StringUtil;
+import registry.A1cResult;
+import registry.BloodPressureResult;
+import registry.BooleanResult;
+import registry.CategoricalResult;
+import registry.ContinuousResult;
+import registry.Dashboard;
+import registry.DiscreteResult;
+import registry.LdlResult;
+import registry.Patient;
+import registry.PsychologicalScreeningResult;
+import registry.QualityReference;
+import registry.ReferenceContainer;
+import registry.TreatmentHistory;
+import registry.TshResult;
+import utility.SessionObjectUtility;
+import utility.StringUtility;
 
 /**
  * This HttpServlet class coordinates the retrieval of patient information on
  * the patient history page.
  *
  * @author Bryan Daniel
- * @version 1, April 8, 2016
+ * @version 2, March 16, 2017
  */
 public class PatientHistoryServlet extends HttpServlet {
+
+    /**
+     * Serial version UID
+     */
+    private static final long serialVersionUID = 1480103124302998726L;
 
     /**
      * Handles the HTTP <code>GET</code> method. This method invokes the doPost
@@ -83,21 +88,15 @@ public class PatientHistoryServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
-        Patient patient = (Patient) session.getAttribute("patient");
         String url = "/history/index.jsp";
-        final int EMPTY_VALUE = 0;
-        int index = 0;
+        Patient patient = (Patient) session.getAttribute(SessionObjectUtility.PATIENT);
+        int clinicId = ReferenceContainer.CLINIC_ID;
+        Object referenceCharacters = session.getServletContext()
+                .getAttribute("referenceCharacters");
         int patientId;
-        int clinicId;
-        if (session.getAttribute("clinicId") == null) {
-            clinicId = EMPTY_VALUE;
-        } else {
-            clinicId = (int) session.getAttribute("clinicId");
-        }
         String message;
-        String action = request.getParameter("action");
-        User user = (User) session.getAttribute("user");
         ArrayList<Patient> patients;
+        String action = request.getParameter("action");
 
         if (action == null) {
             action = "get list";
@@ -105,56 +104,32 @@ public class PatientHistoryServlet extends HttpServlet {
 
         switch (action) {
             case "get list":
-                if ((clinicId == EMPTY_VALUE)
-                        && (user.getClinics().size() > EMPTY_VALUE)) {
-                    clinicId = user.getClinics().get(index).getClinicId();
-                    session.setAttribute("clinicId", clinicId);
-                }
-                patients = (ArrayList<Patient>) session.getAttribute("patients");
+                patients = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.PATIENTS);
                 if (patients == null) {
-                    patients = PatientIO.getPatients(clinicId,
-                            session.getServletContext()
-                            .getAttribute("referenceCharacters"));
-                    session.setAttribute("patients", patients);
+                    patients = PatientDataAccess.getPatients(clinicId,
+                            referenceCharacters);
+                    session.setAttribute(SessionObjectUtility.PATIENTS, patients);
                 }
                 if (patient != null) {
                     Dashboard dashboard
-                            = PatientHistoryIO.getPatientDashboard(patient.getPatientId(),
-                                    session.getServletContext()
-                                    .getAttribute("referenceCharacters"));
+                            = PatientHistoryDataAccess.getPatientDashboard(patient.getPatientId(),
+                                    referenceCharacters);
                     request.setAttribute("dashboard", dashboard);
                     request.setAttribute("statuslist", dashboard.getHts());
-                }
-                break;
-            case "getClinic":
-                String clinicSelect = request.getParameter("clinicselect");
-
-                try {
-                    clinicId = Integer.parseInt(clinicSelect);
-                    patients = PatientIO.getPatients(clinicId,
-                            session.getServletContext()
-                            .getAttribute("referenceCharacters"));
-                    session.setAttribute("clinicId", clinicId);
-                    session.setAttribute("patients", patients);
-                    SessionObjectUtil.resetClinicObjects(session);
-                } catch (NumberFormatException nfe) {
-                    message = "clinic id invalid";
-                    request.setAttribute("errorMessage", message);
                 }
                 break;
             case "getPatient":
                 String patientSelect = request.getParameter("patientselect");
                 try {
                     patientId = Integer.parseInt(patientSelect);
-                    patients = (ArrayList<Patient>) session.getAttribute("patients");
+                    patients = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.PATIENTS);
                     for (Patient p : patients) {
                         if (p.getPatientId() == patientId) {
-                            session.setAttribute("patient", p);
-                            SessionObjectUtil.resetPatientObjects(session);
+                            session.setAttribute(SessionObjectUtility.PATIENT, p);
+                            SessionObjectUtility.resetPatientObjects(session);
                             Dashboard dashboard
-                                    = PatientHistoryIO.getPatientDashboard(patientId,
-                                            session.getServletContext()
-                                            .getAttribute("referenceCharacters"));
+                                    = PatientHistoryDataAccess.getPatientDashboard(patientId,
+                                            referenceCharacters);
                             request.setAttribute("dashboard", dashboard);
                             request.setAttribute("statuslist", dashboard.getHts());
                             break;
@@ -199,30 +174,30 @@ public class PatientHistoryServlet extends HttpServlet {
                 String erTopic = "Hospitalization";
                 String treatmentTopic = "Treatment";
 
-                patient = (Patient) session.getAttribute("patient");
+                patient = (Patient) session.getAttribute(SessionObjectUtility.PATIENT);
                 patientId = patient.getPatientId();
                 String historySelect = request.getParameter("historySelect");
                 switch (historySelect) {
                     case "dashboard":
                         Dashboard dashboard
-                                = PatientHistoryIO.getPatientDashboard(patientId,
-                                        session.getServletContext()
-                                        .getAttribute("referenceCharacters"));
+                                = PatientHistoryDataAccess.getPatientDashboard(patientId,
+                                        referenceCharacters);
                         request.setAttribute("dashboard", dashboard);
                         request.setAttribute("statuslist", dashboard.getHts());
 
                         break;
                     case "a1c": {
                         ArrayList<A1cResult> a1cHistory
-                                = PatientHistoryIO.getA1c(patientId);
+                                = PatientHistoryDataAccess.getA1c(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, a1cTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, a1cTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (a1cHistory != null) {
                             request.setAttribute("a1cHistory", a1cHistory);
 
                             if (a1cHistory.size() > 1) {
-                                session.setAttribute("a1cGraphPoints", a1cHistory);
+                                session.setAttribute(SessionObjectUtility.A1C_GRAPH_POINTS, a1cHistory);
                             }
                         }
                         if ((a1cHistory == null) && (notes == null)) {
@@ -233,15 +208,16 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "psa": {
                         ArrayList<ContinuousResult> psaHistory
-                                = PatientHistoryIO.getPsa(patientId);
+                                = PatientHistoryDataAccess.getPsa(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, psaTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, psaTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (psaHistory != null) {
                             request.setAttribute("psaHistory", psaHistory);
 
                             if (psaHistory.size() > 1) {
-                                session.setAttribute("psaGraphPoints", psaHistory);
+                                session.setAttribute(SessionObjectUtility.PSA_GRAPH_POINTS, psaHistory);
                             }
                         }
                         if ((psaHistory == null) && (notes == null)) {
@@ -252,15 +228,16 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "alt": {
                         ArrayList<ContinuousResult> altHistory
-                                = PatientHistoryIO.getAlt(patientId);
+                                = PatientHistoryDataAccess.getAlt(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, altTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, altTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (altHistory != null) {
                             request.setAttribute("altHistory", altHistory);
 
                             if (altHistory.size() > 1) {
-                                session.setAttribute("altGraphPoints", altHistory);
+                                session.setAttribute(SessionObjectUtility.ALT_GRAPH_POINTS, altHistory);
                             }
                         }
                         if ((altHistory == null) && (notes == null)) {
@@ -271,15 +248,16 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "ast": {
                         ArrayList<ContinuousResult> astHistory
-                                = PatientHistoryIO.getAst(patientId);
+                                = PatientHistoryDataAccess.getAst(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, astTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, astTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (astHistory != null) {
                             request.setAttribute("astHistory", astHistory);
 
                             if (astHistory.size() > 1) {
-                                session.setAttribute("astGraphPoints", astHistory);
+                                session.setAttribute(SessionObjectUtility.AST_GRAPH_POINTS, astHistory);
                             }
                         }
                         if ((astHistory == null) && (notes == null)) {
@@ -290,15 +268,16 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "bloodPressure": {
                         ArrayList<BloodPressureResult> bpHistory
-                                = PatientHistoryIO.getBP(patientId);
+                                = PatientHistoryDataAccess.getBP(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, bpTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, bpTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (bpHistory != null) {
                             request.setAttribute("bpHistory", bpHistory);
 
                             if (bpHistory.size() > 1) {
-                                session.setAttribute("bpGraphPoints", bpHistory);
+                                session.setAttribute(SessionObjectUtility.BP_GRAPH_POINTS, bpHistory);
                             }
                         }
                         if ((bpHistory == null) && (notes == null)) {
@@ -309,15 +288,16 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "BMI": {
                         ArrayList<ContinuousResult> bmiHistory
-                                = PatientHistoryIO.getBmi(patientId);
+                                = PatientHistoryDataAccess.getBmi(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, bmiTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, bmiTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (bmiHistory != null) {
                             request.setAttribute("bmiHistory", bmiHistory);
 
                             if (bmiHistory.size() > 1) {
-                                session.setAttribute("bmiGraphPoints", bmiHistory);
+                                session.setAttribute(SessionObjectUtility.BMI_GRAPH_POINTS, bmiHistory);
                             }
                         }
                         if ((bmiHistory == null) && (notes == null)) {
@@ -328,7 +308,7 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "checklists": {
                         ArrayList<Date> checklistDates
-                                = QualityIO.getChecklistDates(patientId);
+                                = QualityDataAccess.getChecklistDates(patientId);
                         if (checklistDates != null) {
                             request.setAttribute("checklistDates", checklistDates);
 
@@ -340,9 +320,10 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "class": {
                         ArrayList<Date> classHistory
-                                = PatientHistoryIO.getClass(patientId);
+                                = PatientHistoryDataAccess.getClass(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, classTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, classTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (classHistory != null) {
                             request.setAttribute("classHistory", classHistory);
@@ -356,15 +337,16 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "creatinine": {
                         ArrayList<ContinuousResult> creatinineHistory
-                                = PatientHistoryIO.getCreatinine(patientId);
+                                = PatientHistoryDataAccess.getCreatinine(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, creatinineTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, creatinineTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (creatinineHistory != null) {
                             request.setAttribute("creatinineHistory", creatinineHistory);
 
                             if (creatinineHistory.size() > 1) {
-                                session.setAttribute("creatinineGraphPoints",
+                                session.setAttribute(SessionObjectUtility.CREATININE_GRAPH_POINTS,
                                         creatinineHistory);
                             }
                         }
@@ -376,15 +358,16 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "eGFR": {
                         ArrayList<ContinuousResult> egfrHistory
-                                = PatientHistoryIO.getEgfr(patientId);
+                                = PatientHistoryDataAccess.getEgfr(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, egfrTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, egfrTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (egfrHistory != null) {
                             request.setAttribute("egfrHistory", egfrHistory);
 
                             if (egfrHistory.size() > 1) {
-                                session.setAttribute("egfrGraphPoints", egfrHistory);
+                                session.setAttribute(SessionObjectUtility.EGFR_GRAPH_POINTS, egfrHistory);
                             }
                         }
                         if ((egfrHistory == null) && (notes == null)) {
@@ -395,9 +378,10 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "eye": {
                         ArrayList<CategoricalResult> eyeHistory
-                                = PatientHistoryIO.getEye(patientId);
+                                = PatientHistoryDataAccess.getEye(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, eyeTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, eyeTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (eyeHistory != null) {
                             request.setAttribute("eyeHistory", eyeHistory);
@@ -411,9 +395,10 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "foot": {
                         ArrayList<CategoricalResult> footHistory
-                                = PatientHistoryIO.getFoot(patientId);
+                                = PatientHistoryDataAccess.getFoot(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, footTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, footTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (footHistory != null) {
                             request.setAttribute("footHistory", footHistory);
@@ -427,15 +412,16 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "glucose": {
                         ArrayList<ContinuousResult> glucoseHistory
-                                = PatientHistoryIO.getGlucose(patientId);
+                                = PatientHistoryDataAccess.getGlucose(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, glucoseTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, glucoseTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (glucoseHistory != null) {
                             request.setAttribute("glucoseHistory", glucoseHistory);
 
                             if (glucoseHistory.size() > 1) {
-                                session.setAttribute("glucoseGraphPoints", glucoseHistory);
+                                session.setAttribute(SessionObjectUtility.GLUCOSE_GRAPH_POINTS, glucoseHistory);
                             }
                         }
                         if ((glucoseHistory == null) && (notes == null)) {
@@ -446,15 +432,16 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "HDL": {
                         ArrayList<ContinuousResult> hdlHistory
-                                = PatientHistoryIO.getHdl(patientId);
+                                = PatientHistoryDataAccess.getHdl(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, hdlTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, hdlTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (hdlHistory != null) {
                             request.setAttribute("hdlHistory", hdlHistory);
 
                             if (hdlHistory.size() > 1) {
-                                session.setAttribute("hdlGraphPoints", hdlHistory);
+                                session.setAttribute(SessionObjectUtility.HDL_GRAPH_POINTS, hdlHistory);
                             }
                         }
                         if ((hdlHistory == null) && (notes == null)) {
@@ -465,9 +452,10 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "hepb": {
                         ArrayList<Date> hepBHistory
-                                = PatientHistoryIO.getHepB(patientId);
+                                = PatientHistoryDataAccess.getHepB(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, hepbTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, hepbTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (hepBHistory != null) {
                             request.setAttribute("hepBHistory", hepBHistory);
@@ -481,9 +469,10 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "hospitalization": {
                         ArrayList<Date> hospitalizationHistory
-                                = PatientHistoryIO.getER(patientId);
+                                = PatientHistoryDataAccess.getER(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, erTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, erTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (hospitalizationHistory != null) {
                             request.setAttribute("hospitalizationHistory", hospitalizationHistory);
@@ -497,9 +486,10 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "influenza": {
                         ArrayList<Date> influenzaHistory
-                                = PatientHistoryIO.getInfluenza(patientId);
+                                = PatientHistoryDataAccess.getInfluenza(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, fluTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, fluTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (influenzaHistory != null) {
                             request.setAttribute("influenzaHistory", influenzaHistory);
@@ -513,15 +503,16 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "LDL": {
                         ArrayList<LdlResult> ldlHistory
-                                = PatientHistoryIO.getLdl(patientId);
+                                = PatientHistoryDataAccess.getLdl(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, ldlTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, ldlTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (ldlHistory != null) {
                             request.setAttribute("ldlHistory", ldlHistory);
 
                             if (ldlHistory.size() > 1) {
-                                session.setAttribute("ldlGraphPoints", ldlHistory);
+                                session.setAttribute(SessionObjectUtility.LDL_GRAPH_POINTS, ldlHistory);
                             }
                         }
                         if ((ldlHistory == null) && (notes == null)) {
@@ -532,7 +523,8 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "notes": {
                         ArrayList<CategoricalResult> allNotes
-                                = PatientHistoryIO.getAllNotes(patientId);
+                                = PatientHistoryDataAccess.getAllNotes(patientId,
+                                        referenceCharacters);
                         if (allNotes != null) {
                             request.setAttribute("allNotes", allNotes);
                         } else {
@@ -543,15 +535,16 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "compliance": {
                         ArrayList<ContinuousResult> complianceHistory
-                                = PatientHistoryIO.getCompliance(patientId);
+                                = PatientHistoryDataAccess.getCompliance(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, complianceTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, complianceTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (complianceHistory != null) {
                             request.setAttribute("complianceHistory", complianceHistory);
 
                             if (complianceHistory.size() > 1) {
-                                session.setAttribute("comlianceGraphPoints", complianceHistory);
+                                session.setAttribute(SessionObjectUtility.COMPLIANCE_GRAPH_POINTS, complianceHistory);
                             }
                         }
                         if ((complianceHistory == null) && (notes == null)) {
@@ -562,9 +555,10 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "PCV-13": {
                         ArrayList<Date> pcv13History
-                                = PatientHistoryIO.getPcv13(patientId);
+                                = PatientHistoryDataAccess.getPcv13(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, pcv13Topic);
+                                = PatientHistoryDataAccess.getNotes(patientId, pcv13Topic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (pcv13History != null) {
                             request.setAttribute("pcv13History", pcv13History);
@@ -578,16 +572,17 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "physicalActivity": {
                         ArrayList<DiscreteResult> physicalActivityHistory
-                                = PatientHistoryIO.getPhysical(patientId);
+                                = PatientHistoryDataAccess.getPhysical(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, physicalTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, physicalTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (physicalActivityHistory != null) {
                             request.setAttribute("physicalActivityHistory",
                                     physicalActivityHistory);
 
                             if (physicalActivityHistory.size() > 1) {
-                                session.setAttribute("physicalActivityGraphPoints",
+                                session.setAttribute(SessionObjectUtility.PHYSICAL_ACTIVITY_GRAPH_POINTS,
                                         physicalActivityHistory);
                             }
                         }
@@ -599,9 +594,10 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "PPSV-23": {
                         ArrayList<Date> ppsv23History
-                                = PatientHistoryIO.getPpsv23(patientId);
+                                = PatientHistoryDataAccess.getPpsv23(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, ppsv23Topic);
+                                = PatientHistoryDataAccess.getNotes(patientId, ppsv23Topic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (ppsv23History != null) {
                             request.setAttribute("ppsv23History", ppsv23History);
@@ -615,15 +611,16 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "psychological": {
                         ArrayList<PsychologicalScreeningResult> psychologicalHistory
-                                = PatientHistoryIO.getPsychological(patientId);
+                                = PatientHistoryDataAccess.getPsychological(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, psycTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, psycTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (psychologicalHistory != null) {
                             request.setAttribute("psychologicalHistory", psychologicalHistory);
 
                             if (psychologicalHistory.size() > 1) {
-                                session.setAttribute("psychologicalGraphPoints",
+                                session.setAttribute(SessionObjectUtility.PSYCHOLOGICAL_GRAPH_POINTS,
                                         psychologicalHistory);
                             }
                         }
@@ -635,9 +632,10 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "smoking": {
                         ArrayList<BooleanResult> smokingHistory
-                                = PatientHistoryIO.getSmoking(patientId);
+                                = PatientHistoryDataAccess.getSmoking(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, smokingTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, smokingTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (smokingHistory != null) {
                             request.setAttribute("smokingHistory", smokingHistory);
@@ -651,15 +649,16 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "T4": {
                         ArrayList<ContinuousResult> t4History
-                                = PatientHistoryIO.getT4(patientId);
+                                = PatientHistoryDataAccess.getT4(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, t4Topic);
+                                = PatientHistoryDataAccess.getNotes(patientId, t4Topic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (t4History != null) {
                             request.setAttribute("t4History", t4History);
 
                             if (t4History.size() > 1) {
-                                session.setAttribute("t4GraphPoints",
+                                session.setAttribute(SessionObjectUtility.T4_GRAPH_POINTS,
                                         t4History);
                             }
                         }
@@ -671,9 +670,10 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "TDAP": {
                         ArrayList<Date> tdapHistory
-                                = PatientHistoryIO.getTdap(patientId);
+                                = PatientHistoryDataAccess.getTdap(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, tdapTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, tdapTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (tdapHistory != null) {
                             request.setAttribute("tdapHistory", tdapHistory);
@@ -687,9 +687,10 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "telephone": {
                         ArrayList<CategoricalResult> telephoneHistory
-                                = PatientHistoryIO.getTelephone(patientId);
+                                = PatientHistoryDataAccess.getTelephone(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, telephoneTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, telephoneTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (telephoneHistory != null) {
                             request.setAttribute("telephoneHistory", telephoneHistory);
@@ -703,9 +704,10 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "treatment": {
                         TreatmentHistory treatmentHistory
-                                = PatientTreatmentIO.getTreatments(patientId);
+                                = PatientTreatmentDataAccess.getTreatments(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, treatmentTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, treatmentTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if ((treatmentHistory != null)
                                 && (treatmentHistory.getTherapies() == null)
@@ -721,16 +723,17 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "triglycerides": {
                         ArrayList<ContinuousResult> triglyceridesHistory
-                                = PatientHistoryIO.getTriglycerides(patientId);
+                                = PatientHistoryDataAccess.getTriglycerides(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, trigTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, trigTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (triglyceridesHistory != null) {
                             request.setAttribute("triglyceridesHistory",
                                     triglyceridesHistory);
 
                             if (triglyceridesHistory.size() > 1) {
-                                session.setAttribute("triglyceridesGraphPoints",
+                                session.setAttribute(SessionObjectUtility.TRIGLYCERIDES_GRAPH_POINTS,
                                         triglyceridesHistory);
                             }
                         }
@@ -742,15 +745,16 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "TSH": {
                         ArrayList<TshResult> tshHistory
-                                = PatientHistoryIO.getTsh(patientId);
+                                = PatientHistoryDataAccess.getTsh(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, tshTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, tshTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (tshHistory != null) {
                             request.setAttribute("tshHistory", tshHistory);
 
                             if (tshHistory.size() > 1) {
-                                session.setAttribute("tshGraphPoints",
+                                session.setAttribute(SessionObjectUtility.TSH_GRAPH_POINTS,
                                         tshHistory);
                             }
                         }
@@ -762,15 +766,16 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "UACR": {
                         ArrayList<ContinuousResult> uacrHistory
-                                = PatientHistoryIO.getUacr(patientId);
+                                = PatientHistoryDataAccess.getUacr(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, uacrTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, uacrTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (uacrHistory != null) {
                             request.setAttribute("uacrHistory", uacrHistory);
 
                             if (uacrHistory.size() > 1) {
-                                session.setAttribute("uacrGraphPoints", uacrHistory);
+                                session.setAttribute(SessionObjectUtility.UACR_GRAPH_POINTS, uacrHistory);
                             }
                         }
                         if ((uacrHistory == null) && (notes == null)) {
@@ -781,15 +786,16 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "waist": {
                         ArrayList<ContinuousResult> waistHistory
-                                = PatientHistoryIO.getWaist(patientId);
+                                = PatientHistoryDataAccess.getWaist(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, waistTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, waistTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (waistHistory != null) {
                             request.setAttribute("waistHistory", waistHistory);
 
                             if (waistHistory.size() > 1) {
-                                session.setAttribute("waistGraphPoints",
+                                session.setAttribute(SessionObjectUtility.WAIST_GRAPH_POINTS,
                                         waistHistory);
                             }
                         }
@@ -801,9 +807,10 @@ public class PatientHistoryServlet extends HttpServlet {
                     }
                     case "zoster": {
                         ArrayList<Date> zosterHistory
-                                = PatientHistoryIO.getZoster(patientId);
+                                = PatientHistoryDataAccess.getZoster(patientId);
                         ArrayList<CategoricalResult> notes
-                                = PatientHistoryIO.getNotes(patientId, zosterTopic);
+                                = PatientHistoryDataAccess.getNotes(patientId, zosterTopic,
+                                        referenceCharacters);
                         request.setAttribute("notes", notes);
                         if (zosterHistory != null) {
                             request.setAttribute("zosterHistory", zosterHistory);
@@ -816,10 +823,9 @@ public class PatientHistoryServlet extends HttpServlet {
                         break;
                     }
                     default:
-                        dashboard = PatientHistoryIO
+                        dashboard = PatientHistoryDataAccess
                                 .getPatientDashboard(patient.getPatientId(),
-                                        session.getServletContext()
-                                        .getAttribute("referenceCharacters"));
+                                        referenceCharacters);
                         request.setAttribute("dashboard", dashboard);
                         request.setAttribute("statuslist", dashboard.getHts());
                         break;
@@ -827,14 +833,9 @@ public class PatientHistoryServlet extends HttpServlet {
                 break;
             case "qualityChecklist":
                 boolean validData = true;
-                if (clinicId == EMPTY_VALUE) {
-                    message = "You must select a clinic.";
-                    request.setAttribute("errorMessage", message);
-                    validData = false;
-                }
                 String checklistSelect = request.getParameter("checklistSelect");
                 Date checklistDate = null;
-                if (StringUtil.dateCheck(checklistSelect)) {
+                if (StringUtility.dateCheck(checklistSelect)) {
                     checklistDate = Date.valueOf(checklistSelect);
                 } else {
                     message = "The checklist date does not conform to the pattern, "
@@ -845,7 +846,7 @@ public class PatientHistoryServlet extends HttpServlet {
                 if (validData) {
                     patientId = patient.getPatientId();
                     ArrayList<QualityReference> checklistItems
-                            = QualityIO.getChecklistItems(patientId,
+                            = QualityDataAccess.getChecklistItems(patientId,
                                     checklistDate, clinicId);
                     if (checklistItems != null) {
                         request.setAttribute("checklistDate", checklistSelect);

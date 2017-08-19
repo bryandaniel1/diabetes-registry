@@ -9,13 +9,17 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>St. Joseph Medical Clinic Diabetes Registry</title>
+        <title>Diabetes Registry</title>
         <meta name="robots" content="noindex, nofollow">
+        <link rel="stylesheet" href="<c:url value='/script/jquery-ui.css'/>">
+        <script src="<c:url value='/script/jquery-1.12.1.js'/>"></script>
+        <script src="<c:url value='/script/jquery-ui.js'/>"></script>
         <link rel="stylesheet" type="text/css" href="<c:url value='/style/main.css'/>">
+        <script type="text/javascript" src="<c:url value='/script/main.js'/>"></script>
     </head>
     <body>
         <header>
-            <h1 id="title">St. Joseph Medical Clinic<br>Diabetes Registry</h1>            
+            <h1 id="title">Diabetes Registry</h1>            
                 <c:if test="${user!=null}">
                 <ul id="usersignout">
                     <li>Hello, <c:out value="${user.firstName}"></c:out></li>

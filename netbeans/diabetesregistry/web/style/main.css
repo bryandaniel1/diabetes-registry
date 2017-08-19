@@ -72,8 +72,8 @@ label{
     text-align: right;
 }
 
-/*Content backdrop for main pages, signin, and register*/
-#signinpage, #registerpage, .pagecontent{
+/*Content backdrop for main pages and signin */
+#signinpage, #changepasswordpage, .pagecontent{
     float: left;
     display: block;
     margin: 5% 2%;    
@@ -83,11 +83,9 @@ label{
     box-shadow: 2px 2px 8px rgba(0,0,0,.25);
 }
 
-#registerpage, .pagecontent{
-    width: 90%;
-}
-
 .pagecontent{
+    width: 90%;
+    border: none;
     margin: 2% 5%;
 }
 
@@ -97,8 +95,8 @@ h1, h2, h3{
     text-align: center;
 }
 
-/*Content for signin and register*/
-#signinpart, #registerpart{
+/*Content for signin and password reset request*/
+#signinpart, #forgotpasswordpart, #resetrequestpart{
     float: left;
     width: 90%;
     margin: 2% 2%;    
@@ -157,9 +155,9 @@ h1, h2, h3{
     box-shadow: 2px 2px 8px rgba(0,0,0,.25);
 }
 
-/*Signin and register page text entry*/
-.forminstructions, .signinlabels,
-#id, #password{
+/*Signin and password reset request page text entry*/
+.forminstructions, .signinlabels, .resetrequestlabels, 
+#id, #password, #requestEmail{
     float: left;
 }
 
@@ -167,11 +165,12 @@ h1, h2, h3{
     margin: 2% 30%;
 }
 
-.signinlabels, #signinbutton, #registerbutton{
+.signinlabels, #signinbutton, #forgotpasswordbutton, 
+.resetrequestlabels{
     margin: 2% 2% 2% 20%;
 }
 
-#id, #password{
+#id, #password, #requestEmail{
     margin: 2% 20% 2% 2%;
 }
 
@@ -207,9 +206,10 @@ table{
     float: left;
 }
 
-#userTable{
+#userTable, #editUserForm{
     width: 45%;
     float: left;
+    clear: left;
     margin: 2% 2%;
 }
 
@@ -223,21 +223,19 @@ table{
     clear: both;
 }
 
-tr{
-    background-color: #F0F0F0;
-    border: 1px solid black;
-}
-
 td{
     width: 22%;
     padding: 2%;    
 }
 
 .hometable{
+    width: 100%;
+    height: 100%;
     border: none;
+    margin: 0;
 }
 
-/* Registration page and patient select***/
+/* Add user page and patient select***/
 #registertable, .patientselect{
     border: none;
     margin: 0%;
@@ -252,7 +250,7 @@ td{
     margin: 2% 20%;
 }
 
-.dataregisterlabels{
+.datalabels{
     width: 20%;
     text-align: right;
 }
@@ -293,14 +291,6 @@ td{
     width: 60%;
     float: left;
     font-size: .9em;
-}
-#aceorarblabel{
-    clear: left;
-    float: left;
-}
-#aceorarb{
-    float: left;
-    margin: 1% 2%;
 }
 #acorpc{
     margin-right: 20%;
@@ -358,7 +348,7 @@ td{
     text-align: right;
 }
 
-.historytable, img, .statstable{
+.historytable, img, .statstable, #dashboardheader, .historyheader{
     clear: both;
     margin: 5%;
 }
@@ -367,12 +357,25 @@ img{
     box-shadow: 2px 2px 8px rgba(0,0,0,.25);
 }
 
-.imgbox{
-    margin: 0%;
-    padding: 0%;
+.imgbox, .historybox{
+    border-style: ridge;
+    border-color: #F0F0F0;
+    background-color: #E0E0E0;
+    border-width: 10px;
+    margin: 1%;
+    margin-left: 4%;
+    padding: 1%;
     height:550px;
-    width: 780px;
+    width: 800px;
     overflow: scroll;
+}
+
+.historybox{
+    height: 400px;
+}
+
+.imgbox{
+    margin-bottom: 4%;
 }
 
 .minitable{
@@ -422,6 +425,54 @@ img{
     border: none;
 }
 
+.useraudittable, #userauditheader, 
+.passwordresetrequesttable, #passwordresetrequestheader{
+    clear: both;
+    margin: 2%;
+    padding: 2%;
+    border: none;
+}
+
+#savepasswordresetrequestlist{
+    width: 20%;
+    float: left;
+}
+
+.emailmessageselect{
+    width: 100%;
+}
+
+.qualityconfigurationdata{
+    float: left;
+    width: 15%;
+    margin: 1%;
+}
+
+.qualityconfigurationstatus{    
+    float: left;
+    padding-left: 5%;
+    width: 10%;
+    margin: 1%;
+}
+
+.qualityconfigurationresponsibility{
+    float: left;
+    width: 40%;
+    margin: 1%;
+}
+
+.qualityconfigurationtable{
+    width: 100%;
+}
+
+#qualityconfigurationtablehead{
+    padding: 2%;
+}
+
+#newresponsibility{
+    width: 80%;
+}
+
 /**
 *Footer
 */
@@ -458,11 +509,6 @@ footer{
     clear: right;
 }
 
-.progressDataTable{
-    border: none;
-    clear: both;
-}
-
 .progressCells{
     float: left;
     text-align: right;
@@ -479,14 +525,11 @@ footer{
     margin-top: 4%;
 }
 
-#waistProgress{
-    float: right;
-}
-
 #viewpdfbutton{
     float:right;
     clear: right;
-    margin: 3% 12%;
+    margin: 3% 12%;    
+    color: #000000;
 }
 
 
@@ -494,6 +537,36 @@ footer{
     padding-left: 9%;
 }
 
+#waistprogress, #weightreduction{
+    padding-left: 0%;
+}
+
+#waistprogresslabel, #weightreductionlabel{
+    padding-right: 0%;
+}
+
+#bptable{
+    border: none;
+    box-shadow: none;
+}
+
+#bpsystole, #bpdiastole{
+    width: 70%;
+}
+
+#bpsystolecell{
+    padding-bottom: 1%;
+    border-bottom:  1px solid black;
+}
+
+#aceorarblabel, #bplabel{
+    float: right;
+}
+
+#aceorarb{
+    float: left;
+    margin: 1% 2%;
+}
 /**
 *Call list page
 */
@@ -508,11 +581,11 @@ footer{
     word-wrap: normal;
 }
 
-#calllistemail{
+#callliststartdate, #calllistcontactnumber, #calllistemail{
     word-wrap: break-word;
 }
 
-.calllistpassword{
+.calllistpassword, .adminemailpassword{
     float: left;
 }
 
@@ -528,6 +601,18 @@ footer{
     margin: 3% 7%;
     box-shadow: 2px 2px 8px rgba(0,0,0,.25);
 }
+
+#nameuparrow, #namedownarrow, #dateuparrow, #datedownarrow{
+    font-size: 1.5em;
+}
+#nameuparrow:link, #namedownarrow:link, 
+#dateuparrow:link, #datedownarrow:link { color: #0080FF; }
+#nameuparrow:visited, #namedownarrow:visited, 
+#dateuparrow:visited, #datedownarrow:visited { color: #0080FF; }
+#nameuparrow:hover, #nameuparrow:focus, #nameuparrow:active { color: #56AAFF; }
+#namedownarrow:hover, #namedownarrow:focus, #namedownarrow:active { color: #56AAFF; }
+#dateuparrow:hover, #dateuparrow:focus, #dateuparrow:active { color: #56AAFF; }
+#datedownarrow:hover, #datedownarrow:focus, #datedownarrow:active { color: #56AAFF; }
 
 /**
 *Stats page

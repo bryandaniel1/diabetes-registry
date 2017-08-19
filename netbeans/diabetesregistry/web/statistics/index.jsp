@@ -14,49 +14,34 @@
     <p class="success"><c:out value="${message}"/></p>
 </c:if>
 <section class="pagecontent">
-    <form action="statistics" method="post">
-        <section class="contentText">
-            <input type="hidden" name="action" value="getStatistic">    
-            <table class="patientselect">
-                <tr>
-                    <td class="dataregisterlabels">
-                        <label for="clinicselect" class="registerlabels">Clinic:</label>
-                    </td>
-                    <td>
-                        <select name="clinicselect">
-                            <c:forEach var="clinic" items="${user.clinics}">
-                                <c:choose>
-                                    <c:when test="${clinic.clinicId == sessionScope.clinicId}">
-                                        <option value="${clinic.clinicId}" selected><c:out value="${clinic.clinicName}"/></option>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <option value="${clinic.clinicId}"><c:out value="${clinic.clinicName}"/></option>
-                                    </c:otherwise>                        
-                                </c:choose>
-                            </c:forEach>
-                        </select>
-                    </td>
-                </tr>
-            </table>
-        </section>
-        <section class="contentText">
-            <table class="patientselect" id="statisticselect">
-                <tr>
-                    <td class="dataregisterlabels">
-                        <label for="statselect" class="registerlabels">Select Statistic:</label>
-                    </td>
-                    <td>
-                        <select name="statselect" onchange="this.form.submit()">
-                            <option value="" selected disabled>Select a statistic</option>
-                            <option value="demographics">demographics</option>
-                            <option value="glycemicControl">glycemic control</option>
-                            <option value="bodyMass">body mass</option>
-                            <option value="treatment">treatment</option>
-                        </select>
-                    </td>
-                </tr>
-            </table>
-        </section>
+    <table class="patientselect">
+        <tr>
+            <td class="datalabels">
+                <label for="clinicname" class="labels">Clinic:</label>
+            </td>
+            <td>
+                <output name="clinicname"><c:out value="${applicationScope.references.clinic.clinicName}"/></output>
+            </td>
+        </tr>
+    </table>
+    <form class="contentText" action="statistics" method="post">
+        <input type="hidden" name="action" value="getStatistic">
+        <table class="patientselect" id="statisticselect">
+            <tr>
+                <td class="datalabels">
+                    <label for="statselect" class="labels">Select Statistic:</label>
+                </td>
+                <td>
+                    <select name="statselect" onchange="this.form.submit()">
+                        <option value="" selected disabled>Select a statistic</option>
+                        <option value="demographics">demographics</option>
+                        <option value="glycemicControl">glycemic control</option>
+                        <option value="bodyMass">body mass</option>
+                        <option value="treatment">treatment</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
     </form>
 </section>
 <c:if test="${demographics != null}">

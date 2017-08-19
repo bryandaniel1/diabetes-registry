@@ -15,18 +15,6 @@
  */
 package controller;
 
-import clinic.A1cResult;
-import clinic.BloodPressureResult;
-import clinic.CategoricalValue;
-import clinic.ContinuousResult;
-import clinic.DemographicData;
-import clinic.DiscreteResult;
-import clinic.HealthyTargetReference;
-import clinic.Stats;
-import clinic.LdlResult;
-import clinic.PsychologicalScreeningResult;
-import clinic.ReferenceContainer;
-import clinic.TshResult;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.io.IOException;
@@ -36,6 +24,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -61,6 +51,19 @@ import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.statistics.BoxAndWhiskerCalculator;
 import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.HistogramDataset;
+import registry.A1cResult;
+import registry.BloodPressureResult;
+import registry.CategoricalValue;
+import registry.ContinuousResult;
+import registry.DemographicData;
+import registry.DiscreteResult;
+import registry.HealthyTargetReference;
+import registry.LdlResult;
+import registry.PsychologicalScreeningResult;
+import registry.ReferenceContainer;
+import registry.Stats;
+import registry.TshResult;
+import utility.SessionObjectUtility;
 
 /**
  * This HttpServlet class handles the responsibility of drawing charts and
@@ -68,11 +71,14 @@ import org.jfree.data.statistics.HistogramDataset;
  * chart must be drawn.
  *
  * @author Bryan Daniel
- * @version 1, April 8, 2016
+ * @version 2, March 16, 2017
  */
 public class ChartAndGraphServlet extends HttpServlet {
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * Serial version UID
+     */
+    private static final long serialVersionUID = 8202673312068649922L;
 
     /**
      * Handles the HTTP <code>GET</code> method. This method invokes the
@@ -87,7 +93,8 @@ public class ChartAndGraphServlet extends HttpServlet {
         try {
             getChart(request, response);
         } catch (IOException e) {
-            System.err.println("IO exception in ChartAndGraphServlet");
+            Logger.getLogger(ChartAndGraphServlet.class.getName()).log(Level.SEVERE,
+                    "An IOException occurred during the getChart method.", e);
         }
     }
 
@@ -103,12 +110,12 @@ public class ChartAndGraphServlet extends HttpServlet {
      */
     public void getChart(HttpServletRequest request,
             HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession();
         response.setContentType("image/png");
         OutputStream outputStream = response.getOutputStream();
-        HttpSession session = request.getSession();
         final int WIDTH_INCREASE_THRESHOLD = 18;
         final int INCREMENTAL_INCREASE_THRESHOLD = 22;
-        final int INCREMENTAL_INCREASE_IN_PIXELS = 30;
+        final int INCREMENTAL_INCREASE_IN_PIXELS = 45;
         final int TREATMENT_CLASS_UNKNOWN_INDEX = 6;
         int width = 640;
         int height = 450;
@@ -121,7 +128,7 @@ public class ChartAndGraphServlet extends HttpServlet {
         switch (action) {
             case "a1c": {
                 ArrayList<A1cResult> a1cHistory
-                        = (ArrayList<A1cResult>) session.getAttribute("a1cGraphPoints");
+                        = (ArrayList<A1cResult>) session.getAttribute(SessionObjectUtility.A1C_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -130,7 +137,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                             a1cHistory.get(i).getDate());
                 }
                 /* remove reference */
-                session.setAttribute("a1cGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.A1C_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -178,7 +185,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "psa": {
                 ArrayList<ContinuousResult> psaHistory
-                        = (ArrayList<ContinuousResult>) session.getAttribute("psaGraphPoints");
+                        = (ArrayList<ContinuousResult>) session.getAttribute(SessionObjectUtility.PSA_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -188,7 +195,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("psaGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.PSA_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -236,7 +243,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "alt": {
                 ArrayList<ContinuousResult> altHistory
-                        = (ArrayList<ContinuousResult>) session.getAttribute("altGraphPoints");
+                        = (ArrayList<ContinuousResult>) session.getAttribute(SessionObjectUtility.ALT_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -246,7 +253,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("altGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.ALT_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -294,7 +301,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "ast": {
                 ArrayList<ContinuousResult> astHistory
-                        = (ArrayList<ContinuousResult>) session.getAttribute("astGraphPoints");
+                        = (ArrayList<ContinuousResult>) session.getAttribute(SessionObjectUtility.AST_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -304,7 +311,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("astGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.AST_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -352,7 +359,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "bp": {
                 ArrayList<BloodPressureResult> bpHistory
-                        = (ArrayList<BloodPressureResult>) session.getAttribute("bpGraphPoints");
+                        = (ArrayList<BloodPressureResult>) session.getAttribute(SessionObjectUtility.BP_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -364,7 +371,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("bpGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.BP_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -412,7 +419,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "bmi": {
                 ArrayList<ContinuousResult> bmiHistory
-                        = (ArrayList<ContinuousResult>) session.getAttribute("bmiGraphPoints");
+                        = (ArrayList<ContinuousResult>) session.getAttribute(SessionObjectUtility.BMI_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -422,7 +429,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("bmiGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.BMI_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -470,7 +477,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "creatinine": {
                 ArrayList<ContinuousResult> creatinineHistory
-                        = (ArrayList<ContinuousResult>) session.getAttribute("creatinineGraphPoints");
+                        = (ArrayList<ContinuousResult>) session.getAttribute(SessionObjectUtility.CREATININE_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -480,7 +487,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("creatinineGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.CREATININE_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -528,7 +535,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "egfr": {
                 ArrayList<ContinuousResult> egfrHistory
-                        = (ArrayList<ContinuousResult>) session.getAttribute("egfrGraphPoints");
+                        = (ArrayList<ContinuousResult>) session.getAttribute(SessionObjectUtility.EGFR_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -538,7 +545,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("egfrGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.EGFR_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -586,7 +593,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "glucose": {
                 ArrayList<ContinuousResult> glucoseHistory
-                        = (ArrayList<ContinuousResult>) session.getAttribute("glucoseGraphPoints");
+                        = (ArrayList<ContinuousResult>) session.getAttribute(SessionObjectUtility.GLUCOSE_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -596,7 +603,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("glucoseGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.GLUCOSE_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -644,7 +651,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "hdl": {
                 ArrayList<ContinuousResult> hdlHistory
-                        = (ArrayList<ContinuousResult>) session.getAttribute("hdlGraphPoints");
+                        = (ArrayList<ContinuousResult>) session.getAttribute(SessionObjectUtility.HDL_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -654,7 +661,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("hdlGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.HDL_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -714,7 +721,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "ldl": {
                 ArrayList<LdlResult> ldlHistory
-                        = (ArrayList<LdlResult>) session.getAttribute("ldlGraphPoints");
+                        = (ArrayList<LdlResult>) session.getAttribute(SessionObjectUtility.LDL_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -724,7 +731,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("ldlGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.LDL_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -772,7 +779,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "compliance": {
                 ArrayList<ContinuousResult> complianceHistory
-                        = (ArrayList<ContinuousResult>) session.getAttribute("complianceGraphPoints");
+                        = (ArrayList<ContinuousResult>) session.getAttribute(SessionObjectUtility.COMPLIANCE_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -782,7 +789,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("complianceGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.COMPLIANCE_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -816,7 +823,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "physicalActivity": {
                 ArrayList<DiscreteResult> physicalActivityHistory
-                        = (ArrayList<DiscreteResult>) session.getAttribute("physicalActivityGraphPoints");
+                        = (ArrayList<DiscreteResult>) session.getAttribute(SessionObjectUtility.PHYSICAL_ACTIVITY_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -826,7 +833,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("physicalActivityGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.PHYSICAL_ACTIVITY_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -874,7 +881,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "psychological": {
                 ArrayList<PsychologicalScreeningResult> psychologicalHistory
-                        = (ArrayList<PsychologicalScreeningResult>) session.getAttribute("psychologicalGraphPoints");
+                        = (ArrayList<PsychologicalScreeningResult>) session.getAttribute(SessionObjectUtility.PSYCHOLOGICAL_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -884,7 +891,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("psychologicalGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.PSYCHOLOGICAL_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -918,7 +925,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "t4": {
                 ArrayList<ContinuousResult> t4History
-                        = (ArrayList<ContinuousResult>) session.getAttribute("t4GraphPoints");
+                        = (ArrayList<ContinuousResult>) session.getAttribute(SessionObjectUtility.T4_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -928,7 +935,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("t4GraphPoints", null);
+                session.setAttribute(SessionObjectUtility.T4_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -976,7 +983,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "triglycerides": {
                 ArrayList<ContinuousResult> triglyceridesHistory
-                        = (ArrayList<ContinuousResult>) session.getAttribute("triglyceridesGraphPoints");
+                        = (ArrayList<ContinuousResult>) session.getAttribute(SessionObjectUtility.TRIGLYCERIDES_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -986,7 +993,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("triglyceridesGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.TRIGLYCERIDES_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -1034,7 +1041,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "tsh": {
                 ArrayList<TshResult> tshHistory
-                        = (ArrayList<TshResult>) session.getAttribute("tshGraphPoints");
+                        = (ArrayList<TshResult>) session.getAttribute(SessionObjectUtility.TSH_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -1044,7 +1051,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("tshGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.TSH_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -1092,7 +1099,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "uacr": {
                 ArrayList<ContinuousResult> uacrHistory
-                        = (ArrayList<ContinuousResult>) session.getAttribute("uacrGraphPoints");
+                        = (ArrayList<ContinuousResult>) session.getAttribute(SessionObjectUtility.UACR_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -1102,7 +1109,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("uacrGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.UACR_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -1150,7 +1157,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "waist": {
                 ArrayList<ContinuousResult> waistHistory
-                        = (ArrayList<ContinuousResult>) session.getAttribute("waistGraphPoints");
+                        = (ArrayList<ContinuousResult>) session.getAttribute(SessionObjectUtility.WAIST_GRAPH_POINTS);
                 DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
                 /* add the data */
@@ -1160,7 +1167,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("waistGraphPoints", null);
+                session.setAttribute(SessionObjectUtility.WAIST_GRAPH_POINTS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -1220,7 +1227,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "agedemographics": {
                 DemographicData demographicData
-                        = (DemographicData) session.getAttribute("ageDemographicsGraphData");
+                        = (DemographicData) session.getAttribute(SessionObjectUtility.AGE_DEMOGRAPHICS_GRAPH_DATA);
                 HistogramDataset dataset = new HistogramDataset();
                 ArrayList<Integer> ages = demographicData.getAges();
                 if (ages.size() > 0) {
@@ -1234,7 +1241,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                     dataset.addSeries("number of patients", vector, 10);
 
                     /* remove reference */
-                    session.setAttribute("ageDemographicsGraphData", null);
+                    session.setAttribute(SessionObjectUtility.AGE_DEMOGRAPHICS_GRAPH_DATA, null);
 
                     boolean legend = true;
                     boolean tooltips = false;
@@ -1264,7 +1271,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "genderdemographics": {
                 DemographicData demographicData
-                        = (DemographicData) session.getAttribute("genderDemographicsGraphData");
+                        = (DemographicData) session.getAttribute(SessionObjectUtility.GENDER_DEMOGRAPHICS_GRAPH_DATA);
                 DefaultPieDataset dataset = new DefaultPieDataset();
 
                 /* add the data */
@@ -1272,7 +1279,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 dataset.setValue("male", demographicData.getPercentMale());
 
                 /* remove reference */
-                session.setAttribute("genderDemographicsGraphData", null);
+                session.setAttribute(SessionObjectUtility.GENDER_DEMOGRAPHICS_GRAPH_DATA, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -1300,7 +1307,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "racedemographics": {
                 DemographicData demographicData
-                        = (DemographicData) session.getAttribute("raceDemographicsGraphData");
+                        = (DemographicData) session.getAttribute(SessionObjectUtility.RACE_DEMOGRAPHICS_GRAPH_DATA);
                 DefaultPieDataset dataset = new DefaultPieDataset();
 
                 /* add the data */
@@ -1313,7 +1320,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 dataset.setValue("Other", demographicData.getPercentOther());
 
                 /* remove reference */
-                session.setAttribute("raceDemographicsGraphData", null);
+                session.setAttribute(SessionObjectUtility.RACE_DEMOGRAPHICS_GRAPH_DATA, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -1341,7 +1348,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "lasta1c": {
                 Stats glycemicStats
-                        = (Stats) session.getAttribute("lastA1cData");
+                        = (Stats) session.getAttribute(SessionObjectUtility.LAST_A1C_DATA);
                 HistogramDataset dataset = new HistogramDataset();
                 ArrayList<CategoricalValue> lastA1cValues = new ArrayList<>();
 
@@ -1364,7 +1371,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                     dataset.addSeries("number of patients", vector, 15);
 
                     /* remove reference */
-                    session.setAttribute("lastA1cData", null);
+                    session.setAttribute(SessionObjectUtility.LAST_A1C_DATA, null);
 
                     boolean legend = true;
                     boolean tooltips = false;
@@ -1396,7 +1403,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             case "lasta1cbyclassattendance": {
                 final int TOP_GROUP_INDEX = 4;
                 Stats glycemicStats
-                        = (Stats) session.getAttribute("lastA1cByClassData");
+                        = (Stats) session.getAttribute(SessionObjectUtility.LAST_A1C_BY_CLASS_DATA);
 
                 DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
 
@@ -1420,7 +1427,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("lastA1cByClassData", null);
+                session.setAttribute(SessionObjectUtility.LAST_A1C_BY_CLASS_DATA, null);
 
                 CategoryAxis domainAxis = new CategoryAxis("number of classes attended");
                 NumberAxis rangeAxis = new NumberAxis("last A1C(%)");
@@ -1440,7 +1447,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "lastbmimales": {
                 Stats bmiMalesStats
-                        = (Stats) session.getAttribute("lastBmiMalesData");
+                        = (Stats) session.getAttribute(SessionObjectUtility.LAST_BMI_MALES_DATA);
                 HistogramDataset dataset = new HistogramDataset();
                 ArrayList<CategoricalValue> lastBmiMalesValues = new ArrayList<>();
                 if ((bmiMalesStats.getGroups() != null)
@@ -1462,7 +1469,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                     dataset.addSeries("number of patients", vector, 15);
 
                     /* remove reference */
-                    session.setAttribute("lastBmiMalesData", null);
+                    session.setAttribute(SessionObjectUtility.LAST_BMI_MALES_DATA, null);
 
                     boolean legend = true;
                     boolean tooltips = false;
@@ -1493,7 +1500,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             }
             case "lastbmifemales": {
                 Stats bmiFemalesStats
-                        = (Stats) session.getAttribute("lastBmiFemalesData");
+                        = (Stats) session.getAttribute(SessionObjectUtility.LAST_BMI_FEMALES_DATA);
                 HistogramDataset dataset = new HistogramDataset();
                 ArrayList<CategoricalValue> lastBmiFemalesValues = new ArrayList<>();
                 if ((bmiFemalesStats.getGroups() != null)
@@ -1515,7 +1522,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                     dataset.addSeries("number of patients", vector, 15);
 
                     /* remove reference */
-                    session.setAttribute("lastBmiFemalesData", null);
+                    session.setAttribute(SessionObjectUtility.LAST_BMI_FEMALES_DATA, null);
 
                     boolean legend = true;
                     boolean tooltips = false;
@@ -1547,7 +1554,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             case "lastbmimalesbyclassattendance": {
                 final int TOP_GROUP_INDEX = 4;
                 Stats bmiMalesStats
-                        = (Stats) session.getAttribute("lastBmiMalesByClassData");
+                        = (Stats) session.getAttribute(SessionObjectUtility.LAST_BMI_MALES_BY_CLASS_DATA);
 
                 DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
 
@@ -1571,7 +1578,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("lastBmiMalesByClassData", null);
+                session.setAttribute(SessionObjectUtility.LAST_BMI_MALES_BY_CLASS_DATA, null);
 
                 CategoryAxis domainAxis = new CategoryAxis("number of classes attended");
                 NumberAxis rangeAxis = new NumberAxis("last BMI (males)");
@@ -1592,7 +1599,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             case "lastbmifemalesbyclassattendance": {
                 final int TOP_GROUP_INDEX = 4;
                 Stats bmiFemalesStats
-                        = (Stats) session.getAttribute("lastBmiFemalesByClassData");
+                        = (Stats) session.getAttribute(SessionObjectUtility.LAST_BMI_FEMALES_BY_CLASS_DATA);
 
                 DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
 
@@ -1616,7 +1623,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("lastBmiFemalesByClassData", null);
+                session.setAttribute(SessionObjectUtility.LAST_BMI_FEMALES_BY_CLASS_DATA, null);
 
                 CategoryAxis domainAxis = new CategoryAxis("number of classes attended");
                 NumberAxis rangeAxis = new NumberAxis("last BMI (females)");
@@ -1637,7 +1644,7 @@ public class ChartAndGraphServlet extends HttpServlet {
             case "lasta1cbytreatment": {
                 final int FIRST_INDEX = 0;
                 Stats glycemicStats
-                        = (Stats) session.getAttribute("lastA1cByTreatment");
+                        = (Stats) session.getAttribute(SessionObjectUtility.LAST_A1C_BY_TREATMENT);
 
                 DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
 
@@ -1659,7 +1666,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("lastA1cByTreatment", null);
+                session.setAttribute(SessionObjectUtility.LAST_A1C_BY_TREATMENT, null);
 
                 CategoryAxis domainAxis = new CategoryAxis("treatment class");
                 NumberAxis rangeAxis = new NumberAxis("last A1C(%)");
@@ -1681,7 +1688,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 int treatmentClassCountsIndex = 1;
 
                 Stats treatmentData
-                        = (Stats) session.getAttribute("classCountsTreatmentStats");
+                        = (Stats) session.getAttribute(SessionObjectUtility.CLASS_COUNTS_TREATMENT_STATS);
                 DefaultPieDataset dataset = new DefaultPieDataset();
 
                 /* add the treatment data to the dataset */
@@ -1691,7 +1698,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("classCountsTreatmentStats", null);
+                session.setAttribute(SessionObjectUtility.CLASS_COUNTS_TREATMENT_STATS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -1722,7 +1729,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 int femaleClassCountsIndex = 3;
 
                 Stats treatmentData
-                        = (Stats) session.getAttribute("genderClassCountsTreatmentStats");
+                        = (Stats) session.getAttribute(SessionObjectUtility.GENDER_CLASS_COUNTS_TREATMENT_STATS);
                 final DefaultCategoryDataset dataset
                         = new DefaultCategoryDataset();
 
@@ -1739,7 +1746,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("genderClassCountsTreatmentStats", null);
+                session.setAttribute(SessionObjectUtility.GENDER_CLASS_COUNTS_TREATMENT_STATS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;
@@ -1780,7 +1787,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 int otherClassCountsIndex = 10;
 
                 Stats treatmentData
-                        = (Stats) session.getAttribute("raceClassCountsTreatmentStats");
+                        = (Stats) session.getAttribute(SessionObjectUtility.RACE_CLASS_COUNTS_TREATMENT_STATS);
                 final DefaultCategoryDataset dataset
                         = new DefaultCategoryDataset();
 
@@ -1802,7 +1809,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 }
 
                 /* remove reference */
-                session.setAttribute("raceClassCountsTreatmentStats", null);
+                session.setAttribute(SessionObjectUtility.RACE_CLASS_COUNTS_TREATMENT_STATS, null);
 
                 boolean legend = true;
                 boolean tooltips = false;

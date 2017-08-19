@@ -9,8 +9,8 @@
 <section id="errorpage">
 
     <p class="error">
-        <c:if test="${message!=null}">
-            <c:out value="${message}"></c:out>
+        <c:if test="${errorMessage!=null}">
+            <c:out value="${errorMessage}"></c:out>
         </c:if>
     <p>
 

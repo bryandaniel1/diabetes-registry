@@ -15,9 +15,6 @@
  */
 package controller;
 
-import clinic.NoteAuthor;
-import clinic.Patient;
-import clinic.ProgressNote;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -33,15 +30,64 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import registry.NoteAuthor;
+import registry.Patient;
+import registry.ProgressNote;
+import utility.SessionObjectUtility;
 
 /**
  * This HttpServlet class shows a PDF document containing progress note
  * information.
  *
  * @author Bryan Daniel
- * @version 1, April 8, 2016
+ * @version 2, March 16, 2017
  */
 public class PDFServlet extends HttpServlet {
+
+    /**
+     * The constant for line length
+     */
+    private static final int NOTE_LINE_LENGTH = 75;
+
+    /**
+     * The constant for address line length
+     */
+    private static final int ADDRESS_LINE_LENGTH = 65;
+
+    /**
+     * The constant for minimum vertical position on the page
+     */
+    private static final int MINIMUM_Y_POSITION = 21;
+
+    /**
+     * The constant for maximum vertical position on the page
+     */
+    private static final int MAXIMUM_Y_POSITION = 750;
+
+    /**
+     * The constant for line height
+     */
+    private static final int LINE_HEIGHT = 20;
+
+    /**
+     * The constant for title font size
+     */
+    private static final int TITLE_FONT_SIZE = 20;
+
+    /**
+     * The constant for date font size
+     */
+    private static final int DATE_FONT_SIZE = 16;
+
+    /**
+     * The constant for text font size
+     */
+    private static final int TEXT_FONT_SIZE = 12;
+
+    /**
+     * Serial version UID
+     */
+    private static final long serialVersionUID = 8336176213498776385L;
 
     /**
      * This method processes requests from the progress note page for both HTTP
@@ -55,15 +101,14 @@ public class PDFServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        final int NOTE_LINE_LENGTH = 65;
-        final int ADDRESS_LINE_LENGTH = 55;
-        int yPosition = 705;
-        int xPosition = 70;
         HttpSession session = request.getSession();
         ProgressNote progressNote
-                = (ProgressNote) session.getAttribute("progressNote");
+                = (ProgressNote) session.getAttribute(SessionObjectUtility.PROGRESS_NOTE);
         Patient patient = progressNote.getPatient();
         response.setContentType("text/html;charset=UTF-8");
+        int yPosition = 705;
+        int xPosition = 70;
+        int lineCount;
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         String yesOrNo;
         String nextYesOrNo;
@@ -76,89 +121,94 @@ public class PDFServlet extends HttpServlet {
                 PDPageContentStream content = new PDPageContentStream(doc, page);
 
                 content.beginText();
-                content.setFont(PDType1Font.HELVETICA_BOLD, 26);
-                content.moveTextPositionByAmount(225, 750);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TITLE_FONT_SIZE);
+                content.moveTextPositionByAmount(225, MAXIMUM_Y_POSITION);
                 content.drawString("Progress Note");
                 content.endText();
 
                 content.beginText();
-                content.setFont(PDType1Font.HELVETICA_BOLD, 20);
+                content.setFont(PDType1Font.HELVETICA_BOLD, DATE_FONT_SIZE);
                 content.moveTextPositionByAmount(245, 725);
                 content.drawString(progressNote.getDateCreated().toString());
                 content.endText();
 
                 content.beginText();
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.moveTextPositionByAmount(xPosition, yPosition);
                 content.drawString("Patient Name: ");
-                content.setFont(PDType1Font.HELVETICA, 16);
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                 content.drawString(patient.getFirstName() + " "
                         + patient.getLastName());
                 content.endText();
 
-                yPosition -= 20;
-                if (yPosition < 0) {
+                yPosition -= LINE_HEIGHT;
+                if (yPosition < MINIMUM_Y_POSITION) {
                     content.close();
                     page = new PDPage();
                     doc.addPage(page);
                     content = new PDPageContentStream(doc, page);
-                    yPosition = 750;
+                    yPosition = MAXIMUM_Y_POSITION;
                 }
                 content.beginText();
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.moveTextPositionByAmount(xPosition, yPosition);
                 content.drawString("Telephone: ");
-                content.setFont(PDType1Font.HELVETICA, 16);
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                 content.drawString("" + nullCheck(patient.getContactNumber()));
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.drawString("   DOB: ");
-                content.setFont(PDType1Font.HELVETICA, 16);
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                 content.drawString("" + patient.getBirthDate());
                 content.endText();
 
-                String note
-                        = (String) nullCheck(progressNote.getPatient().getAddress());
-                note = WordUtils.wrap(note, ADDRESS_LINE_LENGTH, "\n", true);
-                String[] noteLines = note.split("\n");
+                String[] noteLines = getNoteLines((String) nullCheck(progressNote.getPatient().getAddress()),
+                        ADDRESS_LINE_LENGTH);
 
+                lineCount = 1;
                 for (String s : noteLines) {
-                    yPosition -= 20;
-                    if (yPosition < 0) {
+                    yPosition -= LINE_HEIGHT;
+                    if (yPosition < MINIMUM_Y_POSITION) {
                         content.close();
                         page = new PDPage();
                         doc.addPage(page);
                         content = new PDPageContentStream(doc, page);
-                        yPosition = 750;
+                        yPosition = MAXIMUM_Y_POSITION;
                     }
                     content.beginText();
-                    content.setFont(PDType1Font.HELVETICA_BOLD, 16);
                     content.moveTextPositionByAmount(xPosition, yPosition);
-                    content.drawString("Address: ");
-                    content.setFont(PDType1Font.HELVETICA, 16);
+                    if (lineCount == 1) {
+                        content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
+                        content.drawString("Address: ");
+                    }
+                    content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                     content.drawString(s);
                     content.endText();
+                    lineCount++;
                 }
 
-                note = (String) nullCheck(patient.getEmailAddress());
-                note = WordUtils.wrap(note, ADDRESS_LINE_LENGTH, "\n", true);
-                noteLines = note.split("\n");
+                noteLines = getNoteLines((String) nullCheck(patient.getEmailAddress()),
+                        ADDRESS_LINE_LENGTH);
 
+                lineCount = 1;
                 for (String s : noteLines) {
-                    yPosition -= 20;
-                    if (yPosition < 0) {
+                    yPosition -= LINE_HEIGHT;
+                    if (yPosition < MINIMUM_Y_POSITION) {
                         content.close();
                         page = new PDPage();
                         doc.addPage(page);
                         content = new PDPageContentStream(doc, page);
-                        yPosition = 750;
+                        yPosition = MAXIMUM_Y_POSITION;
                     }
                     content.beginText();
-                    content.setFont(PDType1Font.HELVETICA_BOLD, 16);
                     content.moveTextPositionByAmount(xPosition, yPosition);
-                    content.drawString("Email Address: ");
-                    content.setFont(PDType1Font.HELVETICA, 16);
+                    if (lineCount == 1) {
+                        content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
+                        content.drawString("Email Address: ");
+                    }
+                    content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                     content.drawString(s);
                     content.endText();
+                    lineCount++;
                 }
 
                 if (progressNote.getAllergicToMedications() == true) {
@@ -172,137 +222,140 @@ public class PDFServlet extends HttpServlet {
                     nextYesOrNo = "no";
                 }
 
-                yPosition -= 20;
-                if (yPosition < 0) {
+                yPosition -= LINE_HEIGHT;
+                if (yPosition < MINIMUM_Y_POSITION) {
                     content.close();
                     page = new PDPage();
                     doc.addPage(page);
                     content = new PDPageContentStream(doc, page);
-                    yPosition = 750;
+                    yPosition = MAXIMUM_Y_POSITION;
                 }
                 content.beginText();
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.moveTextPositionByAmount(xPosition, yPosition);
                 content.drawString("Allergic to medications: ");
-                content.setFont(PDType1Font.HELVETICA, 16);
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                 content.drawString(yesOrNo);
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.drawString("  Medical Insurance: ");
-                content.setFont(PDType1Font.HELVETICA, 16);
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                 content.drawString(nextYesOrNo);
                 content.endText();
 
-                yPosition -= 20;
-                if (yPosition < 0) {
+                yPosition -= LINE_HEIGHT;
+                if (yPosition < MINIMUM_Y_POSITION) {
                     content.close();
                     page = new PDPage();
                     doc.addPage(page);
                     content = new PDPageContentStream(doc, page);
-                    yPosition = 750;
+                    yPosition = MAXIMUM_Y_POSITION;
                 }
                 content.beginText();
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.moveTextPositionByAmount(xPosition, yPosition);
                 content.drawString("Shoe Size: ");
-                content.setFont(PDType1Font.HELVETICA, 16);
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                 content.drawString("" + nullCheck(progressNote.getShoeSize()));
                 content.endText();
 
-                yPosition -= 20;
-                if (yPosition < 0) {
+                yPosition -= LINE_HEIGHT;
+                if (yPosition < MINIMUM_Y_POSITION) {
                     content.close();
                     page = new PDPage();
                     doc.addPage(page);
                     content = new PDPageContentStream(doc, page);
-                    yPosition = 750;
+                    yPosition = MAXIMUM_Y_POSITION;
                 }
                 content.beginText();
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.moveTextPositionByAmount(xPosition, yPosition);
                 content.drawString("Allergies: ");
-                content.setFont(PDType1Font.HELVETICA, 16);
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                 content.drawString("" + nullCheck(progressNote.getAllergies()));
                 content.endText();
 
-                note = (String) nullCheck(progressNote.getMedications());
-                note = WordUtils.wrap(note, ADDRESS_LINE_LENGTH, "\n", true);
-                noteLines = note.split("\n");
+                noteLines = getNoteLines((String) nullCheck(progressNote.getMedications()),
+                        ADDRESS_LINE_LENGTH);
 
+                lineCount = 1;
                 for (String s : noteLines) {
                     yPosition -= 20;
-                    if (yPosition < 0) {
+                    if (yPosition < MINIMUM_Y_POSITION) {
                         content.close();
                         page = new PDPage();
                         doc.addPage(page);
                         content = new PDPageContentStream(doc, page);
-                        yPosition = 750;
+                        yPosition = MAXIMUM_Y_POSITION;
                     }
                     content.beginText();
-                    content.setFont(PDType1Font.HELVETICA_BOLD, 16);
                     content.moveTextPositionByAmount(xPosition, yPosition);
-                    content.drawString("Medications: ");
-                    content.setFont(PDType1Font.HELVETICA, 16);
+                    if (lineCount == 1) {
+                        content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
+                        content.drawString("Medications: ");
+                    }
+                    content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                     content.drawString(s);
                     content.endText();
+                    lineCount++;
                 }
 
-                yPosition -= 20;
-                if (yPosition < 0) {
+                yPosition -= LINE_HEIGHT;
+                if (yPosition < MINIMUM_Y_POSITION) {
                     content.close();
                     page = new PDPage();
                     doc.addPage(page);
                     content = new PDPageContentStream(doc, page);
-                    yPosition = 750;
+                    yPosition = MAXIMUM_Y_POSITION;
                 }
                 content.beginText();
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.moveTextPositionByAmount(xPosition, yPosition);
                 content.drawString("Weight(lbs): ");
-                content.setFont(PDType1Font.HELVETICA, 16);
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                 content.drawString("" + nullCheck(progressNote.getWeight()));
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.drawString("   Height(in.): ");
-                content.setFont(PDType1Font.HELVETICA, 16);
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                 if ((progressNote.getHeightFeet() != null)
                         && (progressNote.getHeightInches() != null)) {
                     content.drawString("" + ((progressNote.getHeightFeet() * 12)
                             + (progressNote.getHeightInches())));
                 }
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.drawString("   BMI: ");
-                content.setFont(PDType1Font.HELVETICA, 16);
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                 content.drawString("" + nullCheck(progressNote.getBmi()));
                 content.endText();
 
-                yPosition -= 20;
-                if (yPosition < 0) {
+                yPosition -= LINE_HEIGHT;
+                if (yPosition < MINIMUM_Y_POSITION) {
                     content.close();
                     page = new PDPage();
                     doc.addPage(page);
                     content = new PDPageContentStream(doc, page);
-                    yPosition = 750;
+                    yPosition = MAXIMUM_Y_POSITION;
                 }
                 content.beginText();
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.moveTextPositionByAmount(xPosition, yPosition);
                 content.drawString("Waist(in.): ");
-                content.setFont(PDType1Font.HELVETICA, 16);
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                 content.drawString("" + nullCheck(progressNote.getWaist()));
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.drawString("   BP: ");
-                content.setFont(PDType1Font.HELVETICA, 16);
-                if ((progressNote.getBpSystole() != null)
-                        && (progressNote.getBpDiastole() != null)) {
-                    content.drawString(progressNote.getBpSystole() + "/"
-                            + progressNote.getBpDiastole());
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
+                if ((progressNote.getBloodPressureSystole() != null)
+                        && (progressNote.getBloodPressureDiastole() != null)) {
+                    content.drawString(progressNote.getBloodPressureSystole() + "/"
+                            + progressNote.getBloodPressureDiastole());
                 }
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.drawString("   Pulse: ");
-                content.setFont(PDType1Font.HELVETICA, 16);
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                 content.drawString("" + nullCheck(progressNote.getPulse()));
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.drawString("   Respirations: ");
-                content.setFont(PDType1Font.HELVETICA, 16);
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                 content.drawString("" + nullCheck(progressNote.getRespirations()));
                 content.endText();
 
@@ -311,235 +364,230 @@ public class PDFServlet extends HttpServlet {
                 } else {
                     yesOrNo = "no";
                 }
-                yPosition -= 20;
-                if (yPosition < 0) {
+                yPosition -= LINE_HEIGHT;
+                if (yPosition < MINIMUM_Y_POSITION) {
                     content.close();
                     page = new PDPage();
                     doc.addPage(page);
                     content = new PDPageContentStream(doc, page);
-                    yPosition = 750;
+                    yPosition = MAXIMUM_Y_POSITION;
                 }
                 content.beginText();
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.moveTextPositionByAmount(xPosition, yPosition);
                 content.drawString("Temperature: ");
-                content.setFont(PDType1Font.HELVETICA, 16);
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                 content.drawString("" + nullCheck(progressNote.getTemperature()));
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.drawString("   Foot Screening: ");
-                content.setFont(PDType1Font.HELVETICA, 16);
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                 content.drawString(yesOrNo);
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.drawString("   Glucose: ");
-                content.setFont(PDType1Font.HELVETICA, 16);
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                 content.drawString("" + nullCheck(progressNote.getGlucose()));
                 content.endText();
 
-                yPosition -= 20;
-                if (yPosition < 0) {
+                yPosition -= LINE_HEIGHT;
+                if (yPosition < MINIMUM_Y_POSITION) {
                     content.close();
                     page = new PDPage();
                     doc.addPage(page);
                     content = new PDPageContentStream(doc, page);
-                    yPosition = 750;
+                    yPosition = MAXIMUM_Y_POSITION;
                 }
                 content.beginText();
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.moveTextPositionByAmount(xPosition, yPosition);
                 content.drawString("A1C: ");
-                content.setFont(PDType1Font.HELVETICA, 16);
+                content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                 content.drawString("" + nullCheck(progressNote.getA1c()));
                 content.endText();
 
                 /* nurse or dietitian note */
-                yPosition -= 20;
-                if (yPosition < 0) {
+                yPosition -= LINE_HEIGHT;
+                if (yPosition < MINIMUM_Y_POSITION) {
                     content.close();
                     page = new PDPage();
                     doc.addPage(page);
                     content = new PDPageContentStream(doc, page);
-                    yPosition = 750;
+                    yPosition = MAXIMUM_Y_POSITION;
                 }
                 content.beginText();
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.moveTextPositionByAmount(xPosition, yPosition);
                 content.drawString("Nurse/Dietitian Note: ");
                 content.endText();
 
-                note = (String) nullCheck(progressNote.getNurseOrDietitianNote());
-                note = WordUtils.wrap(note, NOTE_LINE_LENGTH, "\n", true);
-                noteLines = note.split("\n");
+                noteLines = getNoteLines((String) nullCheck(progressNote.getNurseOrDietitianNote()),
+                        NOTE_LINE_LENGTH);
 
                 for (String s : noteLines) {
-                    yPosition -= 20;
-                    if (yPosition < 0) {
+                    yPosition -= LINE_HEIGHT;
+                    if (yPosition < MINIMUM_Y_POSITION) {
                         content.close();
                         page = new PDPage();
                         doc.addPage(page);
                         content = new PDPageContentStream(doc, page);
-                        yPosition = 750;
+                        yPosition = MAXIMUM_Y_POSITION;
                     }
                     content.beginText();
-                    content.setFont(PDType1Font.HELVETICA, 16);
+                    content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                     content.moveTextPositionByAmount(xPosition, yPosition);
                     content.drawString(s);
                     content.endText();
                 }
 
                 /* subjective section */
-                yPosition -= 20;
-                if (yPosition < 0) {
+                yPosition -= LINE_HEIGHT;
+                if (yPosition < MINIMUM_Y_POSITION) {
                     content.close();
                     page = new PDPage();
                     doc.addPage(page);
                     content = new PDPageContentStream(doc, page);
-                    yPosition = 750;
+                    yPosition = MAXIMUM_Y_POSITION;
                 }
                 content.beginText();
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.moveTextPositionByAmount(xPosition, yPosition);
                 content.drawString("Subjective: ");
                 content.endText();
 
-                note = (String) nullCheck(progressNote.getSubjective());
-                note = WordUtils.wrap(note, NOTE_LINE_LENGTH, "\n", true);
-                noteLines = note.split("\n");
+                noteLines = getNoteLines((String) nullCheck(progressNote.getSubjective()),
+                        NOTE_LINE_LENGTH);
 
                 for (String s : noteLines) {
-                    yPosition -= 20;
-                    if (yPosition < 0) {
+                    yPosition -= LINE_HEIGHT;
+                    if (yPosition < MINIMUM_Y_POSITION) {
                         content.close();
                         page = new PDPage();
                         doc.addPage(page);
                         content = new PDPageContentStream(doc, page);
-                        yPosition = 750;
+                        yPosition = MAXIMUM_Y_POSITION;
                     }
                     content.beginText();
-                    content.setFont(PDType1Font.HELVETICA, 16);
+                    content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                     content.moveTextPositionByAmount(xPosition, yPosition);
                     content.drawString(s);
                     content.endText();
                 }
 
                 /* objective section */
-                yPosition -= 20;
-                if (yPosition < 0) {
+                yPosition -= LINE_HEIGHT;
+                if (yPosition < MINIMUM_Y_POSITION) {
                     content.close();
                     page = new PDPage();
                     doc.addPage(page);
                     content = new PDPageContentStream(doc, page);
-                    yPosition = 750;
+                    yPosition = MAXIMUM_Y_POSITION;
                 }
                 content.beginText();
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.moveTextPositionByAmount(xPosition, yPosition);
                 content.drawString("Objective: ");
                 content.endText();
 
-                note = (String) nullCheck(progressNote.getObjective());
-                note = WordUtils.wrap(note, NOTE_LINE_LENGTH, "\n", true);
-                String[] noteLinesArray = note.split("\n");
+                noteLines = getNoteLines((String) nullCheck(progressNote.getObjective()),
+                        NOTE_LINE_LENGTH);
 
-                for (String s : noteLinesArray) {
-                    yPosition -= 20;
-                    if (yPosition < 0) {
+                for (String s : noteLines) {
+                    yPosition -= LINE_HEIGHT;
+                    if (yPosition < MINIMUM_Y_POSITION) {
                         content.close();
                         page = new PDPage();
                         doc.addPage(page);
                         content = new PDPageContentStream(doc, page);
-                        yPosition = 750;
+                        yPosition = MAXIMUM_Y_POSITION;
                     }
                     content.beginText();
-                    content.setFont(PDType1Font.HELVETICA, 16);
+                    content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                     content.moveTextPositionByAmount(xPosition, yPosition);
                     content.drawString(s);
                     content.endText();
                 }
 
                 /* assessment section */
-                yPosition -= 20;
-                if (yPosition < 0) {
+                yPosition -= LINE_HEIGHT;
+                if (yPosition < MINIMUM_Y_POSITION) {
                     content.close();
                     page = new PDPage();
                     doc.addPage(page);
                     content = new PDPageContentStream(doc, page);
-                    yPosition = 750;
+                    yPosition = MAXIMUM_Y_POSITION;
                 }
                 content.beginText();
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.moveTextPositionByAmount(xPosition, yPosition);
                 content.drawString("Assessment: ");
                 content.endText();
 
-                note = (String) nullCheck(progressNote.getAssessment());
-                note = WordUtils.wrap(note, NOTE_LINE_LENGTH, "\n", true);
-                noteLines = note.split("\n");
+                noteLines = getNoteLines((String) nullCheck(progressNote.getAssessment()),
+                        NOTE_LINE_LENGTH);
 
                 for (String s : noteLines) {
-                    yPosition -= 20;
-                    if (yPosition < 0) {
+                    yPosition -= LINE_HEIGHT;
+                    if (yPosition < MINIMUM_Y_POSITION) {
                         content.close();
                         page = new PDPage();
                         doc.addPage(page);
                         content = new PDPageContentStream(doc, page);
-                        yPosition = 750;
+                        yPosition = MAXIMUM_Y_POSITION;
                     }
                     content.beginText();
-                    content.setFont(PDType1Font.HELVETICA, 16);
+                    content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                     content.moveTextPositionByAmount(xPosition, yPosition);
                     content.drawString(s);
                     content.endText();
                 }
 
                 /* plan section */
-                yPosition -= 20;
-                if (yPosition < 0) {
+                yPosition -= LINE_HEIGHT;
+                if (yPosition < MINIMUM_Y_POSITION) {
                     content.close();
                     page = new PDPage();
                     doc.addPage(page);
                     content = new PDPageContentStream(doc, page);
-                    yPosition = 750;
+                    yPosition = MAXIMUM_Y_POSITION;
                 }
                 content.beginText();
-                content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                 content.moveTextPositionByAmount(xPosition, yPosition);
                 content.drawString("Plan: ");
                 content.endText();
 
-                note = (String) nullCheck(progressNote.getPlan());
-                note = WordUtils.wrap(note, NOTE_LINE_LENGTH, "\n", true);
-                noteLines = note.split("\n");
+                noteLines = getNoteLines((String) nullCheck(progressNote.getPlan()),
+                        NOTE_LINE_LENGTH);
 
                 for (String s : noteLines) {
-                    yPosition -= 20;
-                    if (yPosition < 0) {
+                    yPosition -= LINE_HEIGHT;
+                    if (yPosition < MINIMUM_Y_POSITION) {
                         content.close();
                         page = new PDPage();
                         doc.addPage(page);
                         content = new PDPageContentStream(doc, page);
-                        yPosition = 750;
+                        yPosition = MAXIMUM_Y_POSITION;
                     }
                     content.beginText();
-                    content.setFont(PDType1Font.HELVETICA, 16);
+                    content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                     content.moveTextPositionByAmount(xPosition, yPosition);
                     content.drawString(s);
                     content.endText();
                 }
 
                 for (NoteAuthor na : progressNote.getUpdatedBy()) {
-                    yPosition -= 20;
-                    if (yPosition < 0) {
+                    yPosition -= LINE_HEIGHT;
+                    if (yPosition < MINIMUM_Y_POSITION) {
                         content.close();
                         page = new PDPage();
                         doc.addPage(page);
                         content = new PDPageContentStream(doc, page);
-                        yPosition = 750;
+                        yPosition = MAXIMUM_Y_POSITION;
                     }
                     content.beginText();
-                    content.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                    content.setFont(PDType1Font.HELVETICA_BOLD, TEXT_FONT_SIZE);
                     content.moveTextPositionByAmount(xPosition, yPosition);
                     content.drawString("Updated by: ");
-                    content.setFont(PDType1Font.HELVETICA, 16);
+                    content.setFont(PDType1Font.HELVETICA, TEXT_FONT_SIZE);
                     content.drawString(na.getFirstName() + " "
                             + na.getLastName() + ", " + na.getJobTitle() + ", "
                             + na.getTimeStamp());
@@ -547,7 +595,8 @@ public class PDFServlet extends HttpServlet {
                 }
                 content.close();
             } catch (IOException e) {
-
+                Logger.getLogger(PDFServlet.class.getName()).log(Level.SEVERE,
+                        "An IOException occurred when creating the PDF content.", e);
             }
             doc.addPage(page);
             doc.save(output);
@@ -560,28 +609,44 @@ public class PDFServlet extends HttpServlet {
 
             response.getOutputStream().write(output.toByteArray());
 
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        } catch (COSVisitorException ex) {
-            Logger.getLogger(PDFServlet.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException | COSVisitorException e) {
+            Logger.getLogger(PDFServlet.class.getName()).log(Level.SEVERE,
+                    "An exception occurred when creating the PDF document.", e);
         }
     }
 
     /**
-     * Checks objects for null pointer
+     * This method returns the given object if the given object is not null,
+     * otherwise an empty string is returned.
      *
      * @param objectToCheck the object to check
      * @return the object to be used in the document
      */
     private Object nullCheck(Object objectToCheck) {
-        if (objectToCheck != null) {
-            return objectToCheck;
-        } else {
-            return "";
-        }
+        return (objectToCheck != null) ? objectToCheck : "";
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * This method takes note input as a string, splits it into an array of
+     * strings so that each string element is no greater than the maximum
+     * length, and returns the array.
+     *
+     * @param noteInput the note input
+     * @param maxLength the maximum length
+     * @return the array of strings
+     */
+    private String[] getNoteLines(String noteInput, int maxLength) {
+
+        String[] noteInputStrings = noteInput.split("\n");
+        StringBuilder sb = new StringBuilder();
+        for (String s : noteInputStrings) {
+            s = WordUtils.wrap(s, maxLength, "\n", true);
+            sb.append(s);
+            sb.append("\n");
+        }
+        return sb.toString().split("\n");
+    }
+
     /**
      * Handles the HTTP <code>GET</code> method.
      *

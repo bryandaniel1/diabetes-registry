@@ -15,28 +15,31 @@
  */
 package controller;
 
-import clinic.DemographicData;
-import clinic.Patient;
-import clinic.Stats;
-import data.PatientIO;
-import data.PopulationStatisticsIO;
+import data.PopulationStatisticsDataAccess;
 import java.io.IOException;
-import java.util.ArrayList;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import util.SessionObjectUtil;
+import registry.DemographicData;
+import registry.ReferenceContainer;
+import registry.Stats;
+import utility.SessionObjectUtility;
 
 /**
  * This HttpServlet class coordinates the statistics data retrieval process for
  * the statistics page.
  *
  * @author Bryan Daniel
- * @version 1, April 8, 2016
+ * @version 2, March 16, 2017
  */
 public class PopulationStatisticsServlet extends HttpServlet {
+
+    /**
+     * Serial version UID
+     */
+    private static final long serialVersionUID = -3975951474624563462L;
 
     /**
      * Handles the HTTP <code>GET</code> method. This method invokes the doPost
@@ -56,7 +59,7 @@ public class PopulationStatisticsServlet extends HttpServlet {
     /**
      * Handles the HTTP <code>POST</code> method. This method coordinates the
      * navigation of the statistics page and processes the requests for
-     * retrieving statistical information on the selected clinic population.
+     * retrieving selected statistical information on the clinic population.
      *
      * @param request servlet request
      * @param response servlet response
@@ -68,106 +71,81 @@ public class PopulationStatisticsServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         String url = "/statistics/index.jsp";
-        final int EMPTY_VALUE = 0;
-        boolean validData = true;
-        String message;
-        int clinicId;
-        if (session.getAttribute("clinicId") == null) {
-            clinicId = EMPTY_VALUE;
-        } else {
-            clinicId = (int) session.getAttribute("clinicId");
-        }
+        int clinicId = ReferenceContainer.CLINIC_ID;
         String action = request.getParameter("action");
+
         if (action == null) {
             action = "";
         }
 
         switch (action) {
             case "getStatistic": {
-                String clinicIdString = request.getParameter("clinicselect");
-                if ((clinicIdString != null) && (clinicIdString.trim().length()
-                        != EMPTY_VALUE)) {
-                    try {
-                        clinicId = Integer.parseInt(clinicIdString);
-                        ArrayList<Patient> patients
-                                = PatientIO.getPatients(clinicId,
+
+                SessionObjectUtility.resetClinicObjects(session);
+                String selection = request.getParameter("statselect");
+
+                switch (selection) {
+                    case "demographics": {
+                        DemographicData demographicData
+                                = PopulationStatisticsDataAccess
+                                .getDemographicData(clinicId,
                                         session.getServletContext()
                                         .getAttribute("referenceCharacters"));
-                        session.setAttribute("clinicId", clinicId);
-                        session.setAttribute("patients", patients);
-                        SessionObjectUtil.resetClinicObjects(session);
-                    } catch (NumberFormatException nfe) {
-                        message = "The clinic ID value is not valid.";
-                        request.setAttribute("errorMessage", message);
-                        validData = false;
+                        request.setAttribute("demographics", demographicData);
+                        session.setAttribute(SessionObjectUtility.GENDER_DEMOGRAPHICS_GRAPH_DATA, demographicData);
+                        session.setAttribute(SessionObjectUtility.RACE_DEMOGRAPHICS_GRAPH_DATA, demographicData);
+                        session.setAttribute(SessionObjectUtility.AGE_DEMOGRAPHICS_GRAPH_DATA, demographicData);
+                        break;
                     }
-                } else {
-                    message = "A clinic must be selected.";
-                    request.setAttribute("errorMessage", message);
-                    validData = false;
-                }
-                if (validData) {
-                    String selection = request.getParameter("statselect");
-                    switch (selection) {
-                        case "demographics": {
-                            DemographicData demographicData
-                                    = PopulationStatisticsIO
-                                    .getDemographicData(clinicId,
-                                            session.getServletContext()
-                                            .getAttribute("referenceCharacters"));
-                            request.setAttribute("demographics", demographicData);
-                            session.setAttribute("genderDemographicsGraphData", demographicData);
-                            session.setAttribute("raceDemographicsGraphData", demographicData);
-                            session.setAttribute("ageDemographicsGraphData", demographicData);
-                            break;
-                        }
-                        case "glycemicControl": {
-                            int classesIndex = 0;
-                            int treatmentIndex = 1;
-                            Stats[] glycemicStats
-                                    = PopulationStatisticsIO.getGlycemicControl(clinicId);
+                    case "glycemicControl": {
+                        int classesIndex = 0;
+                        int treatmentIndex = 1;
+                        Stats[] glycemicStats
+                                = PopulationStatisticsDataAccess.getGlycemicControl(clinicId);
+                        if (glycemicStats != null) {
                             request.setAttribute("glycemicStats", glycemicStats[classesIndex]);
-                            session.setAttribute("lastA1cData", glycemicStats[classesIndex]);
-                            session.setAttribute("lastA1cByClassData", glycemicStats[classesIndex]);
-                            session.setAttribute("lastA1cByTreatment", glycemicStats[treatmentIndex]);
-                            break;
+                            session.setAttribute(SessionObjectUtility.LAST_A1C_DATA, glycemicStats[classesIndex]);
+                            session.setAttribute(SessionObjectUtility.LAST_A1C_BY_CLASS_DATA, glycemicStats[classesIndex]);
+                            session.setAttribute(SessionObjectUtility.LAST_A1C_BY_TREATMENT, glycemicStats[treatmentIndex]);
                         }
-                        case "bodyMass": {
-                            int maleIndex = 0;
-                            int femaleIndex = 1;
-                            Stats[] bmiStats
-                                    = PopulationStatisticsIO
-                                    .getBodyMassStatistics(clinicId,
-                                            session.getServletContext()
-                                            .getAttribute("referenceCharacters"));
-                            request.setAttribute("bmiStats", bmiStats);
-                            session.setAttribute("lastBmiMalesData", bmiStats[maleIndex]);
-                            session.setAttribute("lastBmiFemalesData", bmiStats[femaleIndex]);
-                            session.setAttribute("lastBmiMalesByClassData", bmiStats[maleIndex]);
-                            session.setAttribute("lastBmiFemalesByClassData", bmiStats[femaleIndex]);
-                            break;
+                        break;
+                    }
+                    case "bodyMass": {
+                        int maleIndex = 0;
+                        int femaleIndex = 1;
+                        Stats[] bmiStats
+                                = PopulationStatisticsDataAccess
+                                .getBodyMassStatistics(clinicId,
+                                        session.getServletContext()
+                                        .getAttribute("referenceCharacters"));
+                        request.setAttribute("bmiStats", bmiStats);
+                        if (bmiStats != null) {
+                            session.setAttribute(SessionObjectUtility.LAST_BMI_MALES_DATA, bmiStats[maleIndex]);
+                            session.setAttribute(SessionObjectUtility.LAST_BMI_FEMALES_DATA, bmiStats[femaleIndex]);
+                            session.setAttribute(SessionObjectUtility.LAST_BMI_MALES_BY_CLASS_DATA, bmiStats[maleIndex]);
+                            session.setAttribute(SessionObjectUtility.LAST_BMI_FEMALES_BY_CLASS_DATA, bmiStats[femaleIndex]);
                         }
-                        case "treatment": {
-                            int avgA1cChangeIndex = 0;
+                        break;
+                    }
+                    case "treatment": {
+                        int avgA1cChangeIndex = 0;
 
-                            Stats treatmentStats
-                                    = PopulationStatisticsIO
-                                    .getTreatmentStatistics(clinicId,
-                                            session.getServletContext()
-                                            .getAttribute("referenceCharacters"));
+                        Stats treatmentStats
+                                = PopulationStatisticsDataAccess
+                                .getTreatmentStatistics(clinicId,
+                                        session.getServletContext()
+                                        .getAttribute("referenceCharacters"));
+                        if (treatmentStats != null) {
                             request.setAttribute("treatmentStats",
                                     treatmentStats.getGroups().get(avgA1cChangeIndex));
-                            session.setAttribute("classCountsTreatmentStats",
-                                    treatmentStats);
-                            session.setAttribute("genderClassCountsTreatmentStats",
-                                    treatmentStats);
-                            session.setAttribute("raceClassCountsTreatmentStats",
-                                    treatmentStats);
-                            break;
                         }
-                        default:
-                            break;
+                        session.setAttribute(SessionObjectUtility.CLASS_COUNTS_TREATMENT_STATS, treatmentStats);
+                        session.setAttribute(SessionObjectUtility.GENDER_CLASS_COUNTS_TREATMENT_STATS, treatmentStats);
+                        session.setAttribute(SessionObjectUtility.RACE_CLASS_COUNTS_TREATMENT_STATS, treatmentStats);
+                        break;
                     }
+                    default:
+                        break;
                 }
                 break;
             }

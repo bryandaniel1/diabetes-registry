@@ -13,48 +13,33 @@
     <p class="success"><c:out value="${message}"/></p>
 </c:if>
 <section class="pagecontent">
-    <form action="calllists" method="post">
-        <section class="contentText">
-            <input type="hidden" name="action" value="getCallList">    
-            <table class="patientselect">
-                <tr>
-                    <td class="dataregisterlabels">
-                        <label for="clinicselect" class="registerlabels">Clinic:</label>
-                    </td>
-                    <td>
-                        <select name="clinicselect">
-                            <c:forEach var="clinic" items="${user.clinics}">
-                                <c:choose>
-                                    <c:when test="${clinic.clinicId == sessionScope.clinicId}">
-                                        <option value="${clinic.clinicId}" selected><c:out value="${clinic.clinicName}"/></option>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <option value="${clinic.clinicId}"><c:out value="${clinic.clinicName}"/></option>
-                                    </c:otherwise>                        
-                                </c:choose>
-                            </c:forEach>
-                        </select>
-                    </td>
-                </tr>
-            </table>
-        </section>
-        <section class="contentText">
-            <table class="patientselect" id="calllistselect">
-                <tr>
-                    <td class="dataregisterlabels">
-                        <label for="listSubject" class="registerlabels">Select a Call List:</label>
-                    </td>
-                    <td>
-                        <select name="listSubject" onchange="this.form.submit()">
-                            <option value="" selected disabled>Select a list</option>
-                            <c:forEach var="subject" items="${references.emailMessageSubjects}">
-                                <option value="${subject}"><c:out value="${subject}"/></option>
-                            </c:forEach>
-                        </select>
-                    </td>
-                </tr>
-            </table>
-        </section>
+    <table class="patientselect">
+        <tr>
+            <td class="datalabels">
+                <label for="clinicname" class="labels">Clinic:</label>
+            </td>
+            <td>
+                <output name="clinicname"><c:out value="${applicationScope.references.clinic.clinicName}"/></output>
+            </td>
+        </tr>
+    </table>
+    <form class="contentText" action="calllists" method="post">
+        <input type="hidden" name="action" value="getCallList">
+        <table class="patientselect" id="calllistselect">
+            <tr>
+                <td class="datalabels">
+                    <label for="listSubject" class="labels">Select a Call List:</label>
+                </td>
+                <td>
+                    <select name="listSubject" onchange="this.form.submit()">
+                        <option value="" selected disabled>Select a list</option>
+                        <c:forEach var="subject" items="${references.emailMessageSubjects}">
+                            <option value="${subject}"><c:out value="${subject}"/></option>
+                        </c:forEach>
+                    </select>
+                </td>
+            </tr>
+        </table>
     </form>
 </section>
 <c:if test="${callListPatients != null}">
@@ -71,17 +56,33 @@
                     </th>
                     <th>
                         Name
+                        <c:choose>
+                            <c:when test="${callListNameSort == 1}">
+                                &nbsp;<a id="nameuparrow" href="<c:url value='/calllists?action=reverseSortByLastName'/>">&#129093;</a>
+                            </c:when>
+                            <c:otherwise>
+                                &nbsp;<a id="namedownarrow" href="<c:url value='/calllists?action=sortByLastName'/>">&#129095;</a>
+                            </c:otherwise>
+                        </c:choose>
                     </th>
-                    <c:if test="${callListSubject == 'Clinic Visit Reminder'}">
-                        <th>
-                            Date of Last BP
-                        </th>
-                    </c:if>
-                    <c:if test="${callListSubject == 'Lab Work Reminder'}">
-                        <th>
-                            Date of Last A1C
-                        </th>
-                    </c:if>
+                    <c:choose>
+                        <c:when test="${measurementDateTypeHeader != null}">
+                            <th>
+                                <c:out value="${measurementDateTypeHeader}"/>
+                                <c:choose>
+                                    <c:when test="${callListDateSort == 1}">
+                                        &nbsp;<a id="dateuparrow" href="<c:url value='/calllists?action=reverseSortByDate'/>">&#129093;</a>
+                                    </c:when>
+                                    <c:otherwise>
+                                        &nbsp;<a id="datedownarrow" href="<c:url value='/calllists?action=sortByDate'/>">&#129095;</a>
+                                    </c:otherwise>
+                                </c:choose>
+                            </th>
+                        </c:when>
+                        <c:otherwise>
+                            <th></th>
+                        </c:otherwise>
+                    </c:choose>
                     <th>
                         Contact Number
                     </th>
@@ -107,14 +108,14 @@
                             </c:otherwise>
                         </c:choose>
                         <td>
-                            <c:out value="${patient.firstName} ${patient.lastName}"/>
+                            <c:out value="${patient.lastName}, ${patient.firstName} "/>
                         </td>
-                        <td>
-                            <c:out value="${patient.startDate}"/>
+                        <td id="callliststartdate">
+                            <c:out value="${patient.dateOfLastMeasurement}"/>
                         </td>
                         <c:choose>
                             <c:when test="${patient.contactNumber != null}">
-                                <td>
+                                <td id="calllistcontactnumber">
                                     <c:out value="${patient.contactNumber}"/>
                                 </td>
                             </c:when>

@@ -15,10 +15,8 @@
  */
 package controller;
 
-import clinic.Patient;
-import clinic.User;
-import data.PatientIO;
-import data.PatientTreatmentIO;
+import data.PatientDataAccess;
+import data.PatientTreatmentDataAccess;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
@@ -27,17 +25,25 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import util.SessionObjectUtil;
-import util.StringUtil;
+import registry.Patient;
+import registry.ReferenceContainer;
+import registry.User;
+import utility.SessionObjectUtility;
+import utility.StringUtility;
 
 /**
  * This HttpServlet class coordinates the treatment entry activity on the
  * treatment page.
  *
  * @author Bryan Daniel
- * @version 1, April 8, 2016
+ * @version 2, March 16, 2017
  */
 public class PatientTreatmentServlet extends HttpServlet {
+
+    /**
+     * Serial version UID
+     */
+    private static final long serialVersionUID = -5718844091568294087L;
 
     /**
      * Handles the HTTP <code>GET</code> method. This method invokes the doPost
@@ -67,19 +73,12 @@ public class PatientTreatmentServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        final int EMPTY_VALUE = 0;
-        int index = 0;
         HttpSession session = request.getSession();
-        User user = (User) session.getAttribute("user");
         String url = "/treatment/index.jsp";
+        int clinicId = ReferenceContainer.CLINIC_ID;
+        User user = (User) session.getAttribute(SessionObjectUtility.USER);
         ArrayList<Patient> patients;
         String message;
-        int clinicId;
-        if (session.getAttribute("clinicId") == null) {
-            clinicId = EMPTY_VALUE;
-        } else {
-            clinicId = (int) session.getAttribute("clinicId");
-        }
         String action = request.getParameter("action");
 
         if (action == null) {
@@ -88,49 +87,26 @@ public class PatientTreatmentServlet extends HttpServlet {
 
         switch (action) {
             case "get list":
-                if ((clinicId == EMPTY_VALUE)
-                        && (user.getClinics().size() > EMPTY_VALUE)) {
-                    clinicId = user.getClinics().get(index).getClinicId();
-                    session.setAttribute("clinicId", clinicId);
-                }
-                patients = (ArrayList<Patient>) session.getAttribute("patients");
+                patients = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.PATIENTS);
                 if (patients == null) {
-                    patients = PatientIO.getPatients(clinicId,
+                    patients = PatientDataAccess.getPatients(clinicId,
                             session.getServletContext()
                             .getAttribute("referenceCharacters"));
-                    session.setAttribute("patients", patients);
-                }
-                url = "/treatment/index.jsp";
-                break;
-            case "getClinic":
-                String clinicSelect = request.getParameter("clinicselect");
-                try {
-                    clinicId = Integer.parseInt(clinicSelect);
-                    patients = PatientIO.getPatients(clinicId,
-                            session.getServletContext()
-                            .getAttribute("referenceCharacters"));
-                    session.setAttribute("clinicId", clinicId);
-                    session.setAttribute("patients", patients);
-                    SessionObjectUtil.resetClinicObjects(session);
-                    url = "/treatment/index.jsp";
-                } catch (NumberFormatException nfe) {
-                    message = "clinic id invalid";
-                    request.setAttribute("errorMessage", message);
+                    session.setAttribute(SessionObjectUtility.PATIENTS, patients);
                 }
                 break;
             case "getPatient":
                 String patientSelect = request.getParameter("patientselect");
                 try {
                     int patientId = Integer.parseInt(patientSelect);
-                    patients = (ArrayList<Patient>) session.getAttribute("patients");
+                    patients = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.PATIENTS);
                     for (Patient p : patients) {
                         if (p.getPatientId() == patientId) {
-                            session.setAttribute("patient", p);
-                            SessionObjectUtil.resetPatientObjects(session);
+                            session.setAttribute(SessionObjectUtility.PATIENT, p);
+                            SessionObjectUtility.resetPatientObjects(session);
                             break;
                         }
                     }
-                    url = "/treatment/index.jsp";
                 } catch (NumberFormatException nfe) {
                     message = "patient id invalid";
                     request.setAttribute("errorMessage", message);
@@ -138,7 +114,7 @@ public class PatientTreatmentServlet extends HttpServlet {
                 break;
             case "addTreatment":
                 boolean validData = true;
-                Patient patient = (Patient) session.getAttribute("patient");
+                Patient patient = (Patient) session.getAttribute(SessionObjectUtility.PATIENT);
                 int patientId = patient.getPatientId();
                 String userName = user.getUserName();
 
@@ -159,13 +135,13 @@ public class PatientTreatmentServlet extends HttpServlet {
                     validData = false;
                 } else {
                     for (String s : medications) {
-                        if (StringUtil.tooLongForShortVarChar(s)) {
+                        if (StringUtility.tooLongForShortVarChar(s)) {
                             message = "The medication value must be 50 characters or less.";
                             request.setAttribute("errorMessage", message);
                             validData = false;
                         }
                     }
-                    if (StringUtil.tooLongForShortVarChar(rxClass)) {
+                    if (StringUtility.tooLongForShortVarChar(rxClass)) {
                         message = "The rx class value must be 50 characters or less.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
@@ -176,7 +152,7 @@ public class PatientTreatmentServlet extends HttpServlet {
                 String dateEnteredString = request.getParameter("treatmentReviewDate");
                 Date treatmentReviewDate = null;
                 if ((dateEnteredString != null) && (dateEnteredString.trim().length() != 0)) {
-                    if (StringUtil.dateCheck(dateEnteredString)) {
+                    if (StringUtility.dateCheck(dateEnteredString)) {
                         treatmentReviewDate = Date.valueOf(dateEnteredString);
                     } else {
                         message = "The date of results does not conform to the pattern, "
@@ -190,15 +166,9 @@ public class PatientTreatmentServlet extends HttpServlet {
                     validData = false;
                 }
 
-                /* verifying a clinic ID is selected*/
-                if (clinicId == EMPTY_VALUE) {
-                    message = "You must select a clinic.";
-                    request.setAttribute("errorMessage", message);
-                    validData = false;
-                }
                 if (validData) {
                     boolean treatmentSuccess
-                            = PatientTreatmentIO.addTreatment(patientId, rxClass,
+                            = PatientTreatmentDataAccess.addTreatment(patientId, rxClass,
                                     medications, treatmentReviewDate, userName,
                                     clinicId);
 
@@ -207,10 +177,8 @@ public class PatientTreatmentServlet extends HttpServlet {
                         request.setAttribute("message", message);
                     }
                 }
-                url = "/treatment/index.jsp";
                 break;
             default:
-                url = "/treatment/index.jsp";
                 break;
         }
         getServletContext().getRequestDispatcher(url)

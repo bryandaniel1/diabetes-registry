@@ -15,12 +15,7 @@
  */
 package controller;
 
-import clinic.Clinic;
-import clinic.EmailMessage;
-import clinic.Patient;
-import data.AdministrationIO;
-import data.CallListIO;
-import data.PatientIO;
+import data.CallListDataAccess;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.servlet.ServletException;
@@ -28,19 +23,31 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import util.SessionObjectUtil;
+import registry.Clinic;
+import registry.EmailMessage;
+import registry.Patient;
+import registry.ReferenceContainer;
+import utility.CallListUtility;
+import utility.EmailUtility;
+import utility.SessionObjectUtility;
 
 /**
  * This HttpServlet class coordinates the functions of the call lists page.
  *
  * @author Bryan Daniel
- * @version 1, April 8, 2016
+ * @version 2, March 16, 2017
  */
 public class CallListServlet extends HttpServlet {
 
     /**
-     * Handles the HTTP <code>GET</code> method. This method invokes the doPost
-     * method for all requests.
+     * Serial version UID
+     */
+    private static final long serialVersionUID = -2942951295559564059L;
+
+    /**
+     * Handles the HTTP <code>GET</code> method. This method forwards the
+     * request to the call list page if the value for callListPatients has not
+     * been set. Otherwise, the doPost method is invoked.
      *
      * @param request servlet request
      * @param response servlet response
@@ -50,13 +57,22 @@ public class CallListServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        doPost(request, response);
+        HttpSession session = request.getSession();
+        String url = "/calllists/index.jsp";
+        ArrayList<Patient> callListPatients
+                = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.CALL_LIST_PATIENTS);
+        if (callListPatients == null) {
+            getServletContext().getRequestDispatcher(url).forward(request, response);
+        } else {
+            doPost(request, response);
+        }
     }
 
     /**
      * Handles the HTTP <code>POST</code> method. This method processes the
-     * requests for retrieving patient call lists and sending reminder email
-     * messages to patients.
+     * requests for retrieving patient call lists, sorting the call lists by
+     * last name, sorting the call lists by the most recent measurement date,
+     * and sending reminder email messages to selected patients.
      *
      * @param request servlet request
      * @param response servlet response
@@ -66,17 +82,10 @@ public class CallListServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        final int EMPTY_VALUE = 0;
         HttpSession session = request.getSession();
         String url = "/calllists/index.jsp";
-        boolean validData = true;
+        int clinicId = ReferenceContainer.CLINIC_ID;
         String message;
-        int clinicId;
-        if (session.getAttribute("clinicId") == null) {
-            clinicId = EMPTY_VALUE;
-        } else {
-            clinicId = (int) session.getAttribute("clinicId");
-        }
         String action = request.getParameter("action");
 
         if (action == null) {
@@ -86,65 +95,81 @@ public class CallListServlet extends HttpServlet {
         switch (action) {
             case "getCallList": {
 
-                /* clinic ID */
-                String clinicIdString = request.getParameter("clinicselect");
-                if ((clinicIdString != null) && (clinicIdString.trim().length()
-                        != EMPTY_VALUE)) {
-                    try {
-                        clinicId = Integer.parseInt(clinicIdString);
-                        ArrayList<Patient> patients
-                                = PatientIO.getPatients(clinicId,
-                                        session.getServletContext()
-                                        .getAttribute("referenceCharacters"));
-                        session.setAttribute("clinicId", clinicId);
-                        session.setAttribute("patients", patients);
-                        SessionObjectUtil.resetClinicObjects(session);
-                    } catch (NumberFormatException nfe) {
-                        message = "The clinic ID value is not valid.";
-                        request.setAttribute("errorMessage", message);
-                        validData = false;
-                    }
-                } else {
-                    message = "A clinic must be selected.";
-                    request.setAttribute("errorMessage", message);
-                    validData = false;
-                }
-                if (validData) {
+                SessionObjectUtility.resetClinicObjects(session);
 
-                    /* the subject of the call list */
-                    String subject = request.getParameter("listSubject");
-                    ArrayList<Patient> callListPatients
-                            = CallListIO.getCallList(clinicId, subject,
-                                    session.getServletContext()
-                                    .getAttribute("referenceCharacters"));
-                    if (callListPatients == null) {
-                        message = "No patients for the call list were found.";
-                        request.setAttribute("message", message);
-                    } else {
-                        session.setAttribute("callListPatients", callListPatients);
-                        session.setAttribute("callListSubject", subject);
+                /* The measurement date type is determined in the data access class. */
+                CallListDataAccess.LastMeasurementDateType[] measurementDateType
+                        = new CallListDataAccess.LastMeasurementDateType[1];
+                String measurementDateTypeHeader = null;
+
+                /* the subject of the call list selected by the user */
+                String subject = request.getParameter("listSubject");
+                ArrayList<Patient> callListPatients
+                        = CallListDataAccess.getCallList(clinicId, subject, measurementDateType,
+                                session.getServletContext()
+                                .getAttribute("referenceCharacters"));
+                if (callListPatients == null) {
+                    message = "No patients for the call list were found.";
+                    request.setAttribute("message", message);
+                } else {
+                    if (measurementDateType[0] != null) {
+                        switch (measurementDateType[0]) {
+                            case BP:
+                                measurementDateTypeHeader = "Date of Last BP";
+                                break;
+                            case A1C:
+                                measurementDateTypeHeader = "Date of Last A1C";
+                                break;
+                            case NONE:
+                                measurementDateTypeHeader = null;
+                            default:
+                                break;
+                        }
                     }
+                    session.setAttribute(SessionObjectUtility.CALL_LIST_PATIENTS, callListPatients);
+                    session.setAttribute(SessionObjectUtility.CALL_LIST_SUBJECT, subject);
+                    session.setAttribute(SessionObjectUtility.MEASUREMENT_DATE_TYPE_HEADER, measurementDateTypeHeader);
+                    request.setAttribute("callListDateSort", 1);
                 }
+                break;
+            }
+            case "sortByLastName": {
+                ArrayList<Patient> callListPatients
+                        = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.CALL_LIST_PATIENTS);
+                CallListUtility.sortPatients(callListPatients, CallListUtility.SortType.LAST_NAME);
+                request.setAttribute("callListNameSort", 1);
+                break;
+            }
+            case "sortByDate": {
+                ArrayList<Patient> callListPatients
+                        = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.CALL_LIST_PATIENTS);
+                CallListUtility.sortPatients(callListPatients, CallListUtility.SortType.LAST_MEASUREMENT_DATE);
+                request.setAttribute("callListDateSort", 1);
+                break;
+            }
+            case "reverseSortByLastName": {
+                ArrayList<Patient> callListPatients
+                        = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.CALL_LIST_PATIENTS);
+                CallListUtility.reverseSortPatients(callListPatients, CallListUtility.SortType.LAST_NAME);
+                break;
+            }
+            case "reverseSortByDate": {
+                ArrayList<Patient> callListPatients
+                        = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.CALL_LIST_PATIENTS);
+                CallListUtility.reverseSortPatients(callListPatients, CallListUtility.SortType.LAST_MEASUREMENT_DATE);
                 break;
             }
             case "sendEmails": {
 
-                /* administrator clinic */
-                Clinic adminClinic = AdministrationIO.getClinic(clinicId);
-                String adminEmail;
-
-                if (adminClinic != null) {
-                    adminEmail = adminClinic.getEmailAddress();
-                } else {
-                    message = "You must select a clinic.";
-                    request.setAttribute("errorMessage", message);
-                    break;
-                }
+                /* clinic email */
+                ReferenceContainer rc = (ReferenceContainer) session.getServletContext()
+                        .getAttribute("references");
+                Clinic clinic = rc.getClinic();
+                String adminEmail = clinic.getEmailAddress();
 
                 if (adminEmail == null) {
-                    message = "The administrator's clinic must have an email "
-                            + "address.  Please update the administrator "
-                            + "clinic email.";
+                    message = "The clinic must have an email address.  "
+                            + "Please update the clinic email.";
                     request.setAttribute("errorMessage", message);
                     break;
                 }
@@ -161,8 +186,8 @@ public class CallListServlet extends HttpServlet {
 
                 /* gathering patients and messages */
                 ArrayList<Patient> callListPatients
-                        = (ArrayList<Patient>) session.getAttribute("callListPatients");
-                String subject = (String) session.getAttribute("callListSubject");
+                        = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.CALL_LIST_PATIENTS);
+                String subject = (String) session.getAttribute(SessionObjectUtility.CALL_LIST_SUBJECT);
                 ArrayList<Patient> emailPatients = new ArrayList<>();
                 String[] checkBoxes = request.getParameterValues("emailList");
                 if (checkBoxes != null) {
@@ -175,7 +200,7 @@ public class CallListServlet extends HttpServlet {
                         }
                     }
                     ArrayList<EmailMessage> messages
-                            = CallListIO.getEmailMessages(clinicId, subject);
+                            = CallListDataAccess.getEmailMessages(clinicId, subject);
                     if ((!emailPatients.isEmpty()) && (messages != null)) {
                         sendBatchEmail(emailPatients, adminEmail, messages, adminEmailPassword,
                                 request);
@@ -187,6 +212,7 @@ public class CallListServlet extends HttpServlet {
                     message = "No patients were selected.";
                     request.setAttribute("errorMessage", message);
                 }
+                break;
             }
             default:
                 break;
@@ -196,8 +222,8 @@ public class CallListServlet extends HttpServlet {
     }
 
     /**
-     * This method sends reminder messages to a list of patients.
-     * 
+     * This method sends reminder email messages to a list of patients.
+     *
      * @param emailPatients the list of patients to be sent messages
      * @param adminEmail the administrator email address
      * @param messages the list of messages to send
@@ -209,10 +235,10 @@ public class CallListServlet extends HttpServlet {
             HttpServletRequest request) {
         String from = adminEmail;
         boolean isBodyHTML = false;
-        boolean sent = util.EmailUtil.sendBatchMail(emailPatients, from,
+        boolean sent = utility.EmailUtility.sendBatchMail(emailPatients, from,
                 messages, isBodyHTML, emailPassword, request);
         if (!sent) {
-            this.log("Unable to send email. \n");
+            EmailUtility.logEmailError(null, null, null, "CallListServlet", true);
             request.setAttribute("errorMessage", "The email function encountered "
                     + "a problem.  See the server logs for additional details.");
         } else {

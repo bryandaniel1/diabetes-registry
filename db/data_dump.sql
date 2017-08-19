@@ -3,26 +3,30 @@ SET FOREIGN_KEY_CHECKS=0;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
-
-
 --
 -- Dumping data for table `Clinic`
 --
 
-INSERT INTO `Clinic` (`clinic_id`, `name`, `address`, `phone_number`, `registration_key`, `salt`) VALUES
-(1, 'Test Clinic', '123 Nice St. Beautiful City', '(123) 456-7890', 
-'f6a90d11d7a58045920efc262a18ec73bf5e4272add58de2d0bf8959e78c97bc', 
-'SSbNpXEql3aAp78QgU8V2dyIZzLWJ1+1qlO+M0VLZhY=');
+INSERT INTO `Clinic` (`clinic_id`, `name`, `address`, `phone_number`) VALUES
+(1, 'Test Clinic', '123 Nice St. Beautiful City', '(123) 456-7890');
 
+--
+-- Dumping EmailMessageRecipientFilter
+--
+
+INSERT INTO EmailMessageRecipientFilter (filter_id,filter_description) VALUES 
+(1, 'active patients with previous blood pressure measurement'),
+(2, 'active patients with no A1C measurement for past 3 months'),
+(3, 'all active patients'),
+(4, 'all patients in registry');
 
 --
 -- Dumping data for table `EmailMessageSubject`
 --
 
-INSERT INTO `EmailMessageSubject` (`subject`) VALUES
-('Clinic Visit Reminder'),
-('Lab Work Reminder');
-
+INSERT INTO EmailMessageSubject (subject_id, subject, filter_id) VALUES
+(1, 'Clinic Visit Reminder', 1),
+(2, 'Lab Work Reminder', 2);
 
 --
 -- Dumping data for table `EyeExamDefinition`
@@ -33,7 +37,6 @@ INSERT INTO `EyeExamDefinition` (`eye_exam_code`, `definition`) VALUES
 ('1', 'Diabetic Retinopathy'),
 ('2', 'Other'),
 ('3', 'Not Examined');
-
 
 --
 -- Dumping data for table `FootExamRiskDefinition`
@@ -88,7 +91,6 @@ INSERT INTO `HealthyTarget` (`measurement`, `lower_target`, `upper_target`) VALU
 ('waistmale', '0.00', '40.00'),
 ('zoster', '0.00', '100.00');
 
-
 --
 -- Dumping data for table `Language`
 --
@@ -96,7 +98,6 @@ INSERT INTO `HealthyTarget` (`measurement`, `lower_target`, `upper_target`) VALU
 INSERT INTO `Language` (`language`) VALUES
 ('English'),
 ('Spanish');
-
 
 --
 -- Dumping data for table `Medication`
@@ -109,14 +110,14 @@ INSERT INTO `Medication` (`med_id`, `med_name`, `med_class`) VALUES
 ('BA1', 'Colesevelam', 'bile acid sequestrants'),
 ('D+M', 'Metformin Combo (Januvia, Jentadueto)', 'Biguaide + DPP4'),
 ('D1', 'Sitaglipton (Januvia)', 'DPP-4 inhibitors'),
-('D2', 'Linaglipton', 'DPP-4 inhibitors'),
-('D3', 'Saxaglipton', 'DPP-4 inhibitors'),
-('D4', 'Vildaglipton', 'DPP-4 inhibitors'),
-('D5', 'Aloglipton', 'DPP-4 inhibitors'),
+('D2', 'Linaglipton (Tradjenta)', 'DPP-4 inhibitors'),
+('D3', 'Saxaglipton (Onglyza)', 'DPP-4 inhibitors'),
+('D4', 'Vildaglipton (Galvus, Zomelis)', 'DPP-4 inhibitors'),
+('D5', 'Aloglipton (Nesina)', 'DPP-4 inhibitors'),
 ('G1', 'Liraglutide (Victoza)', 'Glp-1 receptor agonists'),
 ('G2', 'Exenatide (Byetta)', 'Glp-1 receptor agonists'),
 ('G3', 'Exenatide extended-release (Bydueron)', 'Glp-1 receptor agonists'),
-('G4', 'Dulaglutide', 'Glp-1 receptor agonists'),
+('G4', 'Dulaglutide (Trulicity)', 'Glp-1 receptor agonists'),
 ('G5', 'Albiglutide (Eperzan and Tanzeum)', 'Glp-1 receptor agonists'),
 ('G6', 'Lixisenatide (Lyxumia)', 'Glp-1 receptor agonists'),
 ('IIA1', 'Human NPH (Humulin N)', 'Insulin Intermediate-acting'),
@@ -164,7 +165,6 @@ INSERT INTO `NoteTopic` (`topic`) VALUES
 ('Telephone Follow Up'),
 ('UACR');
 
-
 --
 -- Dumping data for table `PHQ9`
 --
@@ -198,7 +198,6 @@ INSERT INTO `PHQ9` (`phq_score`, `severity`, `proposed_actions`) VALUES
 (25, 'Severe', 'Immediate initiation of pharmacotherapy and, if severe impairment or poor response to therapy, expedited referral to a mental health specialist for psychotherapy and/or collaborative management'),
 (26, 'Severe', 'Immediate initiation of pharmacotherapy and, if severe impairment or poor response to therapy, expedited referral to a mental health specialist for psychotherapy and/or collaborative management'),
 (27, 'Severe', 'Immediate initiation of pharmacotherapy and, if severe impairment or poor response to therapy, expedited referral to a mental health specialist for psychotherapy and/or collaborative management');
-
 
 --
 -- Dumping data for table `Quality`
@@ -269,12 +268,11 @@ INSERT INTO `Quality` (`role`, `responsibility`, `active`) VALUES
 ('during every visit', 'Review need to have a food source available at all times in anticipation of hypoglycemia', 1),
 ('during every visit', 'Review patient glucose log to adjust food intake, exercise or pharmacologic therapy to achieve specific targets', 1),
 ('during every visit', 'Review sick day management', 1),
-('after visit', 'Review guidelines for sharp disposal', 1),
-('after visits', 'Review guidelines for syringe disposal', 0),
+('after visit', 'Review State of Florida guidelines for sharp disposal', 1),
+('after visits', 'Review State of Florida guidelines for syringe disposal', 0),
 ('during every visit', 'Review strategy for weight reduction', 1),
 ('during every visit', 'Review stress management strategies', 1),
 ('after visits', 'Schedule follow-up visit', 0);
-
 
 --
 -- Dumping data for table `ReasonForInactivity`
@@ -286,7 +284,6 @@ INSERT INTO `ReasonForInactivity` (`reason`) VALUES
 ('deceased'),
 ('moved away'),
 ('obtained insurance');
-
 
 --
 -- Dumping data for table `TelephoneFollowUpDefinition`
@@ -331,13 +328,4 @@ INSERT INTO `UserCredentials` (`user_name`, `password`, `salt`, `change_password
 ('joeUser', 'f58f9f51f8d4361e2e8cdebfb5c6f831e95ef5ba46fd1c913a32ce1b0a27cc65', '4QdeOcg+gG1QYm5/BETXDwqDbirx693tgzkqvUvjxFw=', 0);
 
 
---
--- Dumping data for table `UserRegistration`
---
-
-INSERT INTO `UserRegistration` (`user_name`, `registration_key`) VALUES
-('joeUser', 'f6a90d11d7a58045920efc262a18ec73bf5e4272add58de2d0bf8959e78c97bc');
-
-
 SET FOREIGN_KEY_CHECKS=1;
-

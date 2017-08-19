@@ -13,36 +13,22 @@
     <p class="success"><c:out value="${message}"/></p>
 </c:if>
 <section class="pagecontent">
-    <form class="contentText" action="updatepatient" method="post">
-        <input type="hidden" name="action" value="getClinic">
-        <table class="patientselect">
-            <tr>
-                <td class="dataregisterlabels">
-                    <label for="clinicselect" class="registerlabels">Clinic:</label>
-                </td>
-                <td>
-                    <select name="clinicselect" onchange="this.form.submit()">
-                        <c:forEach var="clinic" items="${user.clinics}">
-                            <c:choose>
-                                <c:when test="${clinic.clinicId == sessionScope.clinicId}">
-                                    <option value="${clinic.clinicId}" selected><c:out value="${clinic.clinicName}"/></option>
-                                </c:when>
-                                <c:otherwise>
-                                    <option value="${clinic.clinicId}"><c:out value="${clinic.clinicName}"/></option>
-                                </c:otherwise>                        
-                            </c:choose>
-                        </c:forEach>
-                    </select>
-                </td>
-            </tr>
-        </table>
-    </form>
+    <table class="patientselect">
+        <tr>
+            <td class="datalabels">
+                <label for="clinicname" class="labels">Clinic:</label>
+            </td>
+            <td>
+                <output name="clinicname"><c:out value="${applicationScope.references.clinic.clinicName}"/></output>
+            </td>
+        </tr>
+    </table>
     <form class="contentText" action="updatepatient" method="post">
         <input type="hidden" name="action" value="getPatient">
         <table class="patientselect">
             <tr>
-                <td class="dataregisterlabels">
-                    <label for="patientselect" class="registerlabels">Select Patient:</label>
+                <td class="datalabels">
+                    <label for="patientselect" class="labels">Select Patient:</label>
                 </td>
                 <td>
                     <select name="patientselect" onchange="this.form.submit()">
@@ -62,31 +48,31 @@
             <input type="hidden" name="action" value="updatePatient">
             <table class="patientform">
                 <tr>
-                    <td class="dataregisterlabels">
-                        <label for="firstName" class="registerlabels">First Name:</label>
+                    <td class="datalabels">
+                        <label for="firstName" class="labels">First Name:</label>
                     </td>
                     <td>
                         <input id="firstName" type="text" name="firstName" value="<c:out value="${patient.firstName}"/>" required>
                     </td><td></td>
                 </tr>
                 <tr>
-                    <td class="dataregisterlabels">
-                        <label for="lastName" class="registerlabels">Last Name:</label>
+                    <td class="datalabels">
+                        <label for="lastName" class="labels">Last Name:</label>
                     </td>
                     <td>
                         <input id="lastName" type="text" name="lastName" value="<c:out value="${patient.lastName}"/>" required>
                     </td><td></td>
                 </tr>
                 <tr>
-                    <td class="dataregisterlabels">
-                        <label for="birthDate" class="registerlabels">Birth Date:</label>
+                    <td class="datalabels">
+                        <label for="birthDate" class="labels">Birth Date:</label>
                     </td>
                     <td>
                         <input id="birthDate" type="text" name="birthDate" value="<c:out value="${patient.birthDate}"/>" required>
                     </td><td></td>
                 </tr>
                 <tr>
-                    <td class="dataregisterlabels">
+                    <td class="datalabels">
                         <label for="address">Address:</label>
                     </td>
                     <td>
@@ -94,16 +80,16 @@
                     </td><td></td>
                 </tr>
                 <tr>
-                    <td class="dataregisterlabels">
-                        <label for="phoneNumber" class="registerlabels">Contact Number:</label>
+                    <td class="datalabels">
+                        <label for="phoneNumber" class="labels">Contact Number:</label>
                     </td>
                     <td>
                         <input id="phoneNumber" type="text" name="phoneNumber" value="<c:out value="${patient.contactNumber}"/>">
                     </td><td></td>
                 </tr>
                 <tr>
-                    <td class="dataregisterlabels">
-                        <label for="gender" class="registerlabels">Gender:</label>
+                    <td class="datalabels">
+                        <label for="gender" class="labels">Gender:</label>
                     </td>
                     <td>
                         <select id="gender" name="gender" required>
@@ -114,8 +100,8 @@
                     </td><td></td>            
                 </tr>
                 <tr>
-                    <td class="dataregisterlabels">
-                        <label for="race" class="registerlabels">Race:</label>
+                    <td class="datalabels">
+                        <label for="race" class="labels">Race:</label>
                     </td>
                     <td>
                         <select id="race" name="race" required>
@@ -131,7 +117,7 @@
                     </td><td></td>
                 </tr>
                 <tr>
-                    <td class="dataregisterlabels">
+                    <td class="datalabels">
                         <label for="email">Email:</label>
                     </td>
                     <td>
@@ -139,7 +125,7 @@
                     </td><td></td>
                 </tr>
                 <tr>
-                    <td class="dataregisterlabels">
+                    <td class="datalabels">
                         <label for="language">Language:</label>
                     </td>
                     <td>
@@ -154,15 +140,15 @@
                     </td><td></td>
                 </tr>
                 <tr>
-                    <td class="dataregisterlabels">
-                        <label for="startDate" class="registerlabels">Start Date:</label>
+                    <td class="datalabels">
+                        <label for="startDate" class="labels">Start Date:</label>
                     </td>
                     <td>
                         <input id="startDate" type="text" name="startDate" value="<c:out value="${patient.startDate}"/>" required>
                     </td><td></td>
                 </tr>
                 <tr>
-                    <td class="dataregisterlabels">
+                    <td class="datalabels">
                         <label for="reason">Active:</label>
                     </td>
                     <td>

@@ -15,12 +15,8 @@
  */
 package controller;
 
-import clinic.DataEntryContainer;
-import clinic.Patient;
-import clinic.ProgressNote;
-import clinic.User;
-import data.PatientIO;
-import data.ProgressNoteIO;
+import data.PatientDataAccess;
+import data.ProgressNoteDataAccess;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -32,16 +28,26 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import util.SessionObjectUtil;
-import util.StringUtil;
+import registry.DataEntryContainer;
+import registry.Patient;
+import registry.ProgressNote;
+import registry.ReferenceContainer;
+import registry.User;
+import utility.SessionObjectUtility;
+import utility.StringUtility;
 
 /**
  * This HttpServlet class coordinates the functions for the progress note page.
  *
  * @author Bryan Daniel
- * @version 1, April 8, 2016
+ * @version 2, March 16, 2017
  */
 public class ProgressNoteServlet extends HttpServlet {
+
+    /**
+     * Serial version UID
+     */
+    private static final long serialVersionUID = 4286662503011015701L;
 
     /**
      * Handles the HTTP <code>GET</code> method. This method invokes the doPost
@@ -64,6 +70,9 @@ public class ProgressNoteServlet extends HttpServlet {
      * creating, retrieving, and updating progress notes documented for each
      * patient visit.
      *
+     * For creating a new note or updating an existing one, all form inputs are
+     * validated before being passed on to the data-access class.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -72,22 +81,15 @@ public class ProgressNoteServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        final int EMPTY_VALUE = 0;
-        int index = 0;
         HttpSession session = request.getSession();
-        User user = (User) session.getAttribute("user");
         String url = "/progress/index.jsp";
+        int clinicId = ReferenceContainer.CLINIC_ID;
+        boolean validData = true;
+        User user = (User) session.getAttribute(SessionObjectUtility.USER);
         ArrayList<Patient> patients;
         Patient patient;
         ArrayList<Date> progressDates;
         String message;
-        int clinicId;
-        boolean validData = true;
-        if (session.getAttribute("clinicId") == null) {
-            clinicId = EMPTY_VALUE;
-        } else {
-            clinicId = (int) session.getAttribute("clinicId");
-        }
         String action = request.getParameter("action");
 
         if (action == null) {
@@ -96,60 +98,37 @@ public class ProgressNoteServlet extends HttpServlet {
 
         switch (action) {
             case "get list":
-                if ((clinicId == EMPTY_VALUE)
-                        && (user.getClinics().size() > EMPTY_VALUE)) {
-                    clinicId = user.getClinics().get(index).getClinicId();
-                    session.setAttribute("clinicId", clinicId);
-                }
-                patients = (ArrayList<Patient>) session.getAttribute("patients");
+                patients = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.PATIENTS);
                 if (patients == null) {
-                    patients = PatientIO.getPatients(clinicId,
+                    patients = PatientDataAccess.getPatients(clinicId,
                             session.getServletContext()
                             .getAttribute("referenceCharacters"));
-                    session.setAttribute("patients", patients);
+                    session.setAttribute(SessionObjectUtility.PATIENTS, patients);
                 }
-                patient = (Patient) session.getAttribute("patient");
+                patient = (Patient) session.getAttribute(SessionObjectUtility.PATIENT);
                 progressDates
-                        = (ArrayList<Date>) session.getAttribute("progressDates");
+                        = (ArrayList<Date>) session.getAttribute(SessionObjectUtility.PROGRESS_DATES);
                 if ((patient != null) && (progressDates == null)) {
-                    progressDates = ProgressNoteIO
+                    progressDates = ProgressNoteDataAccess
                             .getProgressDates(patient.getPatientId());
-                    session.setAttribute("progressDates", progressDates);
-                }
-                url = "/progress/index.jsp";
-                break;
-            case "getClinic":
-                String clinicSelect = request.getParameter("clinicselect");
-                try {
-                    clinicId = Integer.parseInt(clinicSelect);
-                    patients = PatientIO.getPatients(clinicId,
-                            session.getServletContext()
-                            .getAttribute("referenceCharacters"));
-                    session.setAttribute("clinicId", clinicId);
-                    session.setAttribute("patients", patients);
-                    SessionObjectUtil.resetClinicObjects(session);
-                    url = "/progress/index.jsp";
-                } catch (NumberFormatException nfe) {
-                    message = "clinic id invalid";
-                    request.setAttribute("errorMessage", message);
+                    session.setAttribute(SessionObjectUtility.PROGRESS_DATES, progressDates);
                 }
                 break;
             case "getPatient":
                 String patientSelect = request.getParameter("patientselect");
                 try {
                     int patientId = Integer.parseInt(patientSelect);
-                    patients = (ArrayList<Patient>) session.getAttribute("patients");
+                    patients = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.PATIENTS);
                     for (Patient p : patients) {
                         if (p.getPatientId() == patientId) {
-                            session.setAttribute("patient", p);
-                            SessionObjectUtil.resetPatientObjects(session);
+                            session.setAttribute(SessionObjectUtility.PATIENT, p);
+                            SessionObjectUtility.resetPatientObjects(session);
                             break;
                         }
                     }
                     progressDates
-                            = ProgressNoteIO.getProgressDates(patientId);
-                    session.setAttribute("progressDates", progressDates);
-                    url = "/progress/index.jsp";
+                            = ProgressNoteDataAccess.getProgressDates(patientId);
+                    session.setAttribute(SessionObjectUtility.PROGRESS_DATES, progressDates);
                 } catch (NumberFormatException nfe) {
                     message = "patient id invalid";
                     request.setAttribute("errorMessage", message);
@@ -160,7 +139,7 @@ public class ProgressNoteServlet extends HttpServlet {
                         = request.getParameter("previousNoteDate");
                 Date dateCreated = null;
                 if ((previousNoteDate != null) && (previousNoteDate.trim().length() != 0)) {
-                    if (StringUtil.dateCheck(previousNoteDate)) {
+                    if (StringUtility.dateCheck(previousNoteDate)) {
                         dateCreated = Date.valueOf(previousNoteDate);
                     } else {
                         message = "The date entered does not conform to the pattern, "
@@ -174,24 +153,24 @@ public class ProgressNoteServlet extends HttpServlet {
                     validData = false;
                 }
                 if (validData) {
-                    patient = (Patient) session.getAttribute("patient");
+                    patient = (Patient) session.getAttribute(SessionObjectUtility.PATIENT);
                     int patientId = patient.getPatientId();
                     ProgressNote progressNote
-                            = ProgressNoteIO.getProgressNote(patientId, dateCreated,
+                            = ProgressNoteDataAccess.getProgressNote(patientId, dateCreated,
                                     session.getServletContext()
                                     .getAttribute("referenceCharacters"));
                     progressNote.setPatient(patient);
                     progressNote.setDateCreated(dateCreated);
-                    session.setAttribute("progressNote", progressNote);
+                    session.setAttribute(SessionObjectUtility.PROGRESS_NOTE, progressNote);
                 }
                 break;
             }
             case "startNewNote": {
-                patient = (Patient) session.getAttribute("patient");
+                patient = (Patient) session.getAttribute(SessionObjectUtility.PATIENT);
                 String dateCreatedString = request.getParameter("noteCreatedDate");
                 Date dateCreated = null;
                 if ((dateCreatedString != null) && (dateCreatedString.trim().length() != 0)) {
-                    if (StringUtil.dateCheck(dateCreatedString)) {
+                    if (StringUtility.dateCheck(dateCreatedString)) {
                         dateCreated = Date.valueOf(dateCreatedString);
                     } else {
                         message = "The date entered does not conform to the pattern, "
@@ -205,13 +184,13 @@ public class ProgressNoteServlet extends HttpServlet {
                     validData = false;
                 }
                 if (validData) {
-                    ProgressNote progressNote = ProgressNoteIO
+                    ProgressNote progressNote = ProgressNoteDataAccess
                             .getProgressNote(patient.getPatientId(), dateCreated,
                                     session.getServletContext()
                                     .getAttribute("referenceCharacters"));
                     progressNote.setPatient(patient);
                     progressNote.setDateCreated(dateCreated);
-                    session.setAttribute("progressNote", progressNote);
+                    session.setAttribute(SessionObjectUtility.PROGRESS_NOTE, progressNote);
                 }
                 break;
             }
@@ -220,28 +199,29 @@ public class ProgressNoteServlet extends HttpServlet {
                 final BigDecimal maxDecimal = new BigDecimal("99999.99");
                 final int scale = 2;
                 DataEntryContainer dec = new DataEntryContainer();
+                ProgressNote progressNote
+                        = (ProgressNote) session.getAttribute(SessionObjectUtility.PROGRESS_NOTE);
+                ProgressNote noteToSave = new ProgressNote();
 
                 /* #1 patient ID */
-                patient = (Patient) session.getAttribute("patient");
-                int patientId = patient.getPatientId();
+                noteToSave.setPatient(progressNote.getPatient());
 
                 /* #2 date created */
-                ProgressNote progressNote
-                        = (ProgressNote) session.getAttribute("progressNote");
-                Date dateCreated = progressNote.getDateCreated();
+                noteToSave.setDateCreated(progressNote.getDateCreated());
 
                 /* #3 medical insurance */
                 String medicalInsuranceString
                         = request.getParameter("medicalInsurance");
-                boolean medicalInsurance = false;
                 if (medicalInsuranceString.equals("yes")) {
-                    medicalInsurance = true;
+                    noteToSave.setMedicalInsurance(true);
+                } else {
+                    noteToSave.setMedicalInsurance(false);
                 }
 
                 /* #4 shoe size */
-                String shoeSize = request.getParameter("shoeSize");
-                if ((shoeSize != null) && (shoeSize.trim().length() != 0)) {
-                    if (StringUtil.tooLongForShortVarChar(shoeSize)) {
+                noteToSave.setShoeSize(request.getParameter("shoeSize"));
+                if ((noteToSave.getShoeSize() != null) && (noteToSave.getShoeSize().trim().length() != 0)) {
+                    if (StringUtility.tooLongForShortVarChar(noteToSave.getShoeSize())) {
                         message = "The shoe size must be 50 characters or less.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
@@ -251,15 +231,16 @@ public class ProgressNoteServlet extends HttpServlet {
                 /* #5 allergic to medications */
                 String allergicToMedicationsString
                         = request.getParameter("allergicToMedications");
-                boolean allergicToMedications = false;
                 if (allergicToMedicationsString.equals("yes")) {
-                    allergicToMedications = true;
+                    noteToSave.setAllergicToMedications(true);
+                } else {
+                    noteToSave.setAllergicToMedications(false);
                 }
 
                 /* #6 allergies */
-                String allergies = request.getParameter("allergies");
-                if ((allergies != null) && (allergies.trim().length() != 0)) {
-                    if (StringUtil.tooLongForShortVarChar(allergies)) {
+                noteToSave.setAllergies(request.getParameter("allergies"));
+                if ((noteToSave.getAllergies() != null) && (noteToSave.getAllergies().trim().length() != 0)) {
+                    if (StringUtility.tooLongForShortVarChar(noteToSave.getAllergies())) {
                         message = "The allergies entry must be 50 characters or less.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
@@ -268,15 +249,16 @@ public class ProgressNoteServlet extends HttpServlet {
 
                 /* #7 weight */
                 String weightString = request.getParameter("weight");
-                BigDecimal weight = null;
                 if ((weightString != null) && (weightString.trim().length() != 0)) {
                     try {
-                        weight = new BigDecimal(weightString, mc);
+                        BigDecimal weight = new BigDecimal(weightString, mc);
                         weight.setScale(scale, BigDecimal.ROUND_HALF_UP);
                         if (weight.compareTo(maxDecimal) > 0) {
                             message = "Weight value is too large.";
                             request.setAttribute("errorMessage", message);
                             validData = false;
+                        } else {
+                            noteToSave.setWeight(weight);
                         }
                     } catch (NumberFormatException nfe) {
                         message = "Weight value must be a number.";
@@ -287,11 +269,11 @@ public class ProgressNoteServlet extends HttpServlet {
 
                 /* #8 height feet */
                 String heightFeetString = request.getParameter("heightFeet");
-                Integer heightFeet = null;
                 if ((heightFeetString != null)
                         && (heightFeetString.trim().length() != 0)) {
                     try {
-                        heightFeet = Integer.parseInt(heightFeetString);
+                        Integer heightFeet = Integer.parseInt(heightFeetString);
+                        noteToSave.setHeightFeet(heightFeet);
                     } catch (NumberFormatException nfe) {
                         message = "Height feet value must be a number.";
                         request.setAttribute("errorMessage", message);
@@ -301,11 +283,11 @@ public class ProgressNoteServlet extends HttpServlet {
 
                 /* #9 height inches */
                 String heightInchesString = request.getParameter("heightInches");
-                Integer heightInches = null;
                 if ((heightInchesString != null)
                         && (heightInchesString.trim().length() != 0)) {
                     try {
-                        heightInches = Integer.parseInt(heightInchesString);
+                        Integer heightInches = Integer.parseInt(heightInchesString);
+                        noteToSave.setHeightInches(heightInches);
                     } catch (NumberFormatException nfe) {
                         message = "Height inches value must be a number.";
                         request.setAttribute("errorMessage", message);
@@ -316,16 +298,17 @@ public class ProgressNoteServlet extends HttpServlet {
                 /* #10 weight reduction goal */
                 String weightReductionString
                         = request.getParameter("weightReduction");
-                BigDecimal weightReduction = null;
                 if ((weightReductionString != null)
                         && (weightReductionString.trim().length() != 0)) {
                     try {
-                        weightReduction = new BigDecimal(weightReductionString, mc);
+                        BigDecimal weightReduction = new BigDecimal(weightReductionString, mc);
                         weightReduction.setScale(scale, BigDecimal.ROUND_HALF_UP);
                         if (weightReduction.compareTo(maxDecimal) > 0) {
                             message = "Weight reduction value is too large.";
                             request.setAttribute("errorMessage", message);
                             validData = false;
+                        } else {
+                            noteToSave.setWeightReductionGoal(weightReduction);
                         }
                     } catch (NumberFormatException nfe) {
                         message = "Weight reduction value must be a number.";
@@ -336,10 +319,10 @@ public class ProgressNoteServlet extends HttpServlet {
 
                 /* #11 pulse */
                 String pulseString = request.getParameter("pulse");
-                Integer pulse = null;
                 if ((pulseString != null) && (pulseString.trim().length() != 0)) {
                     try {
-                        pulse = Integer.parseInt(pulseString);
+                        Integer pulse = Integer.parseInt(pulseString);
+                        noteToSave.setPulse(pulse);
                     } catch (NumberFormatException nfe) {
                         message = "Pulse value must be a number.";
                         request.setAttribute("errorMessage", message);
@@ -349,11 +332,11 @@ public class ProgressNoteServlet extends HttpServlet {
 
                 /* 12 respirations */
                 String respirationsString = request.getParameter("respirations");
-                Integer respirations = null;
                 if ((respirationsString != null)
                         && (respirationsString.trim().length() != 0)) {
                     try {
-                        respirations = Integer.parseInt(respirationsString);
+                        Integer respirations = Integer.parseInt(respirationsString);
+                        noteToSave.setRespirations(respirations);
                     } catch (NumberFormatException nfe) {
                         message = "Respirations value must be a number.";
                         request.setAttribute("errorMessage", message);
@@ -363,16 +346,17 @@ public class ProgressNoteServlet extends HttpServlet {
 
                 /* #13 temperature */
                 String temperatureString = request.getParameter("temperature");
-                BigDecimal temperature = null;
                 if ((temperatureString != null)
                         && (temperatureString.trim().length() != 0)) {
                     try {
-                        temperature = new BigDecimal(temperatureString, mc);
+                        BigDecimal temperature = new BigDecimal(temperatureString, mc);
                         temperature.setScale(scale, BigDecimal.ROUND_HALF_UP);
                         if (temperature.compareTo(maxDecimal) > 0) {
                             message = "Temperature value is too large.";
                             request.setAttribute("errorMessage", message);
                             validData = false;
+                        } else {
+                            noteToSave.setTemperature(temperature);
                         }
                     } catch (NumberFormatException nfe) {
                         message = "Temperature value must be a number.";
@@ -384,15 +368,16 @@ public class ProgressNoteServlet extends HttpServlet {
                 /* #14 foot screening */
                 String footScreeningString
                         = request.getParameter("footScreening");
-                boolean footScreening = false;
                 if (footScreeningString.equals("yes")) {
-                    footScreening = true;
+                    noteToSave.setFootScreening(true);
+                } else {
+                    noteToSave.setFootScreening(false);
                 }
 
                 /* #15 medications */
-                String medications = request.getParameter("progressMedications");
-                if ((medications != null) && (medications.trim().length() != 0)) {
-                    if (StringUtil.tooLongForEmailVarChar(medications)) {
+                noteToSave.setMedications(request.getParameter("progressMedications"));
+                if ((noteToSave.getMedications() != null) && (noteToSave.getMedications().trim().length() != 0)) {
+                    if (StringUtility.tooLongForEmailVarChar(noteToSave.getMedications())) {
                         message = "The medications entry must be 255 characters or less.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
@@ -401,15 +386,16 @@ public class ProgressNoteServlet extends HttpServlet {
 
                 /* #16 A1C */
                 String a1cString = request.getParameter("a1c");
-                BigDecimal a1c = null;
                 if ((a1cString != null) && (a1cString.trim().length() != 0)) {
                     try {
-                        a1c = new BigDecimal(a1cString, mc);
+                        BigDecimal a1c = new BigDecimal(a1cString, mc);
                         a1c.setScale(scale, BigDecimal.ROUND_HALF_UP);
                         if (a1c.compareTo(maxDecimal) > 0) {
                             message = "A1C value is too large.";
                             request.setAttribute("errorMessage", message);
                             validData = false;
+                        } else {
+                            noteToSave.setA1c(a1c);
                         }
                     } catch (NumberFormatException nfe) {
                         message = "A1C value must be a number.";
@@ -420,15 +406,16 @@ public class ProgressNoteServlet extends HttpServlet {
 
                 /* #17 glucose */
                 String glucoseString = request.getParameter("glucose");
-                BigDecimal glucose = null;
                 if ((glucoseString != null) && (glucoseString.trim().length() != 0)) {
                     try {
-                        glucose = new BigDecimal(glucoseString, mc);
+                        BigDecimal glucose = new BigDecimal(glucoseString, mc);
                         glucose.setScale(scale, BigDecimal.ROUND_HALF_UP);
                         if (glucose.compareTo(maxDecimal) > 0) {
                             message = "Glucose value is too large.";
                             request.setAttribute("errorMessage", message);
                             validData = false;
+                        } else {
+                            noteToSave.setGlucose(glucose);
                         }
                     } catch (NumberFormatException nfe) {
                         message = "Glucose value must be a number.";
@@ -448,15 +435,13 @@ public class ProgressNoteServlet extends HttpServlet {
                             request.setAttribute("errorMessage", message);
                             validData = false;
                         } else {
-                            dec.setWaist(waist);
+                            noteToSave.setWaist(waist);
                         }
                     } catch (NumberFormatException nfe) {
                         message = "Waist value must be a number.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
                     }
-                } else {
-                    dec.setWaist(null);
                 }
 
                 /* Blood Pressure */
@@ -475,36 +460,32 @@ public class ProgressNoteServlet extends HttpServlet {
                 if ((bpSystoleString != null) && (bpSystoleString.trim().length() != 0)) {
                     try {
                         Integer bpSystole = Integer.parseInt(bpSystoleString);
-                        dec.setBloodPressureSystole(bpSystole);
+                        noteToSave.setBloodPressureSystole(bpSystole);
                     } catch (NumberFormatException nfe) {
                         message = "Blood pressure value must be a number.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
                     }
-                } else {
-                    dec.setBloodPressureSystole(null);
                 }
 
                 /* #20 Diatolic Blood Pressure */
                 if ((bpDiastoleString != null) && (bpDiastoleString.trim().length() != 0)) {
                     try {
                         Integer bpDiastole = Integer.parseInt(bpDiastoleString);
-                        dec.setBloodPressureDiastole(bpDiastole);
+                        noteToSave.setBloodPressureDiastole(bpDiastole);
                     } catch (NumberFormatException nfe) {
                         message = "Blood pressure value must be a number.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
                     }
-                } else {
-                    dec.setBloodPressureDiastole(null);
                 }
 
                 /* #21 ACE or ARB */
                 String aceOrArb = request.getParameter("aceOrArb");
                 if ((aceOrArb != null) && (aceOrArb.trim().length() != 0)) {
-                    dec.setAceOrArb(true);
+                    noteToSave.setAceOrArb(true);
                 } else {
-                    dec.setAceOrArb(false);
+                    noteToSave.setAceOrArb(false);
                 }
 
                 /* #22 BMI */
@@ -518,104 +499,85 @@ public class ProgressNoteServlet extends HttpServlet {
                             request.setAttribute("errorMessage", message);
                             validData = false;
                         } else {
-                            dec.setBmi(bmi);
+                            noteToSave.setBmi(bmi);
                         }
                     } catch (NumberFormatException nfe) {
                         message = "BMI value must be a number.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
                     }
-                } else {
-                    dec.setBmi(null);
                 }
 
                 /* #23 Class date */
                 String classDateString = request.getParameter("classDate");
-                Date classDate;
                 if ((classDateString != null) && (classDateString.trim().length() != 0)) {
-                    if (StringUtil.dateCheck(classDateString)) {
-                        classDate = Date.valueOf(classDateString);
-                        dec.setClassDate(classDate);
+                    if (StringUtility.dateCheck(classDateString)) {
+                        Date classDate = Date.valueOf(classDateString);
+                        noteToSave.setLastClassDate(classDate);
                     } else {
                         message = "The class date does not conform to the pattern, "
                                 + "YYYY-MM-DD.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
                     }
-                } else {
-                    dec.setClassDate(null);
                 }
 
                 /* #24 Eye Screening */
-                String eyeScreening = request.getParameter("eyeScreening");
-                if ((eyeScreening != null) && (eyeScreening.trim().length() != 0)) {
-                    if (StringUtil.tooLongForShortVarChar(eyeScreening)) {
+                noteToSave.setEyeScreeningCategory(request.getParameter("eyeScreening"));
+                if ((noteToSave.getEyeScreeningCategory() != null)
+                        && (noteToSave.getEyeScreeningCategory().trim().length() != 0)) {
+                    if (StringUtility.tooLongForShortVarChar(noteToSave.getEyeScreeningCategory())) {
                         message = "The eye screening value must be 50 characters or less.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
-                    } else {
-                        dec.setEye(eyeScreening);
                     }
-                } else {
-                    dec.setEye(null);
                 }
 
                 /* #25 Foot Screening */
-                String footScreeningCategory = request.getParameter("footScreeningResult");
-                if ((footScreeningCategory != null) && (footScreeningCategory.trim().length() != 0)) {
-                    if (StringUtil.tooLongForShortVarChar(footScreeningCategory)) {
+                noteToSave.setFootScreeningCategory(request.getParameter("footScreeningResult"));
+                if ((noteToSave.getFootScreeningCategory() != null)
+                        && (noteToSave.getFootScreeningCategory().trim().length() != 0)) {
+                    if (StringUtility.tooLongForShortVarChar(noteToSave.getFootScreeningCategory())) {
                         message = "The foot screening value must be 50 characters or less.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
-                    } else {
-                        dec.setFoot(footScreeningCategory);
                     }
-                } else {
-                    dec.setFoot(null);
                 }
 
                 /* #26 Psychological Screening */
                 String psychologicalScreening = request.getParameter("psychologicalScreening");
                 if ((psychologicalScreening != null) && (psychologicalScreening.trim().length() != 0)) {
                     try {
-                        Integer psychologicalScreeningInteger = new Integer(psychologicalScreening);
-                        dec.setPsychologicalScreening(psychologicalScreeningInteger);
+                        Integer psychologicalScreeningInteger = Integer.parseInt(psychologicalScreening);
+                        noteToSave.setPsychologicalScreening(psychologicalScreeningInteger);
                     } catch (NumberFormatException nfe) {
                         message = "Psychological screening value must be a number.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
                     }
-                } else {
-                    dec.setPsychologicalScreening(null);
                 }
 
                 /* #27 Physical Activity */
                 String physicalActivity = request.getParameter("physicalActivity");
                 if ((physicalActivity != null) && (physicalActivity.trim().length() != 0)) {
                     try {
-                        int physicalActivityInteger = Integer.parseInt(physicalActivity);
-                        dec.setPhysicalActivity(physicalActivityInteger);
+                        Integer physicalActivityInteger = Integer.parseInt(physicalActivity);
+                        noteToSave.setPhysicalActivity(physicalActivityInteger);
                     } catch (NumberFormatException nfe) {
                         message = "Physical activity value must be a number.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
                     }
-                } else {
-                    dec.setPhysicalActivity(null);
                 }
 
                 /* #28 Smoking status */
                 String smoking = request.getParameter("smoking");
                 if ((smoking != null) && (smoking.trim().length() != 0)) {
-                    Boolean smokingStatus;
                     if (smoking.equals("yes")) {
-                        smokingStatus = true;
+                        noteToSave.setSmoking(true);
                     } else {
-                        smokingStatus = false;
+                        noteToSave.setSmoking(false);
                     }
-                    dec.setSmoking(smokingStatus);
-                } else {
-                    dec.setSmoking(null);
                 }
 
                 /* #29 Compliance */
@@ -632,40 +594,34 @@ public class ProgressNoteServlet extends HttpServlet {
                             request.setAttribute("errorMessage", message);
                             validData = false;
                         } else {
-                            dec.setCompliance(complianceValue);
+                            noteToSave.setCompliance(complianceValue);
                         }
                     } catch (NumberFormatException nfe) {
                         message = "Compliance value must be a number.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
                     }
-                } else {
-                    dec.setCompliance(null);
                 }
 
                 /* #30 Hospitalization date */
                 String erDateString = request.getParameter("erDate");
-                Date erDate;
                 if ((erDateString != null) && (erDateString.trim().length() != 0)) {
-                    if (StringUtil.dateCheck(erDateString)) {
-                        erDate = Date.valueOf(erDateString);
-                        dec.setHospitalizationDate(erDate);
+                    if (StringUtility.dateCheck(erDateString)) {
+                        Date erDate = Date.valueOf(erDateString);
+                        noteToSave.setHospitalizationDate(erDate);
                     } else {
                         message = "The hospitalization date does not conform to the pattern, "
                                 + "YYYY-MM-DD.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
                     }
-                } else {
-                    dec.setHospitalizationDate(null);
                 }
 
                 /* #31 nurse or dietitian note */
-                String nurseOrDietitianNote
-                        = request.getParameter("nurseOrDietitianNote");
-                if ((nurseOrDietitianNote != null)
-                        && (nurseOrDietitianNote.trim().length() != 0)) {
-                    if (StringUtil.tooLongForLongVarChar(nurseOrDietitianNote)) {
+                noteToSave.setNurseOrDietitianNote(request.getParameter("nurseOrDietitianNote"));
+                if ((noteToSave.getNurseOrDietitianNote() != null)
+                        && (noteToSave.getNurseOrDietitianNote().trim().length() != 0)) {
+                    if (StringUtility.tooLongForLongVarChar(noteToSave.getNurseOrDietitianNote())) {
                         message = "The nurse/dietitian note must be 1000 "
                                 + "characters or less.";
                         request.setAttribute("errorMessage", message);
@@ -674,9 +630,10 @@ public class ProgressNoteServlet extends HttpServlet {
                 }
 
                 /* #32 subjective section */
-                String subjective = request.getParameter("subjective");
-                if ((subjective != null) && (subjective.trim().length() != 0)) {
-                    if (StringUtil.tooLongForLongVarChar(subjective)) {
+                noteToSave.setSubjective(request.getParameter("subjective"));
+                if ((noteToSave.getSubjective() != null)
+                        && (noteToSave.getSubjective().trim().length() != 0)) {
+                    if (StringUtility.tooLongForLongVarChar(noteToSave.getSubjective())) {
                         message = "The subjective section must be 1000 "
                                 + "characters or less.";
                         request.setAttribute("errorMessage", message);
@@ -685,9 +642,10 @@ public class ProgressNoteServlet extends HttpServlet {
                 }
 
                 /* #33 objective */
-                String objective = request.getParameter("objective");
-                if ((objective != null) && (objective.trim().length() != 0)) {
-                    if (StringUtil.tooLongForLongVarChar(objective)) {
+                noteToSave.setObjective(request.getParameter("objective"));
+                if ((noteToSave.getObjective() != null)
+                        && (noteToSave.getObjective().trim().length() != 0)) {
+                    if (StringUtility.tooLongForLongVarChar(noteToSave.getObjective())) {
                         message = "The objective section must be 1000 "
                                 + "characters or less.";
                         request.setAttribute("errorMessage", message);
@@ -696,9 +654,10 @@ public class ProgressNoteServlet extends HttpServlet {
                 }
 
                 /* #34 assessment */
-                String assessment = request.getParameter("assessment");
-                if ((assessment != null) && (assessment.trim().length() != 0)) {
-                    if (StringUtil.tooLongForLongVarChar(assessment)) {
+                noteToSave.setAssessment(request.getParameter("assessment"));
+                if ((noteToSave.getAssessment() != null)
+                        && (noteToSave.getAssessment().trim().length() != 0)) {
+                    if (StringUtility.tooLongForLongVarChar(noteToSave.getAssessment())) {
                         message = "The assessment section must be 1000 "
                                 + "characters or less.";
                         request.setAttribute("errorMessage", message);
@@ -707,9 +666,10 @@ public class ProgressNoteServlet extends HttpServlet {
                 }
 
                 /* #35 plan */
-                String plan = request.getParameter("plan");
-                if ((plan != null) && (plan.trim().length() != 0)) {
-                    if (StringUtil.tooLongForLongVarChar(plan)) {
+                noteToSave.setPlan(request.getParameter("plan"));
+                if ((noteToSave.getPlan() != null)
+                        && (noteToSave.getPlan().trim().length() != 0)) {
+                    if (StringUtility.tooLongForLongVarChar(noteToSave.getPlan())) {
                         message = "The plan section must be 1000 "
                                 + "characters or less.";
                         request.setAttribute("errorMessage", message);
@@ -725,38 +685,42 @@ public class ProgressNoteServlet extends HttpServlet {
                         = new Timestamp(System.currentTimeMillis());
 
                 /* #39 clinic ID */
-                if (clinicId != EMPTY_VALUE) {
-                    dec.setClinicId(clinicId);
-                } else {
-                    message = "You must select a clinic.";
-                    request.setAttribute("errorMessage", message);
-                    validData = false;
-                }
+                dec.setClinicId(clinicId);
 
                 if (validData) {
                     boolean successfulUpdate
-                            = ProgressNoteIO.saveProgressNote(patientId,
-                                    dateCreated, medicalInsurance, shoeSize,
-                                    allergicToMedications, allergies, weight,
-                                    heightFeet, heightInches, weightReduction,
-                                    pulse, respirations, temperature,
-                                    footScreening, medications, a1c, glucose,
-                                    dec, nurseOrDietitianNote, subjective,
-                                    objective, assessment, plan,
-                                    userName, timestamp,
-                                    session.getServletContext()
+                            = ProgressNoteDataAccess.saveProgressNote(noteToSave, userName,
+                                    timestamp, clinicId, session.getServletContext()
                                     .getAttribute("referenceCharacters"));
                     if (successfulUpdate) {
-                        progressNote = ProgressNoteIO
-                                .getProgressNote(patientId, dateCreated,
-                                        session.getServletContext()
+
+                        /*
+                         * pulling patient data from the database as patient status 
+                         * may have changed
+                         */
+                        patients = PatientDataAccess.getPatients(clinicId,
+                                session.getServletContext()
+                                .getAttribute("referenceCharacters"));
+                        session.setAttribute(SessionObjectUtility.PATIENTS, patients);
+                        for (Patient p : patients) {
+                            if (p.getPatientId() == noteToSave.getPatient().getPatientId()) {
+                                session.setAttribute(SessionObjectUtility.PATIENT, p);
+                                SessionObjectUtility.resetPatientObjects(session);
+                                break;
+                            }
+                        }
+
+                        /* keeping the latest progress note data on the page */
+                        progressNote = ProgressNoteDataAccess
+                                .getProgressNote(noteToSave.getPatient().getPatientId(),
+                                        noteToSave.getDateCreated(), session.getServletContext()
                                         .getAttribute("referenceCharacters"));
-                        progressNote.setPatient(patient);
-                        progressNote.setDateCreated(dateCreated);
-                        session.setAttribute("progressNote", progressNote);
+                        progressNote.setPatient(noteToSave.getPatient());
+                        progressNote.setDateCreated(noteToSave.getDateCreated());
+                        session.setAttribute(SessionObjectUtility.PROGRESS_NOTE, progressNote);
                         progressDates
-                                = ProgressNoteIO.getProgressDates(patientId);
-                        session.setAttribute("progressDates", progressDates);
+                                = ProgressNoteDataAccess.getProgressDates(noteToSave.getPatient().getPatientId());
+                        session.setAttribute(SessionObjectUtility.PROGRESS_DATES, progressDates);
                         message = "Progress note successfully updated!";
                         request.setAttribute("message", message);
                     } else {
@@ -767,11 +731,9 @@ public class ProgressNoteServlet extends HttpServlet {
                 break;
             }
             default:
-                url = "/progress/index.jsp";
                 break;
         }
         getServletContext().getRequestDispatcher(url)
                 .forward(request, response);
-
     }
 }

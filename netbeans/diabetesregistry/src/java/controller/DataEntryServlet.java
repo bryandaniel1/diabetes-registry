@@ -15,11 +15,8 @@
  */
 package controller;
 
-import clinic.DataEntryContainer;
-import clinic.Patient;
-import clinic.User;
-import data.DataEntryIO;
-import data.PatientIO;
+import data.DataEntryDataAccess;
+import data.PatientDataAccess;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -30,17 +27,26 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import util.SessionObjectUtil;
-import util.StringUtil;
+import registry.DataEntryContainer;
+import registry.Patient;
+import registry.ReferenceContainer;
+import registry.User;
+import utility.SessionObjectUtility;
+import utility.StringUtility;
 
 /**
  * This HttpServlet class coordinates the input processing for the data entry
  * page.
  *
  * @author Bryan Daniel
- * @version 1, April 8, 2016
+ * @version 2, March 16, 2017
  */
 public class DataEntryServlet extends HttpServlet {
+
+    /**
+     * Serial version UID
+     */
+    private static final long serialVersionUID = 6466449494279734366L;
 
     /**
      * Handles the HTTP <code>GET</code> method. This method invokes the doPost
@@ -59,8 +65,13 @@ public class DataEntryServlet extends HttpServlet {
 
     /**
      * Handles the HTTP <code>POST</code> method. This method coordinates the
-     * navigation of the data entry page and processes the requests for saving
-     * patient measurements and other data related to patient care.
+     * navigation of the data entry page, retrieves selected patient
+     * information, and processes the requests for saving patient measurements
+     * and other data related to patient care.
+     *
+     * The patient measurements are saved by validating all form inputs and
+     * storing these inputs in a DataEntryContainer object to pass to the
+     * data-access class.
      *
      * @param request servlet request
      * @param response servlet response
@@ -70,19 +81,12 @@ public class DataEntryServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        final int EMPTY_VALUE = 0;
-        int index = 0;
         HttpSession session = request.getSession();
-        User user = (User) session.getAttribute("user");
         String url = "/dataentry/index.jsp";
+        int clinicId = ReferenceContainer.CLINIC_ID;
+        User user = (User) session.getAttribute(SessionObjectUtility.USER);
         ArrayList<Patient> patients;
         String message;
-        int clinicId;
-        if (session.getAttribute("clinicId") == null) {
-            clinicId = EMPTY_VALUE;
-        } else {
-            clinicId = (int) session.getAttribute("clinicId");
-        }
         String action = request.getParameter("action");
 
         if (action == null) {
@@ -91,49 +95,26 @@ public class DataEntryServlet extends HttpServlet {
 
         switch (action) {
             case "get list":
-                if ((clinicId == EMPTY_VALUE)
-                        && (user.getClinics().size() > EMPTY_VALUE)) {
-                    clinicId = user.getClinics().get(index).getClinicId();
-                    session.setAttribute("clinicId", clinicId);
-                }
-                patients = (ArrayList<Patient>) session.getAttribute("patients");
+                patients = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.PATIENTS);
                 if (patients == null) {
-                    patients = PatientIO.getPatients(clinicId,
+                    patients = PatientDataAccess.getPatients(clinicId,
                             session.getServletContext()
                             .getAttribute("referenceCharacters"));
-                    session.setAttribute("patients", patients);
-                }
-                url = "/dataentry/index.jsp";
-                break;
-            case "getClinic":
-                String clinicSelect = request.getParameter("clinicselect");
-                try {
-                    clinicId = Integer.parseInt(clinicSelect);
-                    patients = PatientIO.getPatients(clinicId,
-                            session.getServletContext()
-                            .getAttribute("referenceCharacters"));
-                    session.setAttribute("clinicId", clinicId);
-                    session.setAttribute("patients", patients);
-                    SessionObjectUtil.resetClinicObjects(session);
-                    url = "/dataentry/index.jsp";
-                } catch (NumberFormatException nfe) {
-                    message = "clinic id invalid";
-                    request.setAttribute("errorMessage", message);
+                    session.setAttribute(SessionObjectUtility.PATIENTS, patients);
                 }
                 break;
             case "getPatient":
                 String patientSelect = request.getParameter("patientselect");
                 try {
                     int patientId = Integer.parseInt(patientSelect);
-                    patients = (ArrayList<Patient>) session.getAttribute("patients");
+                    patients = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.PATIENTS);
                     for (Patient p : patients) {
                         if (p.getPatientId() == patientId) {
-                            session.setAttribute("patient", p);
-                            SessionObjectUtil.resetPatientObjects(session);
+                            session.setAttribute(SessionObjectUtility.PATIENT, p);
+                            SessionObjectUtility.resetPatientObjects(session);
                             break;
                         }
                     }
-                    url = "/dataentry/index.jsp";
                 } catch (NumberFormatException nfe) {
                     message = "patient id invalid";
                     request.setAttribute("errorMessage", message);
@@ -146,12 +127,12 @@ public class DataEntryServlet extends HttpServlet {
                 final int scale = 2;
                 DataEntryContainer dec = new DataEntryContainer();
 
-                /* #1 patient ID */
-                Patient patient = (Patient) session.getAttribute("patient");
+                /* patient ID */
+                Patient patient = (Patient) session.getAttribute(SessionObjectUtility.PATIENT);
                 int patientId = patient.getPatientId();
                 dec.setPatientId(patientId);
 
-                /* #2 A1C */
+                /* A1C */
                 String a1c = request.getParameter("a1c");
                 if ((a1c != null) && (a1c.trim().length() != 0)) {
                     try {
@@ -173,7 +154,7 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setA1c(null);
                 }
 
-                /* #3 glucose AC & #4 glucose PC */
+                /* glucose AC & glucose PC */
                 String glucose = request.getParameter("glucose");
                 String acOrPc = request.getParameter("acorpc");
                 if ((glucose != null) && (glucose.trim().length() != 0)) {
@@ -204,7 +185,7 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setGlucosePc(null);
                 }
 
-                /* #5 LDL */
+                /* LDL */
                 String ldl = request.getParameter("ldl");
                 if ((ldl != null) && (ldl.trim().length() != 0)) {
                     try {
@@ -226,7 +207,7 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setLdl(null);
                 }
 
-                /* #6 LDL Post MI */
+                /* LDL Post MI */
                 String ldlPostMi = request.getParameter("ldlPostMi");
                 if ((ldlPostMi != null) && (ldlPostMi.trim().length() != 0)) {
                     try {
@@ -248,7 +229,7 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setLdlPostMi(null);
                 }
 
-                /* #7 LDL on statin */
+                /* LDL on statin */
                 String onStatin = request.getParameter("onstatin");
                 if ((onStatin != null) && (onStatin.trim().length() != 0)) {
                     dec.setOnStatin(true);
@@ -256,7 +237,7 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setOnStatin(false);
                 }
 
-                /* #8 HDL */
+                /* HDL */
                 String hdl = request.getParameter("hdl");
                 if ((hdl != null) && (hdl.trim().length() != 0)) {
                     try {
@@ -278,7 +259,7 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setHdl(null);
                 }
 
-                /* #9 Triglycerides */
+                /* Triglycerides */
                 String triglycerides = request.getParameter("triglycerides");
                 if ((triglycerides != null) && (triglycerides.trim().length() != 0)) {
                     try {
@@ -300,7 +281,7 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setTriglycerides(null);
                 }
 
-                /* #10 TSH */
+                /* TSH */
                 String tsh = request.getParameter("tsh");
                 if ((tsh != null) && (tsh.trim().length() != 0)) {
                     try {
@@ -322,7 +303,7 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setTsh(null);
                 }
 
-                /* #11 TSH on thyroid treatment */
+                /* TSH on thyroid treatment */
                 String onThyroidTreatment = request.getParameter("onthyroidtreatment");
                 if ((onThyroidTreatment != null)
                         && (onThyroidTreatment.trim().length() != 0)) {
@@ -331,7 +312,7 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setOnThyroidTreatment(false);
                 }
 
-                /* #12 T4 */
+                /* T4 */
                 String t4 = request.getParameter("t4");
                 if ((t4 != null) && (t4.trim().length() != 0)) {
                     try {
@@ -353,7 +334,7 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setT4(null);
                 }
 
-                /* #13 UACR */
+                /* UACR */
                 String uacr = request.getParameter("uacr");
                 if ((uacr != null) && (uacr.trim().length() != 0)) {
                     try {
@@ -375,7 +356,7 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setUacr(null);
                 }
 
-                /* #14 eGFR */
+                /* eGFR */
                 String egfr = request.getParameter("egfr");
                 if ((egfr != null) && (egfr.trim().length() != 0)) {
                     try {
@@ -397,7 +378,7 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setEgfr(null);
                 }
 
-                /* #15 Creatinine */
+                /* Creatinine */
                 String creatinine = request.getParameter("creatinine");
                 if ((creatinine != null) && (creatinine.trim().length() != 0)) {
                     try {
@@ -419,36 +400,11 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setCreatinine(null);
                 }
 
-                /* #16 BMI recorded in progress note */
-                dec.setBmi(null);
-
-                /* #17 Waist recorded in progress note */
-                dec.setWaist(null);
-
-                /* #18 & 19 Blood Pressure recorded in progress note */
-                dec.setBloodPressureSystole(null);
-                dec.setBloodPressureDiastole(null);
-
-                /* #20 Class date recorded in progress note */
-                dec.setClassDate(null);
-
-                /* #21 Eye Screening recorded in progress note */
-                dec.setEye(null);
-
-                /* #22 Foot Screening recorded in progress note */
-                dec.setFoot(null);
-
-                /* #23 Psychological Screening recorded in progress note */
-                dec.setPsychologicalScreening(null);
-
-                /* #24 Physical Activity recorded in progress note */
-                dec.setPhysicalActivity(null);
-
-                /* #25 Influenza vaccine date */
+                /* Influenza vaccine date */
                 String influenzaDateString = request.getParameter("influenzaDate");
                 Date influenzaDate;
                 if ((influenzaDateString != null) && (influenzaDateString.trim().length() != 0)) {
-                    if (StringUtil.dateCheck(influenzaDateString)) {
+                    if (StringUtility.dateCheck(influenzaDateString)) {
                         influenzaDate = Date.valueOf(influenzaDateString);
                         dec.setInfluenzaVaccineDate(influenzaDate);
                     } else {
@@ -461,11 +417,11 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setInfluenzaVaccineDate(null);
                 }
 
-                /* #26 PCV-13 vaccine date */
+                /* PCV-13 vaccine date */
                 String pcv13DateString = request.getParameter("pcv13Date");
                 Date pcv13Date;
                 if ((pcv13DateString != null) && (pcv13DateString.trim().length() != 0)) {
-                    if (StringUtil.dateCheck(pcv13DateString)) {
+                    if (StringUtility.dateCheck(pcv13DateString)) {
                         pcv13Date = Date.valueOf(pcv13DateString);
                         dec.setPcv13Date(pcv13Date);
                     } else {
@@ -478,11 +434,11 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setPcv13Date(null);
                 }
 
-                /* #27 PPSV-23 vaccine date */
+                /* PPSV-23 vaccine date */
                 String ppsv23DateString = request.getParameter("ppsv23Date");
                 Date ppsv23Date;
                 if ((ppsv23DateString != null) && (ppsv23DateString.trim().length() != 0)) {
-                    if (StringUtil.dateCheck(ppsv23DateString)) {
+                    if (StringUtility.dateCheck(ppsv23DateString)) {
                         ppsv23Date = Date.valueOf(ppsv23DateString);
                         dec.setPpsv23Date(ppsv23Date);
                     } else {
@@ -495,11 +451,11 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setPpsv23Date(null);
                 }
 
-                /* #28 Hepatitis B vaccine date */
+                /* Hepatitis B vaccine date */
                 String hepbDateString = request.getParameter("hepbDate");
                 Date hepbDate;
                 if ((hepbDateString != null) && (hepbDateString.trim().length() != 0)) {
-                    if (StringUtil.dateCheck(hepbDateString)) {
+                    if (StringUtility.dateCheck(hepbDateString)) {
                         hepbDate = Date.valueOf(hepbDateString);
                         dec.setHepatitisBDate(hepbDate);
                     } else {
@@ -512,11 +468,11 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setHepatitisBDate(null);
                 }
 
-                /* #29 TDAP vaccine date */
+                /* TDAP vaccine date */
                 String tdapDateString = request.getParameter("tdapDate");
                 Date tdapDate;
                 if ((tdapDateString != null) && (tdapDateString.trim().length() != 0)) {
-                    if (StringUtil.dateCheck(tdapDateString)) {
+                    if (StringUtility.dateCheck(tdapDateString)) {
                         tdapDate = Date.valueOf(tdapDateString);
                         dec.setTdapDate(tdapDate);
                     } else {
@@ -529,11 +485,11 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setTdapDate(null);
                 }
 
-                /* #30 Zoster vaccine date */
+                /* Zoster vaccine date */
                 String zosterDateString = request.getParameter("zosterDate");
                 Date zosterDate;
                 if ((zosterDateString != null) && (zosterDateString.trim().length() != 0)) {
-                    if (StringUtil.dateCheck(zosterDateString)) {
+                    if (StringUtility.dateCheck(zosterDateString)) {
                         zosterDate = Date.valueOf(zosterDateString);
                         dec.setZosterDate(zosterDate);
                     } else {
@@ -546,13 +502,10 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setZosterDate(null);
                 }
 
-                /* #31 Smoking status recorded in progress note */
-                dec.setSmoking(null);
-
-                /* #32 Telephone follow up */
+                /* Telephone follow up */
                 String telephoneFollowUp = request.getParameter("telephoneFollowUp");
                 if ((telephoneFollowUp != null) && (telephoneFollowUp.trim().length() != 0)) {
-                    if (StringUtil.tooLongForShortVarChar(telephoneFollowUp)) {
+                    if (StringUtility.tooLongForShortVarChar(telephoneFollowUp)) {
                         message = "The telephone follow-up value must be 50 characters or less.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
@@ -563,7 +516,7 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setTelephoneFollowUp(null);
                 }
 
-                /* #33 AST */
+                /* AST */
                 String ast = request.getParameter("ast");
                 if ((ast != null) && (ast.trim().length() != 0)) {
                     try {
@@ -585,7 +538,7 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setAst(null);
                 }
 
-                /* #34 ALT */
+                /* ALT */
                 String alt = request.getParameter("alt");
                 if ((alt != null) && (alt.trim().length() != 0)) {
                     try {
@@ -607,7 +560,7 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setAlt(null);
                 }
 
-                /* #35 PSA */
+                /* PSA */
                 String psa = request.getParameter("psa");
                 if ((psa != null) && (psa.trim().length() != 0)) {
                     try {
@@ -629,12 +582,6 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setPsa(null);
                 }
 
-                /* #36 Compliance recorded in progress note */
-                dec.setCompliance(null);
-
-                /* #37 Hospitalization date recorded in progress note */
-                dec.setHospitalizationDate(null);
-
                 /* Notes */
                 String noteTopic = request.getParameter("noteTopic");
                 String note = request.getParameter("note");
@@ -645,9 +592,9 @@ public class DataEntryServlet extends HttpServlet {
                     validData = false;
                 }
 
-                /* #38 Note topic */
+                /* Note topic */
                 if ((noteTopic != null) && (noteTopic.trim().length() != 0)) {
-                    if (StringUtil.tooLongForShortVarChar(noteTopic)) {
+                    if (StringUtility.tooLongForShortVarChar(noteTopic)) {
                         message = "The note topic must be 50 characters or less.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
@@ -658,9 +605,9 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setNoteTopic(null);
                 }
 
-                /* #39 Note */
+                /* Note */
                 if ((note != null) && (note.trim().length() != 0)) {
-                    if (StringUtil.tooLongForLongVarChar(note)) {
+                    if (StringUtility.tooLongForLongVarChar(note)) {
                         message = "The note must be 1000 characters or less.";
                         request.setAttribute("errorMessage", message);
                         validData = false;
@@ -671,11 +618,11 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setNote(null);
                 }
 
-                /* #40 Date entered */
+                /* Date entered */
                 String dateEnteredString = request.getParameter("dataEntryDate");
                 Date dataEntryDate;
                 if ((dateEnteredString != null) && (dateEnteredString.trim().length() != 0)) {
-                    if (StringUtil.dateCheck(dateEnteredString)) {
+                    if (StringUtility.dateCheck(dateEnteredString)) {
                         dataEntryDate = Date.valueOf(dateEnteredString);
                         dec.setDateEntered(dataEntryDate);
                     } else {
@@ -690,7 +637,7 @@ public class DataEntryServlet extends HttpServlet {
                     validData = false;
                 }
 
-                /* #41 Point of care */
+                /* Point of care */
                 String poc = request.getParameter("poc");
                 if ((poc != null) && (poc.trim().length() != 0)) {
                     dec.setPoc(true);
@@ -698,22 +645,14 @@ public class DataEntryServlet extends HttpServlet {
                     dec.setPoc(false);
                 }
 
-                /* #42 ACE or ARB recorded in progress note */
-                dec.setAceOrArb(false);
-
-                /* #43 User name */
+                /* User name */
                 dec.setUserName(user.getUserName());
 
-                /* #44 Clinic Id */
-                if (clinicId != EMPTY_VALUE) {
-                    dec.setClinicId(clinicId);
-                } else {
-                    message = "You must select a clinic.";
-                    request.setAttribute("errorMessage", message);
-                    validData = false;
-                }
+                /* Clinic Id */
+                dec.setClinicId(clinicId);
+
                 if (validData) {
-                    boolean successfulUpdate = DataEntryIO.addResults(dec,
+                    boolean successfulUpdate = DataEntryDataAccess.addResults(dec,
                             session.getServletContext()
                             .getAttribute("referenceCharacters"));
 
@@ -722,10 +661,8 @@ public class DataEntryServlet extends HttpServlet {
                         request.setAttribute("message", message);
                     }
                 }
-                url = "/dataentry/index.jsp";
                 break;
             default:
-                url = "/dataentry/index.jsp";
                 break;
         }
         getServletContext().getRequestDispatcher(url)

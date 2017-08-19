@@ -15,9 +15,7 @@
  */
 package controller;
 
-import clinic.Patient;
-import clinic.User;
-import data.PatientIO;
+import data.PatientDataAccess;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
@@ -26,17 +24,24 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import util.SessionObjectUtil;
-import util.StringUtil;
+import registry.Patient;
+import registry.ReferenceContainer;
+import utility.SessionObjectUtility;
+import utility.StringUtility;
 
 /**
  * This HttpServlet class coordinates the add, update, and retrieval activities
  * for patient information.
  *
  * @author Bryan Daniel
- * @version 1, April 8, 2016
+ * @version 2, March 16, 2017
  */
 public class PatientServlet extends HttpServlet {
+
+    /**
+     * Serial version UID
+     */
+    private static final long serialVersionUID = 8083513236024731617L;
 
     /**
      * Handles the HTTP <code>GET</code> method. This method invokes the doPost
@@ -69,20 +74,14 @@ public class PatientServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         String url = "/updatepatient/index.jsp";
-        final int EMPTY_VALUE = 0;
-        int index = 0;
+        int clinicId = ReferenceContainer.CLINIC_ID;
         String message;
-        int clinicId;
-        if (session.getAttribute("clinicId") == null) {
-            clinicId = EMPTY_VALUE;
-        } else {
-            clinicId = (int) session.getAttribute("clinicId");
-        }
         String action = request.getParameter("action");
-        User user = (User) session.getAttribute("user");
+
         if (action == null) {
             action = "Go to page";
         }
+
         switch (action) {
             case "Go to page":
                 String requestURI = request.getRequestURI();
@@ -90,17 +89,13 @@ public class PatientServlet extends HttpServlet {
                     url = "/newpatient/index.jsp";
                 } else if (requestURI.contains("/updatepatient")) {
                     ArrayList<Patient> patients
-                            = (ArrayList<Patient>) session.getAttribute("patients");
-                    if ((patients == null) && (user.getClinics().size()
-                            > EMPTY_VALUE)) {
-                        clinicId = user.getClinics().get(index).getClinicId();
-                        patients = PatientIO.getPatients(clinicId,
+                            = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.PATIENTS);
+                    if (patients == null) {
+                        patients = PatientDataAccess.getPatients(clinicId,
                                 session.getServletContext()
                                 .getAttribute("referenceCharacters"));
-                        session.setAttribute("clinicId", clinicId);
-                        session.setAttribute("patients", patients);
+                        session.setAttribute(SessionObjectUtility.PATIENTS, patients);
                     }
-                    url = "/updatepatient/index.jsp";
                 }
                 break;
             case "add": {
@@ -114,7 +109,7 @@ public class PatientServlet extends HttpServlet {
                     request.setAttribute("errorMessage", message);
                     break;
                 }
-                if (StringUtil.tooLongForShortVarChar(firstName)) {
+                if (StringUtility.tooLongForShortVarChar(firstName)) {
                     message = "The first name must be 50 characters or less.";
                     request.setAttribute("errorMessage", message);
                     validData = false;
@@ -127,7 +122,7 @@ public class PatientServlet extends HttpServlet {
                     request.setAttribute("errorMessage", message);
                     break;
                 }
-                if (StringUtil.tooLongForShortVarChar(lastName)) {
+                if (StringUtility.tooLongForShortVarChar(lastName)) {
                     message = "The last name must be 50 characters or less.";
                     request.setAttribute("errorMessage", message);
                     validData = false;
@@ -141,7 +136,7 @@ public class PatientServlet extends HttpServlet {
                     break;
                 }
                 Date birthDate = null;
-                if (StringUtil.dateCheck(birthDateString)) {
+                if (StringUtility.dateCheck(birthDateString)) {
                     birthDate = Date.valueOf(birthDateString);
                 } else {
                     message = "The birth date does not conform to the pattern, "
@@ -153,7 +148,7 @@ public class PatientServlet extends HttpServlet {
                 /* new patient address */
                 String address = request.getParameter("address");
                 if ((address != null) && (address.trim().length() != 0)
-                        && StringUtil.tooLongForEmailVarChar(address)) {
+                        && StringUtility.tooLongForEmailVarChar(address)) {
                     message = "The address must be 255 characters or less.";
                     request.setAttribute("errorMessage", message);
                     validData = false;
@@ -162,7 +157,7 @@ public class PatientServlet extends HttpServlet {
                 /* new patient phone number */
                 String contactNumber = request.getParameter("phoneNumber");
                 if ((contactNumber != null) && (contactNumber.trim().length() != 0)
-                        && (StringUtil.tooLongForShortVarChar(contactNumber))) {
+                        && (StringUtility.tooLongForShortVarChar(contactNumber))) {
                     message = "The contact number must be 50 characters or less.";
                     request.setAttribute("errorMessage", message);
                     validData = false;
@@ -175,7 +170,7 @@ public class PatientServlet extends HttpServlet {
                     request.setAttribute("errorMessage", message);
                     break;
                 }
-                if (StringUtil.tooLongForShortVarChar(gender)) {
+                if (StringUtility.tooLongForShortVarChar(gender)) {
                     message = "The gender must be 50 characters or less.";
                     request.setAttribute("errorMessage", message);
                     validData = false;
@@ -188,18 +183,8 @@ public class PatientServlet extends HttpServlet {
                     request.setAttribute("errorMessage", message);
                     break;
                 }
-                if (StringUtil.tooLongForShortVarChar(race)) {
+                if (StringUtility.tooLongForShortVarChar(race)) {
                     message = "The race must be 50 characters or less.";
-                    request.setAttribute("errorMessage", message);
-                    validData = false;
-                }
-
-                /* clinic ID *required* */
-                String clinicIdString = request.getParameter("clinicId");
-                try {
-                    clinicId = Integer.parseInt(clinicIdString);
-                } catch (NumberFormatException nfe) {
-                    message = "The clinic ID is invalid.";
                     request.setAttribute("errorMessage", message);
                     validData = false;
                 }
@@ -207,7 +192,7 @@ public class PatientServlet extends HttpServlet {
                 /* new patient email */
                 String email = request.getParameter("email");
                 if ((email != null) && (email.trim().length() != 0)
-                        && StringUtil.tooLongForEmailVarChar(email)) {
+                        && StringUtility.tooLongForEmailVarChar(email)) {
                     message = "The email must be 255 characters or less.";
                     request.setAttribute("errorMessage", message);
                     validData = false;
@@ -216,7 +201,7 @@ public class PatientServlet extends HttpServlet {
                 /* new patient language */
                 String language = request.getParameter("language");
                 if ((language != null) && (language.trim().length() != 0)
-                        && StringUtil.tooLongForShortVarChar(language)) {
+                        && StringUtility.tooLongForShortVarChar(language)) {
                     message = "The language must be 50 characters or less.";
                     request.setAttribute("errorMessage", message);
                     validData = false;
@@ -230,7 +215,7 @@ public class PatientServlet extends HttpServlet {
                     break;
                 }
                 Date startDate = null;
-                if (StringUtil.dateCheck(startDateString)) {
+                if (StringUtility.dateCheck(startDateString)) {
                     startDate = Date.valueOf(startDateString);
                 } else {
                     message = "The start date does not conform to the pattern, "
@@ -239,15 +224,8 @@ public class PatientServlet extends HttpServlet {
                     validData = false;
                 }
 
-                /* clinic ID */
-                if (clinicId == EMPTY_VALUE) {
-                    message = "You must select a clinic.";
-                    request.setAttribute("errorMessage", message);
-                    validData = false;
-                }
-
                 if (validData) {
-                    boolean successfulAdd = PatientIO.addPatient(firstName,
+                    boolean successfulAdd = PatientDataAccess.addPatient(firstName,
                             lastName, birthDate, address, contactNumber,
                             gender, race, email, language, startDate, clinicId,
                             session.getServletContext()
@@ -256,12 +234,11 @@ public class PatientServlet extends HttpServlet {
                     if (successfulAdd) {
                         message = "Patient was added successfully!";
                         ArrayList<Patient> patients
-                                = PatientIO.getPatients(clinicId,
+                                = PatientDataAccess.getPatients(clinicId,
                                         session.getServletContext()
                                         .getAttribute("referenceCharacters"));
-                        session.setAttribute("clinicId", clinicId);
-                        session.setAttribute("patients", patients);
-                        SessionObjectUtil.resetClinicObjects(session);
+                        session.setAttribute(SessionObjectUtility.PATIENTS, patients);
+                        SessionObjectUtility.resetClinicObjects(session);
 
                         request.setAttribute("message", message);
                     } else {
@@ -271,36 +248,19 @@ public class PatientServlet extends HttpServlet {
                 }
                 break;
             }
-            case "getClinic":
-                String clinicSelect = request.getParameter("clinicselect");
-                try {
-                    clinicId = Integer.parseInt(clinicSelect);
-                    ArrayList<Patient> patients = PatientIO.getPatients(clinicId,
-                            session.getServletContext()
-                            .getAttribute("referenceCharacters"));
-                    session.setAttribute("clinicId", clinicId);
-                    session.setAttribute("patients", patients);
-                    SessionObjectUtil.resetClinicObjects(session);
-                    url = "/updatepatient/index.jsp";
-                } catch (NumberFormatException nfe) {
-                    message = "clinic id invalid";
-                    request.setAttribute("errorMessage", message);
-                }
-                break;
             case "getPatient":
                 String patientSelect = request.getParameter("patientselect");
                 try {
                     int patientId = Integer.parseInt(patientSelect);
                     ArrayList<Patient> patients
-                            = (ArrayList<Patient>) session.getAttribute("patients");
+                            = (ArrayList<Patient>) session.getAttribute(SessionObjectUtility.PATIENTS);
                     for (Patient p : patients) {
                         if (p.getPatientId() == patientId) {
-                            session.setAttribute("patient", p);
-                            SessionObjectUtil.resetPatientObjects(session);
+                            session.setAttribute(SessionObjectUtility.PATIENT, p);
+                            SessionObjectUtility.resetPatientObjects(session);
                             break;
                         }
                     }
-                    url = "/updatepatient/index.jsp";
                 } catch (NumberFormatException nfe) {
                     message = "patient id invalid";
                     request.setAttribute("errorMessage", message);
@@ -308,8 +268,7 @@ public class PatientServlet extends HttpServlet {
                 break;
             case "updatePatient": {
                 boolean validData = true;
-                url = "/updatepatient/index.jsp";
-                Patient patient = (Patient) session.getAttribute("patient");
+                Patient patient = (Patient) session.getAttribute(SessionObjectUtility.PATIENT);
                 int patientId = patient.getPatientId();
 
                 /* patient first name *required* */
@@ -319,7 +278,7 @@ public class PatientServlet extends HttpServlet {
                     request.setAttribute("errorMessage", message);
                     break;
                 }
-                if (StringUtil.tooLongForShortVarChar(firstName)) {
+                if (StringUtility.tooLongForShortVarChar(firstName)) {
                     message = "The first name must be 50 characters or less.";
                     request.setAttribute("errorMessage", message);
                     validData = false;
@@ -332,7 +291,7 @@ public class PatientServlet extends HttpServlet {
                     request.setAttribute("errorMessage", message);
                     break;
                 }
-                if (StringUtil.tooLongForShortVarChar(lastName)) {
+                if (StringUtility.tooLongForShortVarChar(lastName)) {
                     message = "The last name must be 50 characters or less.";
                     request.setAttribute("errorMessage", message);
                     validData = false;
@@ -346,7 +305,7 @@ public class PatientServlet extends HttpServlet {
                     break;
                 }
                 Date birthDate = null;
-                if (StringUtil.dateCheck(birthDateString)) {
+                if (StringUtility.dateCheck(birthDateString)) {
                     birthDate = Date.valueOf(birthDateString);
                 } else {
                     message = "The birth date does not conform to the pattern, "
@@ -358,7 +317,7 @@ public class PatientServlet extends HttpServlet {
                 /* patient address */
                 String address = request.getParameter("address");
                 if ((address != null) && (address.trim().length() != 0)
-                        && StringUtil.tooLongForEmailVarChar(address)) {
+                        && StringUtility.tooLongForEmailVarChar(address)) {
                     message = "The address must be 255 characters or less.";
                     request.setAttribute("errorMessage", message);
                     validData = false;
@@ -367,7 +326,7 @@ public class PatientServlet extends HttpServlet {
                 /* patient contact number */
                 String contactNumber = request.getParameter("phoneNumber");
                 if ((contactNumber != null) && (contactNumber.trim().length() != 0)
-                        && (StringUtil.tooLongForShortVarChar(contactNumber))) {
+                        && (StringUtility.tooLongForShortVarChar(contactNumber))) {
                     message = "The contact number must be 50 characters or less.";
                     request.setAttribute("errorMessage", message);
                     validData = false;
@@ -380,7 +339,7 @@ public class PatientServlet extends HttpServlet {
                     request.setAttribute("errorMessage", message);
                     break;
                 }
-                if (StringUtil.tooLongForShortVarChar(gender)) {
+                if (StringUtility.tooLongForShortVarChar(gender)) {
                     message = "The gender must be 50 characters or less.";
                     request.setAttribute("errorMessage", message);
                     validData = false;
@@ -393,7 +352,7 @@ public class PatientServlet extends HttpServlet {
                     request.setAttribute("errorMessage", message);
                     break;
                 }
-                if (StringUtil.tooLongForShortVarChar(race)) {
+                if (StringUtility.tooLongForShortVarChar(race)) {
                     message = "The race must be 50 characters or less.";
                     request.setAttribute("errorMessage", message);
                     validData = false;
@@ -402,7 +361,7 @@ public class PatientServlet extends HttpServlet {
                 /* patient email address */
                 String email = request.getParameter("email");
                 if ((email != null) && (email.trim().length() != 0)
-                        && StringUtil.tooLongForEmailVarChar(email)) {
+                        && StringUtility.tooLongForEmailVarChar(email)) {
                     message = "The email must be 255 characters or less.";
                     request.setAttribute("errorMessage", message);
                     validData = false;
@@ -411,7 +370,7 @@ public class PatientServlet extends HttpServlet {
                 /* patient language */
                 String language = request.getParameter("language");
                 if ((language != null) && (language.trim().length() != 0)
-                        && StringUtil.tooLongForShortVarChar(language)) {
+                        && StringUtility.tooLongForShortVarChar(language)) {
                     message = "The language must be 50 characters or less.";
                     request.setAttribute("errorMessage", message);
                     validData = false;
@@ -420,7 +379,7 @@ public class PatientServlet extends HttpServlet {
                 /* patient reason for inactivity */
                 String reason = request.getParameter("reason");
                 if ((reason != null) && (reason.trim().length() != 0)
-                        && StringUtil.tooLongForShortVarChar(reason)) {
+                        && StringUtility.tooLongForShortVarChar(reason)) {
                     message = "The reason for inactivity must be 50 characters or less.";
                     request.setAttribute("errorMessage", message);
                     validData = false;
@@ -434,7 +393,7 @@ public class PatientServlet extends HttpServlet {
                     break;
                 }
                 Date startDate = null;
-                if (StringUtil.dateCheck(startDateString)) {
+                if (StringUtility.dateCheck(startDateString)) {
                     startDate = Date.valueOf(startDateString);
                 } else {
                     message = "The start date does not conform to the pattern, "
@@ -443,15 +402,8 @@ public class PatientServlet extends HttpServlet {
                     validData = false;
                 }
 
-                /* clinic ID */
-                if (clinicId == EMPTY_VALUE) {
-                    message = "You must select a clinic.";
-                    request.setAttribute("errorMessage", message);
-                    validData = false;
-                }
-
                 if (validData) {
-                    boolean successfulUpdate = PatientIO.updatePatient(patientId,
+                    boolean successfulUpdate = PatientDataAccess.updatePatient(patientId,
                             firstName, lastName, birthDate, address, contactNumber,
                             gender, race, email, language, reason, startDate,
                             session.getServletContext()
@@ -460,14 +412,14 @@ public class PatientServlet extends HttpServlet {
                     if (successfulUpdate) {
                         message = "Patient was updated successfully!";
                         ArrayList<Patient> patients
-                                = PatientIO.getPatients(clinicId,
+                                = PatientDataAccess.getPatients(clinicId,
                                         session.getServletContext()
                                         .getAttribute("referenceCharacters"));
-                        session.setAttribute("patients", patients);
+                        session.setAttribute(SessionObjectUtility.PATIENTS, patients);
                         for (Patient p : patients) {
                             if (p.getPatientId() == patientId) {
-                                session.setAttribute("patient", p);
-                                SessionObjectUtil.resetPatientObjects(session);
+                                session.setAttribute(SessionObjectUtility.PATIENT, p);
+                                SessionObjectUtility.resetPatientObjects(session);
                                 break;
                             }
                         }
@@ -480,7 +432,6 @@ public class PatientServlet extends HttpServlet {
                 break;
             }
             default:
-                url = "/updatepatient/index.jsp";
                 break;
         }
         getServletContext().getRequestDispatcher(url)

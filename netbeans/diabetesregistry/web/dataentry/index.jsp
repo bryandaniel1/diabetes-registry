@@ -13,36 +13,22 @@
     <p class="success"><c:out value="${message}"/></p>
 </c:if>
 <section class="pagecontent">
-    <form class="contentText" action="dataentry" method="post">
-        <input type="hidden" name="action" value="getClinic">
-        <table class="patientselect">
-            <tr>
-                <td class="dataregisterlabels">
-                    <label for="clinicselect" class="registerlabels">Clinic:</label>
-                </td>
-                <td>
-                    <select name="clinicselect" onchange="this.form.submit()">
-                        <c:forEach var="clinic" items="${user.clinics}">
-                            <c:choose>
-                                <c:when test="${clinic.clinicId == sessionScope.clinicId}">
-                                    <option value="${clinic.clinicId}" selected><c:out value="${clinic.clinicName}"/></option>
-                                </c:when>
-                                <c:otherwise>
-                                    <option value="${clinic.clinicId}"><c:out value="${clinic.clinicName}"/></option>
-                                </c:otherwise>                        
-                            </c:choose>                                                
-                        </c:forEach>
-                    </select>
-                </td>
-            </tr>
-        </table>
-    </form>
+    <table class="patientselect">
+        <tr>
+            <td class="datalabels">
+                <label for="clinicname" class="labels">Clinic:</label>
+            </td>
+            <td>
+                <output name="clinicname"><c:out value="${applicationScope.references.clinic.clinicName}"/></output>
+            </td>
+        </tr>
+    </table>
     <form class="contentText" action="dataentry" method="post">
         <input type="hidden" name="action" value="getPatient">
         <table class="patientselect">
             <tr>
-                <td class="dataregisterlabels">
-                    <label for="patientselect" class="registerlabels">Select Patient:</label>
+                <td class="datalabels">
+                    <label for="patientselect" class="labels">Select Patient:</label>
                 </td>
                 <td>
                     <select name="patientselect" onchange="this.form.submit()">

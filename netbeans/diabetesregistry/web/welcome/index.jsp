@@ -24,7 +24,6 @@
                 <p class="forminstructions">Welcome, <c:out value="${user.firstName}"></c:out><br>
                     Current date and time: <c:out value="<%=loginTime%>"></c:out><br></p>
                     <form action="home" method="post">
-                        <input type="hidden" name="action" value="home">
                         <input class="button" id="homebutton" type="submit" value="Proceed to Registry">        
                     </form>
                     <p class="error">
@@ -33,7 +32,7 @@
                     </c:if>
                 </p>
             </section>
-            <section id="registerpart">
+            <section id="forgotpasswordpart">
                 <form action="signout" method="post">
                     <input type="hidden" name="action" value="signout">
                     <input class="button" id="signoutbuttonbutton" type="submit" value="Sign Out">

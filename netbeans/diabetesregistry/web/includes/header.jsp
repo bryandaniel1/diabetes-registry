@@ -9,13 +9,13 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>St. Joseph Medical Clinic Diabetes Registry</title>
+        <title>Diabetes Registry</title>
         <meta name="robots" content="noindex, nofollow">
         <link rel="stylesheet" type="text/css" href="<c:url value='/style/main.css'/>">        
     </head>
     <body>
         <header>
-            <h1 id="title">St. Joseph Medical Clinic<br>Diabetes Registry</h1>            
+            <h1 id="title">Diabetes Registry</h1>            
             <nav>        
             </nav>
         </header>

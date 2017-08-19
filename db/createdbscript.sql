@@ -1,5 +1,5 @@
 /* 
- * Copyright 2016 Bryan Daniel.
+ * Copyright 2017 Bryan Daniel.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ CREATE DATABASE diabetes_registry;
 USE diabetes_registry;
 
 CREATE TABLE User (
-	user_name VARCHAR(50) NOT NULL, first_name VARCHAR(50) NOT NULL,
+	user_name VARCHAR(100) NOT NULL, first_name VARCHAR(50) NOT NULL,
 	last_name VARCHAR(50) NOT NULL, job_title VARCHAR(50) NOT NULL,
 	date_joined DATETIME NOT NULL, last_login DATETIME,
 	active TINYINT(1) NOT NULL, 
@@ -33,8 +33,15 @@ CREATE TABLE User (
 	CONSTRAINT user_name_pk PRIMARY KEY(user_name)
 ) ENGINE=InnoDB;
 
+CREATE TABLE UserEmailAddress (
+	user_name VARCHAR(100) NOT NULL, 
+	email_address VARCHAR(255) NOT NULL, 
+	PRIMARY KEY (user_name),
+	FOREIGN KEY (user_name) REFERENCES User (user_name)
+) ENGINE=InnoDB;
+
 CREATE TABLE UserCredentials (
-	user_name VARCHAR(50) NOT NULL,
+	user_name VARCHAR(100) NOT NULL,
 	password VARCHAR(64) NOT NULL,
 	salt VARCHAR(64) NOT NULL,
 	change_password TINYINT(1) NOT NULL,
@@ -43,13 +50,30 @@ CREATE TABLE UserCredentials (
 	REFERENCES User (user_name)
 ) ENGINE=InnoDB;
 
+CREATE TABLE UserActivity (
+	user_name VARCHAR(100) NOT NULL,
+	activity VARCHAR(1000) NOT NULL,
+	time_occurred DATETIME NOT NULL,
+	KEY FK_UserActivity_user_name (user_name),
+	CONSTRAINT FK_UserActivity_user_name FOREIGN KEY (user_name) 
+	REFERENCES User (user_name)
+) ENGINE=InnoDB;
+
+CREATE TABLE PasswordResetRequest (
+	request_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	user_name VARCHAR(100) NOT NULL, 
+    time_requested DATETIME NOT NULL,
+	marked_as_read TINYINT(1) NOT NULL, 
+    KEY FK_PasswordResetRequest_user_name (user_name),
+	CONSTRAINT FK_PasswordResetRequest_user_name FOREIGN KEY (user_name) 
+	REFERENCES User (user_name)
+) ENGINE=InnoDB;
+
 CREATE TABLE Clinic (
 	clinic_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	name VARCHAR(50) NOT NULL,
 	address VARCHAR(1000) NOT NULL,
-	phone_number VARCHAR(50) NOT NULL,
-	registration_key VARCHAR(64) UNIQUE NOT NULL,
-	salt VARCHAR(64) UNIQUE NOT NULL
+	phone_number VARCHAR(50) NOT NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE ClinicEmailAddress (
@@ -59,26 +83,15 @@ CREATE TABLE ClinicEmailAddress (
 	FOREIGN KEY (clinic_id) REFERENCES Clinic (clinic_id)
 ) ENGINE=InnoDB;
 
-CREATE TABLE UserRegistration (
-	user_name VARCHAR(50) NOT NULL,
-	registration_key VARCHAR(64) NOT NULL,
-	KEY FK_UserRegistration_user_name (user_name),
-	CONSTRAINT FK_UserRegistration_user_name FOREIGN KEY (user_name) 
-	REFERENCES User (user_name),
-	KEY FK_UserRegistration_registration_key (registration_key),
-	CONSTRAINT FK_UserRegistration_registration_key FOREIGN KEY (registration_key) 
-	REFERENCES Clinic (registration_key) ON UPDATE CASCADE
-) ENGINE=InnoDB;
-
 CREATE TABLE Patient (
 	patient_id INT NOT NULL AUTO_INCREMENT,
-	first_name VARBINARY(100) NOT NULL,
-	last_name VARBINARY(100) NOT NULL,
-	birth_date VARBINARY(100) NOT NULL,
-	contact_number VARBINARY(100),
-	gender VARBINARY(100) NOT NULL,
-	race VARBINARY(100) NOT NULL, 
-	start_date VARBINARY(100) NOT NULL, 
+	first_name VARCHAR(50) NOT NULL,
+	last_name VARCHAR(50) NOT NULL,
+	birth_date VARCHAR(50) NOT NULL,
+	contact_number VARCHAR(50),
+	gender VARCHAR(50) NOT NULL,
+	race VARCHAR(50) NOT NULL, 
+	start_date VARCHAR(50) NOT NULL, 
 	PRIMARY KEY (patient_id)
 ) ENGINE=InnoDB;
 
@@ -96,7 +109,7 @@ CREATE TABLE PatientClinic (
 
 CREATE TABLE PatientAddress (
 	patient_id INT NOT NULL, 
-	address VARBINARY(500) NOT NULL, 
+	address VARCHAR(255) NOT NULL, 
 	PRIMARY KEY (patient_id),
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE
@@ -104,7 +117,7 @@ CREATE TABLE PatientAddress (
 
 CREATE TABLE PatientEmailAddress (
 	patient_id INT NOT NULL, 
-	email_address VARBINARY(500) NOT NULL, 
+	email_address VARCHAR(255) NOT NULL, 
 	PRIMARY KEY (patient_id),
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE
@@ -115,9 +128,22 @@ CREATE TABLE Language (
 	PRIMARY KEY (language) 
 ) ENGINE=InnoDB;
 
+CREATE TABLE EmailMessageRecipientFilter(
+	filter_id INT NOT NULL, 
+    filter_description VARCHAR(100), 
+    PRIMARY KEY (filter_id),  
+	CONSTRAINT UK_EmailMessageRecipientFilter_filter_description 
+	UNIQUE KEY (filter_description)
+) ENGINE=InnoDB;
+
 CREATE TABLE EmailMessageSubject (
+	subject_id INT NOT NULL AUTO_INCREMENT, 
 	subject VARCHAR(50) NOT NULL, 
-	PRIMARY KEY (subject) 
+    filter_id INT NOT NULL, 
+	PRIMARY KEY (subject_id), 
+	FOREIGN KEY (filter_id) REFERENCES EmailMessageRecipientFilter (filter_id),  
+	CONSTRAINT UK_EmailMessageSubject_subject 
+	UNIQUE KEY (subject)
 ) ENGINE=InnoDB;
 
 CREATE TABLE PatientLanguage (
@@ -132,13 +158,13 @@ CREATE TABLE PatientLanguage (
 CREATE TABLE EmailMessage (
 	clinic_id INT NOT NULL, 
 	language VARCHAR(50) NOT NULL, 
-	subject VARCHAR(50) NOT NULL, 
+	subject_id INT NOT NULL, 
 	message VARCHAR(1000) NOT NULL, 
 	FOREIGN KEY (clinic_id) REFERENCES Clinic (clinic_id), 
 	FOREIGN KEY (language) REFERENCES Language (language), 
-	FOREIGN KEY (subject) REFERENCES EmailMessageSubject (subject), 
+	FOREIGN KEY (subject_id) REFERENCES EmailMessageSubject (subject_id), 
 	CONSTRAINT PK_EmailMessage_clinic_id_language_subject 
-	PRIMARY KEY (clinic_id, language, subject)
+	PRIMARY KEY (clinic_id, language, subject_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE ReasonForInactivity (
@@ -170,12 +196,13 @@ CREATE TABLE PatientRx (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	rx_class VARCHAR(50) NOT NULL,
-	updated_by VARCHAR(50),
+	updated_by VARCHAR(100),
 	clinic_id INT,
 	KEY FK_PatientRx_patient_id (patient_id),
 	CONSTRAINT FK_PatientRx_patient_id FOREIGN KEY (patient_id) 
 	REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
+	FOREIGN KEY (updated_by) REFERENCES User (user_name),
 	KEY FK_PatientRx_rx_class (rx_class),
 	CONSTRAINT FK_PatientRx_rx_class FOREIGN KEY (rx_class)
 	REFERENCES Therapy (rx_class)
@@ -185,12 +212,13 @@ CREATE TABLE PatientMed (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	med_id VARCHAR(50) NOT NULL,
-	updated_by VARCHAR(50),
+	updated_by VARCHAR(100),
 	clinic_id INT,
 	KEY FK_PatientMed_patient_id (patient_id),
 	CONSTRAINT FK_PatientMed_patient_id FOREIGN KEY (patient_id) 
 	REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
+	FOREIGN KEY (updated_by) REFERENCES User (user_name),
 	KEY FK_PatientMed_med_id (med_id),
 	CONSTRAINT FK_PatientMed_med_id FOREIGN KEY (med_id)
 	REFERENCES Medication (med_id)
@@ -201,7 +229,7 @@ CREATE TABLE A1C (
 	date_recorded DATE NOT NULL,
 	result DECIMAL(7,2) NOT NULL,
 	poc TINYINT(1) NOT NULL,
-	updated_by VARCHAR(50),
+	updated_by VARCHAR(100),
 	clinic_id INT,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -215,7 +243,7 @@ CREATE TABLE Glucose (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	result DECIMAL(7,2) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -238,7 +266,7 @@ CREATE TABLE LDL (
 	date_recorded DATE NOT NULL,
 	result DECIMAL(7,2) NOT NULL, 
 	post_mi TINYINT(1) NOT NULL, 
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -261,7 +289,7 @@ CREATE TABLE HDL (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	result DECIMAL(7,2) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -275,7 +303,7 @@ CREATE TABLE Triglycerides (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	result DECIMAL(7,2) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -289,7 +317,7 @@ CREATE TABLE TSH (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	result DECIMAL(7,2) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -312,7 +340,7 @@ CREATE TABLE T4 (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	result DECIMAL(7,2) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -326,7 +354,7 @@ CREATE TABLE UACR (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	result DECIMAL(7,2) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -340,7 +368,7 @@ CREATE TABLE EGFR (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	result DECIMAL(7,2) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -354,7 +382,7 @@ CREATE TABLE Creatinine (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	result DECIMAL(7,2) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -368,7 +396,7 @@ CREATE TABLE BMI (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	result DECIMAL(7,2) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -382,7 +410,7 @@ CREATE TABLE Waist (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	result DECIMAL(7,2) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -398,7 +426,7 @@ CREATE TABLE BloodPressure (
 	result_s INT NOT NULL,
 	result_d INT NOT NULL,
 	ace_or_arb TINYINT(1) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -411,7 +439,7 @@ CREATE TABLE BloodPressure (
 CREATE TABLE LastClass (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -432,7 +460,7 @@ CREATE TABLE EyeScreening (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	eye_exam_code VARCHAR(50) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -454,7 +482,7 @@ CREATE TABLE FootScreening (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	risk_category VARCHAR(50) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -476,7 +504,7 @@ CREATE TABLE TelephoneFollowUp (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	follow_up_code VARCHAR(50) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -499,7 +527,7 @@ CREATE TABLE PsychologicalScreening (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	phq_score INT NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -514,7 +542,7 @@ CREATE TABLE PhysicalActivity (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	min_per_week INT NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -527,7 +555,7 @@ CREATE TABLE PhysicalActivity (
 CREATE TABLE ER (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -541,7 +569,7 @@ CREATE TABLE SmokingCessation (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	smoker TINYINT(1) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -555,7 +583,7 @@ CREATE TABLE AST (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	result DECIMAL(7,2) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -569,7 +597,7 @@ CREATE TABLE ALT (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	result DECIMAL(7,2) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -583,7 +611,7 @@ CREATE TABLE PSA (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	result DECIMAL(7,2) NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -596,7 +624,7 @@ CREATE TABLE PSA (
 CREATE TABLE InfluenzaVaccine (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -609,7 +637,7 @@ CREATE TABLE InfluenzaVaccine (
 CREATE TABLE PCV13 (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -622,7 +650,7 @@ CREATE TABLE PCV13 (
 CREATE TABLE PPSV23 (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -635,7 +663,7 @@ CREATE TABLE PPSV23 (
 CREATE TABLE TDAP (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -648,7 +676,7 @@ CREATE TABLE TDAP (
 CREATE TABLE HepatitisB (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -661,7 +689,7 @@ CREATE TABLE HepatitisB (
 CREATE TABLE Zoster (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -700,7 +728,7 @@ CREATE TABLE Note (
 	date_recorded DATE NOT NULL,
 	topic VARCHAR(50) NOT NULL,
 	note VARCHAR(1000) NOT NULL, 
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE, 
@@ -724,15 +752,15 @@ CREATE TABLE ProgressNote (
 	pulse INT, 
 	respirations INT, 
 	temperature DECIMAL(7,2), 
-	foot_screening TINYINT(1),
-	medications VARCHAR(50), 
+	foot_screening TINYINT(1), 
+	medications VARCHAR(255), 
 	a1c DECIMAL(7,2), 
 	glucose DECIMAL(7,2), 
-	nurse_or_dietitian_note VARBINARY(1500), 
-	subjective VARBINARY(1500), 
-	objective VARBINARY(1500), 
-	assessment VARBINARY(1500), 
-	plan VARBINARY(1500), 
+	nurse_or_dietitian_note VARCHAR(1000), 
+	subjective VARCHAR(1000), 
+	objective VARCHAR(1000), 
+	assessment VARCHAR(1000), 
+	plan VARCHAR(1000), 
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE,  
 	CONSTRAINT UK_ProgressNote_patient_id_date_created 
@@ -742,7 +770,7 @@ CREATE TABLE ProgressNote (
 CREATE TABLE ProgressNoteAuthor (
 	progress_note_id INT NOT NULL, 
 	datetime_recorded DATETIME NOT NULL, 
-	updated_by VARCHAR(50) NOT NULL, 
+	updated_by VARCHAR(100) NOT NULL, 
 	FOREIGN KEY (progress_note_id) REFERENCES ProgressNote (progress_note_id) 
 	ON DELETE CASCADE,  
 	FOREIGN KEY (updated_by) REFERENCES User (user_name),
@@ -754,7 +782,7 @@ CREATE TABLE Compliance (
 	patient_id INT NOT NULL,
 	date_recorded DATE NOT NULL,
 	result DECIMAL(7,2) NOT NULL, 
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE,  
@@ -772,11 +800,11 @@ CREATE TABLE Quality(
 	PRIMARY KEY (responsibility)
 ) ENGINE=InnoDB;
 
-CREATE TABLE QualityChecklist (
+CREATE TABLE QualityChecklistItem (
 	patient_id INT NOT NULL, 
 	date_recorded DATE NOT NULL, 
 	responsibility VARCHAR(255) NOT NULL, 
-	updated_by VARCHAR(50) NOT NULL,
+	updated_by VARCHAR(100) NOT NULL,
 	clinic_id INT NOT NULL,
 	FOREIGN KEY (patient_id) REFERENCES Patient (patient_id) 
 	ON DELETE CASCADE,  
@@ -2342,7 +2370,7 @@ CREATE PROCEDURE addResults
 	IN hospitalization_date_in DATE, 
 	IN note_topic_in VARCHAR(50), IN note_in VARCHAR(1000), 
 	IN date_entered DATE, IN poc_in TINYINT(1), IN aceorarb_in TINYINT(1), 
-	IN user_in VARCHAR(50),	IN clinic_in INT, IN string_in VARCHAR(64), 
+	IN user_in VARCHAR(100),	IN clinic_in INT, IN string_in VARCHAR(64), 
 	OUT proc_success TINYINT(1))
 BEGIN
 DECLARE a1c_count INT DEFAULT NULL;
@@ -2954,14 +2982,14 @@ IF note_topic_in IS NOT NULL THEN
 		AND n.date_recorded = date_entered;
 		IF note_count > 0 THEN		
 			UPDATE Note n SET 
-			n.note = note_in 
+			n.note = AES_ENCRYPT(note_in, string_in) 
 			WHERE n.patient_id = patient_id_in 
 			AND n.topic = note_topic_in
 			AND n.date_recorded = date_entered;
 			ELSE
 			INSERT INTO Note 
 			VALUES (patient_id_in, date_entered, note_topic_in, 
-			note_in, user_in, clinic_in);
+			AES_ENCRYPT(note_in, string_in), user_in, clinic_in);
 			END IF;
 	END IF;	
 END IF;
@@ -3004,7 +3032,7 @@ DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE addTreatment
 	(IN patient_id_in INT, IN rx_class_in VARCHAR(50), IN med_id_in VARCHAR(50), 
-	IN date_entered DATE, IN user_in VARCHAR(50), IN clinic_in INT)
+	IN date_entered DATE, IN user_in VARCHAR(100), IN clinic_in INT)
 BEGIN
 
 DECLARE rx_count INT DEFAULT NULL;
@@ -4775,15 +4803,17 @@ DELIMITER ;
 
 /**
 *USAGE: To retrieve topic-specific notes for a patient
-* CALL getNotes(?, ?, ?)
+* CALL getNotes(?, ?, ?, ?)
 * 1 = patient_id
 * 2 = note topic
-* 3 = procedure success
+* 3 = string
+* 4 = procedure success
 */
 
 DELIMITER //
 CREATE PROCEDURE getNotes
-	(IN patient_id_in INT, IN note_topic VARCHAR(50), OUT proc_success TINYINT(1))
+	(IN patient_id_in INT, IN note_topic VARCHAR(50), 
+    IN string_in VARCHAR(64), OUT proc_success TINYINT(1))
 BEGIN
 
 DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
@@ -4794,7 +4824,7 @@ START TRANSACTION;
 SET proc_success = 0;
 
 SELECT n.date_recorded AS 'date recorded', 
-n.note AS 'note' 
+CAST(AES_DECRYPT(n.note, string_in) AS CHAR(1000)) AS 'note' 
 FROM Note n 
 WHERE n.patient_id = patient_id_in 
 AND n.topic = note_topic 
@@ -4808,14 +4838,16 @@ DELIMITER ;
 
 /**
 *USAGE: To retrieve all notes for a patient
-* CALL getAllNotes(?, ?)
+* CALL getAllNotes(?, ?, ?)
 * 1 = patient_id
-* 2 = procedure success
+* 2 = string
+* 3 = procedure success
 */
 
 DELIMITER //
 CREATE PROCEDURE getAllNotes
-	(IN patient_id_in INT, OUT proc_success TINYINT(1))
+	(IN patient_id_in INT, IN string_in VARCHAR(64), 
+    OUT proc_success TINYINT(1))
 BEGIN
 
 DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
@@ -4827,7 +4859,7 @@ SET proc_success = 0;
 
 SELECT n.date_recorded AS 'date recorded', 
 n.topic AS 'topic', 
-n.note AS 'note' 
+CAST(AES_DECRYPT(n.note, string_in) AS CHAR(1000)) AS 'note' 
 FROM Note n 
 WHERE n.patient_id = patient_id_in 
 ORDER BY n.date_recorded DESC;
@@ -4922,95 +4954,6 @@ BEGIN
 		INSERT INTO PatientLanguage VALUES (LAST_INSERT_ID(), 
 			language_in);
 	END IF;
-
-SET proc_success = 1;
-
-COMMIT;
-END ; //
-DELIMITER ;
-
-/**
-*USAGE: to authenticate a user on login
-*CALL authenticateUser(?, ?, ?, ?, ?);
-*1 = user_name
-*2 = password
-*3 = authentic
-*4 = change_status
-*5 = proc_success
-*/
-DELIMITER //
-CREATE PROCEDURE authenticateUser
-	(IN user_name_in VARCHAR(50), IN password_in VARCHAR(64), 
-	OUT authentic_out TINYINT(1), OUT change_status_out TINYINT(1), 
-	OUT proc_success TINYINT(1))
-BEGIN
-	
-	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
-	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
-
-	START TRANSACTION;
-
-	SET proc_success = 0;
-
-	/*Authenticating user*/
-
-	SELECT COUNT(*) INTO authentic_out 
-		FROM UserCredentials uc 
-		WHERE uc.user_name = user_name_in 
-		AND uc.password = password_in;
-
-	IF authentic_out = 1 THEN 
-		UPDATE User u SET last_login = NOW() 
-		WHERE u.user_name = user_name_in;
-		END IF;
-
-	/*Getting status on password change*/
-
-	SELECT COUNT(*) INTO change_status_out 
-		FROM UserCredentials uc 
-		WHERE uc.user_name = user_name_in 
-		AND uc.change_password = 1;
-
-SELECT authentic_out AS 'authentic';
-SELECT change_status_out AS 'change password';
-
-SET proc_success = 1;
-
-COMMIT;
-END ; //
-DELIMITER ;
-
-/**
-*USAGE: to match a given registration key with a key in the database
-*CALL checkRegistrationKey(?, ?, ?);
-*1 = registration_key
-*2 = clinic_id
-*3 = proc_success
-*/
-DELIMITER //
-CREATE PROCEDURE checkRegistrationKey
-	(IN registration_key_in VARCHAR(64), OUT clinic_id_out INTEGER, 
-	OUT proc_success TINYINT(1))
-BEGIN
-	DECLARE clinic_count INT DEFAULT 0;
-	
-	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
-	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
-
-	START TRANSACTION;
-
-	SET proc_success = 0;
-
-	/*Checking the key match*/
-
-	SELECT COUNT(*) INTO clinic_count FROM Clinic c 
-		WHERE c.registration_key = registration_key_in;
-	IF clinic_count = 1 THEN 
-		SELECT c.clinic_id INTO clinic_id_out 
-		FROM Clinic c 
-		WHERE c.registration_key = registration_key_in;
-		SELECT clinic_id_out AS 'clinic id';
-		END IF;
 
 SET proc_success = 1;
 
@@ -5483,318 +5426,6 @@ END ; //
 DELIMITER ;
 
 /**
-*USAGE: to set login time and retrieve the user identification 
-* information and the clinics where the active user is registered 
-* for user functions
-*CALL getUser(?, ?);
-*1 = user_name
-*2 = proc_success
-*/
-DELIMITER //
-CREATE PROCEDURE getUser
-	(IN user_name_in VARCHAR(50), OUT proc_success TINYINT(1))
-BEGIN
-		
-	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
-	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
-
-	START TRANSACTION;
-
-	SET proc_success = 0;
-
-	/*Retrieving user information*/
-
-	SELECT u.first_name AS 'first name', u.last_name AS 'last name', 
-		u.job_title AS 'job title', u.administrator AS 'administrator' 
-		FROM User u 
-		WHERE u.user_name = user_name_in;
-
-	UPDATE User u SET u.last_login = NOW() 
-		WHERE u.user_name = user_name_in;
-
-	SELECT c.clinic_id AS 'clinic id', c.name AS 'clinic name' 
-		FROM Clinic c, User u, UserRegistration ur 
-		WHERE c.registration_key = ur.registration_key 
-		AND ur.user_name = u.user_name 
-		AND u.user_name = user_name_in 
-		AND u.active = 1;
-
-SET proc_success = 1;
-
-COMMIT;
-END ; //
-DELIMITER ;
-
-/**
-*USAGE: to retrieve the list of all user names
-*CALL getAllUsers(?);
-*1 = proc_success
-*/
-DELIMITER //
-CREATE PROCEDURE getAllUsers
-	(OUT proc_success TINYINT(1))
-BEGIN
-		
-	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
-	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
-
-	START TRANSACTION;
-
-	SET proc_success = 0;
-
-	/*Retrieving user names*/
-
-	SELECT u.user_name AS 'user name' FROM User u;
-
-SET proc_success = 1;
-
-COMMIT;
-END ; //
-DELIMITER ;
-
-/**
-*USAGE: to retrieve the user details along with the 
-*clinics where the user is registered for administration 
-*purposes
-*CALL getUserDetails(?, ?);
-*1 = user_name
-*2 = proc_success
-*/
-DELIMITER //
-CREATE PROCEDURE getUserDetails
-	(IN user_name_in VARCHAR(50), OUT proc_success TINYINT(1))
-BEGIN
-		
-	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
-	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
-
-	START TRANSACTION;
-
-	SET proc_success = 0;
-
-	/*Retrieving user information*/
-
-	SELECT u.first_name AS 'first name', u.last_name AS 'last name', 
-		u.job_title AS 'job title', u.administrator AS 'administrator', 
-		u.active AS 'active', u.date_joined AS 'date joined', 
-		u.last_login AS 'last login'
-		FROM User u 
-		WHERE u.user_name = user_name_in;
-
-	SELECT c.clinic_id AS 'clinic id', c.name AS 'clinic name', 
-		c.address AS 'address', c.phone_number AS 'phone number' 
-		FROM Clinic c, User u, UserRegistration ur 
-		WHERE c.registration_key = ur.registration_key 
-		AND ur.user_name = u.user_name 
-		AND u.user_name = user_name_in;
-
-SET proc_success = 1;
-
-COMMIT;
-END ; //
-DELIMITER ;
-
-/**
-*USAGE: to update user access and capability 
-* in the registry 
-*purposes
-*CALL updateUserAccess(?, ?, ?, ?);
-*1 = user_name
-*2 = remove_registration
-*3 = clinic_id
-*4 = terminate
-*/
-DELIMITER //
-CREATE PROCEDURE updateUserAccess
-	(IN user_name_in VARCHAR(50), IN remove_registration_in TINYINT(1), 
-	IN clinic_id_in INT, IN terminate_in TINYINT(1))
-BEGIN
-		
-	IF remove_registration_in = 1 THEN 
-		IF clinic_id_in IS NOT NULL THEN 
-			DELETE FROM UserRegistration 
-			WHERE user_name = user_name_in 
-			AND registration_key IN 
-			(SELECT c.registration_key 
-			FROM Clinic c 
-			WHERE c.clinic_id = clinic_id_in);
-		END IF;
-	END IF;
-	IF terminate_in = 1 THEN 
-		UPDATE User u SET u.active = 0 
-		WHERE u.user_name = user_name_in;
-		DELETE FROM UserRegistration 
-		WHERE user_name = user_name_in;
-		DELETE FROM UserCredentials 
-		WHERE user_name = user_name_in;
-	END IF;
-
-END ; //
-DELIMITER ;
-
-/**
-*USAGE: to register a user in the database
-*CALL registerUser(?, ?, ?, ?, ?, ?, ?, ?, ?);
-*1 = user_name
-*2 = first_name
-*3 = last_name
-*4 = job_title
-*5 = administrator
-*6 = password
-*7 = salt
-*8 = registration_key
-*9 = proc_success
-*/
-DELIMITER //
-CREATE PROCEDURE registerUser
-	(IN user_name_in VARCHAR(50), IN first_name_in VARCHAR(50), 
-	IN last_name_in VARCHAR(50), IN job_title_in VARCHAR(50), 
-	IN administrator_in TINYINT(1), IN password_in VARCHAR(64), 
-	IN salt_in VARCHAR(64), IN registration_key_in VARCHAR(64), 
-	OUT proc_success TINYINT(1))
-BEGIN
-	DECLARE user_exists TINYINT(1) DEFAULT 0;
-
-	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
-	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
-
-	START TRANSACTION;
-
-	SET proc_success = 0;
-
-	SELECT COUNT(*) INTO user_exists 
-		FROM User u 
-		WHERE u.user_name = user_name_in;
-
-	/*Adding user if user does not exist in the database*/
-
-	IF user_exists = 0 THEN 
-
-		INSERT INTO User VALUES (user_name_in, first_name_in, last_name_in, 
-		job_title_in, NOW(), NULL, 1, administrator_in);
-
-		INSERT INTO UserCredentials VALUES (user_name_in, 
-		password_in, salt_in, 0);
-
-		INSERT INTO UserRegistration VALUES (user_name_in, 
-		registration_key_in);
-		SET proc_success = 1;
-	END IF;	
-
-
-SELECT proc_success AS 'success';
-
-COMMIT;
-END ; //
-DELIMITER ;
-
-/**
-*USAGE: to register an existing user for a clinic
-*CALL addNewRegistrationToExistingUser(?, ?, ?, ?);
-*1 = user_name
-*2 = password
-*3 = registration_key
-*4 = proc_success
-*/
-DELIMITER //
-CREATE PROCEDURE addNewRegistrationToExistingUser
-	(IN user_name_in VARCHAR(50), IN password_in VARCHAR(64), 
-	IN registration_key_in VARCHAR(64), OUT proc_success TINYINT(1))
-BEGIN
-	DECLARE authentic TINYINT(1) DEFAULT 0;
-	DECLARE registration_exists TINYINT(1) DEFAULT 0;
-
-	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
-	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
-
-	START TRANSACTION;
-
-	SET proc_success = 0;
-
-	SELECT COUNT(*) INTO authentic 
-		FROM UserCredentials uc 
-		WHERE uc.user_name = user_name_in 
-		AND uc.password = password_in;
-
-	IF authentic = 1 THEN 
-		SELECT COUNT(*) INTO registration_exists 
-		FROM UserRegistration ur 
-		WHERE ur.user_name = user_name_in 
-		AND ur.registration_key = registration_key_in;
-		IF registration_exists = 0 THEN 
-			INSERT INTO UserRegistration VALUES (user_name_in, 
-			registration_key_in);
-			SET proc_success = 1;
-		END IF;	
-	END IF;
-
-SELECT proc_success AS 'success';
-
-COMMIT;
-END ; //
-DELIMITER ;
-
-/**
-*USAGE: to retrieve a clinic's salt
-*CALL retrieveClinicSalt(?, ?);
-*1 = clinic_id
-*2 = proc_success
-*/
-DELIMITER //
-CREATE PROCEDURE retrieveClinicSalt
-	(IN clinic_id_in INT, OUT proc_success TINYINT(1))
-BEGIN
-	
-	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
-	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
-
-	START TRANSACTION;
-
-	SET proc_success = 0;
-
-	/*Retrieving the salt*/
-
-	SELECT c.salt AS 'clinic salt' 
-		FROM Clinic c 
-		WHERE c.clinic_id = clinic_id_in;
-	
-SET proc_success = 1;
-
-COMMIT;
-END ; //
-DELIMITER ;
-
-/**
-*USAGE: to retrieve a user's salt
-*CALL retrieveSalt(?, ?);
-*1 = user_name
-*2 = proc_success
-*/
-DELIMITER //
-CREATE PROCEDURE retrieveSalt
-	(IN user_name_in VARCHAR(50), OUT proc_success TINYINT(1))
-BEGIN
-	
-	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
-	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
-
-	START TRANSACTION;
-
-	SET proc_success = 0;
-
-	/*Retrieving the salt*/
-
-	SELECT uc.salt 
-		FROM UserCredentials uc 
-		WHERE uc.user_name = user_name_in;
-	
-SET proc_success = 1;
-
-COMMIT;
-END ; //
-DELIMITER ;
-
-/**
 *USAGE: To retrieve all psychological screening references
 * CALL getPHQ9(?)
 * 1 = procedure success
@@ -5912,6 +5543,39 @@ END ; //
 DELIMITER ;
 
 /**
+*USAGE: to retrieve information on a clinic
+*CALL getClinic(?, ?);
+*1 = clinic_id
+*2 = proc_success
+*/
+DELIMITER //
+CREATE PROCEDURE getClinic
+	(IN clinic_id_in INT, OUT proc_success TINYINT(1))
+BEGIN
+		
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+
+	SET proc_success = 0;
+
+	/*Retrieving clinic information*/
+
+	SELECT c.name AS 'name', c.address AS 'address', 
+		c.phone_number AS 'phone number', ce.email_address AS 'email' 
+		FROM Clinic c 
+		LEFT JOIN ClinicEmailAddress ce 
+		ON c.clinic_id = ce.clinic_id 
+		WHERE c.clinic_id = clinic_id_in;
+
+SET proc_success = 1;
+
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
 *USAGE: To retrieve Rx class and therapy type for 
 * all therapies
 * CALL getTherapies(?)
@@ -5998,34 +5662,6 @@ END ; //
 DELIMITER ;
 
 /**
-*USAGE: to retrieve clinic IDs and clinic names
-*CALL getClinics(?);
-*1 = proc_success
-*/
-DELIMITER //
-CREATE PROCEDURE getClinics
-	(OUT proc_success TINYINT(1))
-BEGIN
-	
-	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
-	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
-
-	START TRANSACTION;
-
-	SET proc_success = 0;
-
-	/*Retrieving the IDs*/
-
-	SELECT c.clinic_id AS 'clinic id', c.name AS 'clinic name' 
-		FROM Clinic c;
-	
-SET proc_success = 1;
-
-COMMIT;
-END ; //
-DELIMITER ;
-
-/**
 *USAGE: to retrieve the list of languages
 *CALL getLanguages(?);
 *1 = proc_success
@@ -6045,7 +5681,8 @@ BEGIN
 	/*Retrieving the IDs*/
 
 	SELECT l.language AS 'language' 
-		FROM Language l;
+		FROM Language l 
+        ORDER BY l.language;
 	
 SET proc_success = 1;
 
@@ -6073,7 +5710,8 @@ BEGIN
 	/*Retrieving the IDs*/
 
 	SELECT rfi.reason AS 'reason' 
-		FROM ReasonForInactivity rfi;
+		FROM ReasonForInactivity rfi 
+        ORDER BY rfi.reason;
 	
 SET proc_success = 1;
 
@@ -6101,7 +5739,8 @@ BEGIN
 	/*Retrieving the IDs*/
 
 	SELECT ems.subject AS 'subject' 
-		FROM EmailMessageSubject ems;
+		FROM EmailMessageSubject ems 
+        ORDER BY ems.subject;
 	
 SET proc_success = 1;
 
@@ -6141,12 +5780,13 @@ DELIMITER ;
 /**
 *USAGE: To retrieve all references
 * CALL getReferences(?)
-* 1 = procedure success
+* 1 = clinic_id
+* 2 = proc_success
 */
 
 DELIMITER //
 CREATE PROCEDURE getReferences
-	(OUT proc_success TINYINT(1))
+	(IN clinic_id_in INT, OUT proc_success TINYINT(1))
 BEGIN
 
 DECLARE q_success TINYINT(1) DEFAULT NULL;
@@ -6177,7 +5817,7 @@ CALL getPHQ9(@out4);
 CALL getTelephoneFollowUpDefinitions(@out5);
 CALL getFootExamRiskDefinitions(@out6);
 CALL getEyeExamDefinitions(@out7);
-CALL getClinics(@out8);
+CALL getClinic(clinic_id_in, @out8);
 CALL getNoteTopics(@out9);
 CALL getLanguages(@out10);
 CALL getReasonsForInactivity(@out11);
@@ -6235,7 +5875,7 @@ DELIMITER ;
 /**
 *USAGE: to document completed items in the quality checklist for each 
 *patient visit 
-*CALL saveQualityChecklist(?, ?, ?, ?, ?);
+*CALL saveQualityChecklistItem(?, ?, ?, ?, ?);
 *1 = patient_id
 *2 = date_entered
 *3 = responsibility
@@ -6243,9 +5883,9 @@ DELIMITER ;
 *5 = clinic
 */
 DELIMITER //
-CREATE PROCEDURE saveQualityChecklist
+CREATE PROCEDURE saveQualityChecklistItem
 	(IN patient_id_in INT, IN date_entered_in DATE, 
-	IN responsibility_in VARCHAR(1000), IN user_name_in VARCHAR(50), 
+	IN responsibility_in VARCHAR(1000), IN user_name_in VARCHAR(100), 
 	IN clinic_in INT)
 BEGIN
 	DECLARE already_saved TINYINT DEFAULT 0;
@@ -6256,17 +5896,17 @@ BEGIN
 	START TRANSACTION;
 
 	SELECT COUNT(*) INTO already_saved 
-	FROM QualityChecklist qc 
-	WHERE qc.patient_id = patient_id_in 
-	AND qc.responsibility = responsibility_in 
-	AND qc.date_recorded = date_entered_in 
-	AND qc.clinic_id = clinic_in;
+	FROM QualityChecklistItem qci 
+	WHERE qci.patient_id = patient_id_in 
+	AND qci.responsibility = responsibility_in 
+	AND qci.date_recorded = date_entered_in 
+	AND qci.clinic_id = clinic_in;
 
 	/*Adding checklist information*/
 
 	IF already_saved = 0 THEN 	
 
-	INSERT INTO QualityChecklist VALUES (patient_id_in, 
+	INSERT INTO QualityChecklistItem VALUES (patient_id_in, 
 		date_entered_in, responsibility_in, 
 		user_name_in, clinic_in);
 	END IF;
@@ -6299,12 +5939,12 @@ BEGIN
 
 /*CHAR(13) is the return carriage*/
 
-	SELECT qc.responsibility AS 'responsibility', q.role AS 'role' 
-	FROM QualityChecklist qc, Quality q 
-	WHERE qc.patient_id = patient_id_in 
-	AND qc.date_recorded = date_entered_in 
-	AND qc.clinic_id = clinic_in 
-	AND REPLACE(qc.responsibility, CHAR(13), '') = REPLACE(q.responsibility, CHAR(13), '')
+	SELECT qci.responsibility AS 'responsibility', q.role AS 'role' 
+	FROM QualityChecklistItem qci, Quality q 
+	WHERE qci.patient_id = patient_id_in 
+	AND qci.date_recorded = date_entered_in 
+	AND qci.clinic_id = clinic_in 
+	AND REPLACE(qci.responsibility, CHAR(13), '') = REPLACE(q.responsibility, CHAR(13), '')
 	ORDER BY q.role;
 
 	SET proc_success = 1;
@@ -6331,164 +5971,9 @@ BEGIN
 
 	SET proc_success = 0;
 
-	SELECT DISTINCT qc.date_recorded AS 'date' 
-	FROM QualityChecklist qc 
-	WHERE qc.patient_id = patient_id_in;
-
-	SET proc_success = 1;
-
-COMMIT;
-END ; //
-DELIMITER ;
-
-/**
-*USAGE: to add a clinic to the database
-*CALL addClinic(?, ?, ?, ?, ?, ?, ?);
-*1 = name
-*2 = address
-*3 = phone_number
-*4 = email
-*5 = registration_key
-*6 = salt
-*7 = proc_success
-*/
-DELIMITER //
-CREATE PROCEDURE addClinic
-	(IN name_in VARCHAR(50), IN address_in VARCHAR(1000), 
-	IN phone_number_in VARCHAR(50), IN email_in VARCHAR(255), 
-	IN registration_key_in VARCHAR(64), IN salt_in VARCHAR(64), 
-	OUT proc_success TINYINT(1))
-BEGIN
-	
-	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
-	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
-
-	START TRANSACTION;
-
-	SET proc_success = 0;
-
-	INSERT INTO Clinic VALUES (NULL, name_in, address_in, 
-	phone_number_in, registration_key_in, salt_in);
-
-	IF email_in IS NOT NULL THEN 
-		INSERT INTO ClinicEmailAddress VALUES (LAST_INSERT_ID(), 
-		email_in);
-	END IF;
-
-	SET proc_success = 1;
-
-COMMIT;
-END ; //
-DELIMITER ;
-
-/**
-*USAGE: to retrieve information on a clinic
-*CALL getClinic(?, ?);
-*1 = clinic_id
-*2 = proc_success
-*/
-DELIMITER //
-CREATE PROCEDURE getClinic
-	(IN clinic_id_in INT, OUT proc_success TINYINT(1))
-BEGIN
-		
-	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
-	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
-
-	START TRANSACTION;
-
-	SET proc_success = 0;
-
-	/*Retrieving clinic information*/
-
-	SELECT c.name AS 'name', c.address AS 'address', 
-		c.phone_number AS 'phone number', ce.email_address AS 'email' 
-		FROM Clinic c 
-		LEFT JOIN ClinicEmailAddress ce 
-		ON c.clinic_id = ce.clinic_id 
-		WHERE c.clinic_id = clinic_id_in;
-
-SET proc_success = 1;
-
-COMMIT;
-END ; //
-DELIMITER ;
-
-/**
-*USAGE: to change clinic information in the database
-*CALL updateClinic(?, ?, ?, ?, ?, ?, ?);
-*1 = clinic_id
-*2 = name
-*3 = address
-*4 = phone_number
-*5 = email
-*6 = registration_key
-*7 = salt
-*/
-DELIMITER //
-CREATE PROCEDURE updateClinic
-	(IN clinic_id_in INT, IN name_in VARCHAR(50), 
-	IN address_in VARCHAR(1000), IN phone_number_in VARCHAR(50), 
-	IN email_in VARCHAR(255), IN registration_key_in VARCHAR(64), 
-	IN salt_in VARCHAR(64))
-BEGIN
-	DECLARE email_count INT DEFAULT 0;
-	DECLARE registration_count INT DEFAULT 0;	
-
-	/*Updating clinic information*/
-
-	UPDATE Clinic c SET c.name = name_in, 
-		c.address = address_in, c.phone_number = phone_number_in 
-		WHERE c.clinic_id = clinic_id_in;	
-
-	IF email_in IS NOT NULL THEN 
-		SELECT COUNT(*) INTO email_count 
-		FROM ClinicEmailAddress ce 
-		WHERE ce.clinic_id = clinic_id_in;
-		IF email_count > 0 THEN 
-			UPDATE ClinicEmailAddress ce SET ce.email_address = email_in 
-			WHERE ce.clinic_id = clinic_id_in; 
-		ELSE 
-			INSERT INTO ClinicEmailAddress VALUES 
-			(clinic_id_in, email_in);
-		END IF;
-	END IF;
-
-	IF registration_key_in IS NOT NULL THEN 
-		UPDATE Clinic c SET c.registration_key = registration_key_in, 
-		c.salt = salt_in 
-		WHERE c.clinic_id = clinic_id_in;
-	END IF;
-
-END ; //
-DELIMITER ;
-
-/**
-*USAGE: to remove a user's clinic registration 
-*CALL terminateUserRegistration(?, ?, ?);
-*1 = user_name
-*2 = clinic_id
-*3 = proc_success
-*/
-DELIMITER //
-CREATE PROCEDURE terminateUserRegistration
-	(IN user_name_in VARCHAR(50), IN clinic_id_in INT, 
-	OUT proc_success TINYINT(1))
-BEGIN
-	
-	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
-	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
-
-	START TRANSACTION;
-
-	SET proc_success = 0;
-
-	DELETE FROM UserRegistration 
-	WHERE user_name = user_name_in 
-	AND registration_key IN 
-	(SELECT c.registration_key 
-	FROM Clinic c 
-	WHERE c.clinic_id = clinic_id_in);
+	SELECT DISTINCT qci.date_recorded AS 'date' 
+	FROM QualityChecklistItem qci 
+	WHERE qci.patient_id = patient_id_in;
 
 	SET proc_success = 1;
 
@@ -6671,7 +6156,7 @@ CREATE PROCEDURE saveProgressNote
 	IN weight_in DECIMAL(7,2), IN height_feet_in INT, IN height_inches_in INT, 
 	IN weight_reduction_goal_in DECIMAL(7,2), IN pulse_in INT, 
 	IN respirations_in INT, IN temperature_in DECIMAL(7,2), IN foot_screening_in TINYINT(1), 
-	IN medications_in VARCHAR(50), IN a1c_in DECIMAL(7,2), IN glucose_in DECIMAL(7,2), 
+	IN medications_in VARCHAR(255), IN a1c_in DECIMAL(7,2), IN glucose_in DECIMAL(7,2), 
 	IN waist_in DECIMAL(7,2), IN bp_systole_in INT, IN bp_diastole_in INT, 
 	IN ace_or_arb_in TINYINT(1), IN bmi_in DECIMAL(7,2), IN class_attendance_in DATE, 
 	IN eye_screening_result_in VARCHAR(50), IN foot_screening_result_in VARCHAR(50), 
@@ -6680,12 +6165,13 @@ CREATE PROCEDURE saveProgressNote
 	IN hospitalization_date_in DATE, IN nurse_or_dietitian_note_in VARCHAR(1000), 
 	IN subjective_in VARCHAR(1000), IN objective_in VARCHAR(1000), 
 	IN assessment_in VARCHAR(1000), IN plan_in VARCHAR(1000), 
-	IN user_in VARCHAR(50), IN timestamp_in DATETIME, IN string_in VARCHAR(64),
+	IN user_in VARCHAR(100), IN timestamp_in DATETIME, IN string_in VARCHAR(64),
 	IN clinic_id_in INT, OUT proc_success TINYINT(1))
 BEGIN
 	DECLARE progress_note_exists INT DEFAULT 0;
 	DECLARE note_author_exists INT DEFAULT 0;
 	DECLARE this_note_id INT DEFAULT 0;
+    DECLARE patient_inactive INT DEFAULT 0;
 
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
 	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
@@ -6725,7 +6211,7 @@ BEGIN
 			WHERE pn.patient_id = patient_id_in 
 			AND pn.date_created = date_created_in;		
 
-/*Getting the note ID*/
+		/*Getting the note ID*/
 		SELECT pn.progress_note_id INTO this_note_id 
 			FROM ProgressNote pn 
 			WHERE pn.patient_id = patient_id_in 
@@ -6742,15 +6228,26 @@ BEGIN
 			AES_ENCRYPT(objective_in, string_in), 
 			AES_ENCRYPT(assessment_in, string_in), 
 			AES_ENCRYPT(plan_in, string_in));
-/*Getting the note ID*/
+            
+		/*Getting the note ID*/
 		SET this_note_id = LAST_INSERT_ID();
+            
+		SELECT COUNT(*) INTO patient_inactive 
+			FROM InactivePatient ip 
+			WHERE ip.patient_id = patient_id_in;
+
+		IF patient_inactive > 0 THEN 
+			DELETE FROM InactivePatient 
+			WHERE patient_id = patient_id_in;
+		END IF;
 	END IF;
 		SELECT COUNT(*) INTO note_author_exists 
 			FROM ProgressNoteAuthor pna 
 			WHERE pna.progress_note_id = this_note_id 
 			AND pna.datetime_recorded = timestamp_in 
 			AND pna.updated_by = user_in;
-/*Using the note ID*/
+            
+		/*Using the note ID*/
 		IF note_author_exists = 0 THEN 
 			INSERT INTO ProgressNoteAuthor VALUES(this_note_id, 
 				timestamp_in, user_in);
@@ -6797,9 +6294,10 @@ BEGIN
 	SET proc_success = 0;
 
 	SELECT em.language AS 'language', em.message AS 'message' 
-	FROM EmailMessage em
+	FROM EmailMessage em, EmailMessageSubject ems 
 	WHERE em.clinic_id = clinic_id_in 
-	AND em.subject = subject_in;
+    AND em.subject_id = ems.subject_id 
+	AND ems.subject = subject_in;
 
 	SET proc_success = 1;
 
@@ -6821,14 +6319,22 @@ CREATE PROCEDURE getCallList
 	(IN clinic_id_in INT, IN subject_in VARCHAR(50), 
 	IN string_in VARCHAR(64), OUT proc_success TINYINT(1))
 BEGIN
+	
+    DECLARE filtered_patients VARCHAR(100);
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
 	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
 	
 	START TRANSACTION;
 
 	SET proc_success = 0;
+    
+    SELECT emrf.filter_description INTO filtered_patients 
+    FROM EmailMessageSubject ems, EmailMessageRecipientFilter emrf 
+    WHERE ems.filter_id = emrf.filter_id 
+    AND ems.subject = subject_in;
 
-	IF subject_in = 'Clinic Visit Reminder' THEN 
+	/* Clinic Visit Reminder */
+	IF filtered_patients = 'active patients with previous blood pressure measurement' THEN 
 
 	SELECT p.patient_id AS 'patient id', 
 		CAST(AES_DECRYPT(p.first_name, string_in) AS CHAR(50)) AS 'first name', 
@@ -6856,8 +6362,12 @@ BEGIN
 			WHERE bpsub.patient_id = p.patient_id)
 		ORDER BY bp.date_recorded;
 
+		SET proc_success = 1;
+
 	END IF;
-	IF subject_in = 'Lab Work Reminder' THEN 
+    
+    /* Lab Work Reminder */
+	IF filtered_patients = 'active patients with no A1C measurement for past 3 months' THEN 
 	
 	SELECT p.patient_id AS 'patient id', 
 		CAST(AES_DECRYPT(p.first_name, string_in) AS CHAR(50)) AS 'first name', 
@@ -6887,9 +6397,58 @@ BEGIN
 		OR a.date_recorded IS NULL) 
 		ORDER BY a.date_recorded;
 
-	END IF;
+		SET proc_success = 1;
 
-	SET proc_success = 1;
+	END IF;
+    
+    /* All Active Patients */
+	IF filtered_patients = 'all active patients' THEN 
+	
+	SELECT p.patient_id AS 'patient id', 
+		CAST(AES_DECRYPT(p.first_name, string_in) AS CHAR(50)) AS 'first name', 
+		CAST(AES_DECRYPT(p.last_name, string_in) AS CHAR(50)) AS 'last name', 
+		CAST(AES_DECRYPT(p.birth_date, string_in) AS DATE) AS 'birth date', 
+		CAST(AES_DECRYPT(p.contact_number, string_in) AS CHAR(50)) AS 'contact number', 
+		CAST(AES_DECRYPT(pea.email_address, string_in) AS CHAR(255)) AS 'email', 
+		pl.language AS 'language' 
+		FROM Patient p INNER JOIN PatientClinic pc 
+		ON p.patient_id = pc.patient_id  
+		LEFT JOIN PatientEmailAddress pea 
+		ON p.patient_id = pea.patient_id 
+		LEFT JOIN PatientLanguage pl 
+		ON p.patient_id = pl.patient_id 
+		LEFT JOIN InactivePatient ip 
+		ON p.patient_id = ip.patient_id 
+		WHERE pc.clinic_id = clinic_id_in 
+		AND ip.patient_id IS NULL;
+
+		SET proc_success = 1;
+
+	END IF;
+    
+    /* All Registry Patients */
+	IF filtered_patients = 'all patients in registry' THEN 
+	
+	SELECT p.patient_id AS 'patient id', 
+		CAST(AES_DECRYPT(p.first_name, string_in) AS CHAR(50)) AS 'first name', 
+		CAST(AES_DECRYPT(p.last_name, string_in) AS CHAR(50)) AS 'last name', 
+		CAST(AES_DECRYPT(p.birth_date, string_in) AS DATE) AS 'birth date', 
+		CAST(AES_DECRYPT(p.contact_number, string_in) AS CHAR(50)) AS 'contact number', 
+		CAST(AES_DECRYPT(pea.email_address, string_in) AS CHAR(255)) AS 'email', 
+		pl.language AS 'language' 
+		FROM Patient p INNER JOIN PatientClinic pc 
+		ON p.patient_id = pc.patient_id  
+		LEFT JOIN PatientEmailAddress pea 
+		ON p.patient_id = pea.patient_id 
+		LEFT JOIN PatientLanguage pl 
+		ON p.patient_id = pl.patient_id 
+		LEFT JOIN InactivePatient ip 
+		ON p.patient_id = ip.patient_id
+		WHERE pc.clinic_id = clinic_id_in;
+
+		SET proc_success = 1;
+
+	END IF;
 
 COMMIT;
 END ; //
@@ -8029,20 +7588,20 @@ BEGIN
 		patient_id INT NOT NULL, 
 		date_recorded DATE NOT NULL, 
 		responsibility VARCHAR(255) NOT NULL, 
-		updated_by VARCHAR(50) NOT NULL,
+		updated_by VARCHAR(100) NOT NULL,
 		clinic_id INT NOT NULL,
 		PRIMARY KEY (patient_id, date_recorded, responsibility)
 	);
 
 	INSERT INTO TempChecklist 
-		SELECT * FROM QualityChecklist 
+		SELECT * FROM QualityChecklistItem 
 		WHERE patient_id = patient_id_in;
 
 /*CHAR(13) is the return carriage*/
 
 	SELECT DISTINCT qa.date_recorded AS 'date recorded', 
 	qa.responsibility AS 'responsibility'
-	FROM QualityChecklist qa, Quality q
+	FROM QualityChecklistItem qa, Quality q
 	WHERE qa.patient_id = patient_id_in 
 	AND qa.clinic_id = clinic_id_in 
 	AND REPLACE(qa.responsibility, CHAR(13), '') = REPLACE(q.responsibility, CHAR(13), '')
@@ -8056,6 +7615,881 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS TempChecklist;
 
 	SET proc_success = 1;
+
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to retrieve a user's salt
+*CALL retrieveSalt(?, ?);
+*1 = user_name
+*2 = proc_success
+*/
+DELIMITER //
+CREATE PROCEDURE retrieveSalt
+	(IN user_name_in VARCHAR(100), OUT proc_success TINYINT(1))
+BEGIN
+	
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+
+	SET proc_success = 0;
+
+	/*Retrieving the salt*/
+
+	SELECT uc.salt 
+		FROM UserCredentials uc 
+		WHERE uc.user_name = user_name_in;
+	
+SET proc_success = 1;
+
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to authenticate a user on login
+*CALL authenticateUser(?, ?, ?, ?, ?);
+*1 = user_name
+*2 = password
+*3 = authentic
+*4 = change_status
+*5 = proc_success
+*/
+DELIMITER //
+CREATE PROCEDURE authenticateUser
+	(IN user_name_in VARCHAR(100), IN password_in VARCHAR(64), 
+	OUT authentic_out TINYINT(1), OUT change_status_out TINYINT(1), 
+	OUT proc_success TINYINT(1))
+BEGIN
+	
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+
+	SET proc_success = 0;
+    SET change_status_out = 0;
+
+	/*Authenticating user*/
+
+	SELECT COUNT(*) INTO authentic_out 
+		FROM UserCredentials uc, User u
+		WHERE uc.user_name = user_name_in 
+		AND uc.password = password_in
+        AND uc.user_name = u.user_name
+        AND u.active = 1;
+
+	/*Getting status on password change*/
+
+	IF authentic_out = 1 THEN 
+    	SELECT COUNT(*) INTO change_status_out 
+		FROM UserCredentials uc 
+		WHERE uc.user_name = user_name_in 
+		AND uc.change_password = 1;
+	END IF;
+
+SET proc_success = 1;
+
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to set login time and retrieve the user identification 
+* and role information
+*CALL getUser(?, ?);
+*1 = user_name
+*2 = proc_success
+*/
+DELIMITER //
+CREATE PROCEDURE getUser
+	(IN user_name_in VARCHAR(100), OUT proc_success TINYINT(1))
+BEGIN
+		
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+
+	SET proc_success = 0;
+
+	/*Retrieving user information*/
+
+	SELECT u.first_name AS 'first name', u.last_name AS 'last name', 
+		u.job_title AS 'job title', u.administrator AS 'administrator' 
+		FROM User u 
+		WHERE u.user_name = user_name_in;
+
+	UPDATE User u SET u.last_login = NOW() 
+		WHERE u.user_name = user_name_in;
+        
+	INSERT INTO UserActivity VALUES (user_name_in, 
+		CONCAT(user_name_in, ' signed in successfully.'), 
+		NOW());
+
+SET proc_success = 1;
+
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to add a new user to the database
+*CALL addUser(?, ?, ?, ?, ?, ?, ?, ?);
+*1 = user_name
+*2 = first_name
+*3 = last_name
+*4 = job_title
+*5 = administrator
+*6 = password
+*7 = salt
+*8 = email
+*9 = proc_success
+*/
+DELIMITER //
+CREATE PROCEDURE addUser
+	(IN user_name_in VARCHAR(100), IN first_name_in VARCHAR(50), 
+	IN last_name_in VARCHAR(50), IN job_title_in VARCHAR(50), 
+	IN administrator_in TINYINT(1), IN password_in VARCHAR(64), 
+	IN salt_in VARCHAR(64), IN email_in VARCHAR(255), 
+    OUT proc_success TINYINT(1))
+BEGIN
+	DECLARE user_exists TINYINT(1) DEFAULT 0;
+
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+
+	SET proc_success = 0;
+
+	SELECT COUNT(*) INTO user_exists 
+		FROM User u 
+		WHERE u.user_name = user_name_in;
+
+	/*Adding user if user does not exist in the database*/
+
+	IF user_exists = 0 THEN 
+
+		INSERT INTO User VALUES (user_name_in, first_name_in, last_name_in, 
+		job_title_in, NOW(), NULL, 1, administrator_in);
+
+		INSERT INTO UserCredentials VALUES (user_name_in, 
+		password_in, salt_in, 1);
+        
+        IF email_in IS NOT NULL THEN 
+			INSERT INTO UserEmailAddress VALUES (user_name_in, 
+            email_in);
+		END IF;
+        
+		SET proc_success = 1;
+        
+	END IF;	
+
+SELECT proc_success AS 'success';
+
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to create a user name for a new user
+*CALL generateUserName(?, ?, ?);
+*1 = first_name
+*2 = last_name
+*3 = user_name
+*/
+DELIMITER //
+CREATE PROCEDURE generateUserName
+	(IN first_name_in VARCHAR(50), IN last_name_in VARCHAR(50), 
+    OUT user_name VARCHAR(100))
+BEGIN
+	DECLARE name_exists TINYINT(1) DEFAULT 0;
+    DECLARE counter INT DEFAULT 0;
+	DECLARE new_name VARCHAR(100);
+    
+    START TRANSACTION;
+    
+    SET last_name_in = REPLACE(last_name_in, ' ', '');
+    
+    name_generator: LOOP
+		
+        SET counter  = counter + 1;
+        SET new_name = CONCAT(SUBSTRING(LOWER(first_name_in), 1, 1), 
+			LOWER(last_name_in), counter);        
+        SELECT COUNT(*) INTO name_exists 
+			FROM User u 
+			WHERE LOWER(u.user_name) = new_name;
+        IF name_exists = 0 THEN
+			LEAVE name_generator;
+		END IF;
+		
+    END LOOP name_generator;
+    
+    SET user_name = new_name;
+    
+COMMIT;
+END ; //
+DELIMITER ;
+    
+
+/**
+*USAGE: to update a user's password and salt
+*CALL changeUserPassword(?, ?, ?, ?);
+*1 = user_name
+*2 = password
+*3 = salt
+*4 = proc_success
+*/
+DELIMITER //
+CREATE PROCEDURE changeUserPassword
+	(IN user_name_in VARCHAR(100), IN password_in VARCHAR(64), 
+	IN salt_in VARCHAR(64), OUT proc_success TINYINT(1))
+BEGIN	
+    DECLARE change_status TINYINT(1) DEFAULT 0;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+
+	SET proc_success = 0;
+
+	/*Checking status for password change*/
+
+	SELECT uc.change_password INTO change_status 
+		FROM UserCredentials uc 
+		WHERE uc.user_name = user_name_in;
+        
+	/* Updating credentials table */
+
+	IF change_status = 1 THEN 
+		UPDATE UserCredentials uc SET uc.password = password_in, 
+        uc.salt = salt_in, uc.change_password = 0 
+		WHERE uc.user_name = user_name_in;
+        SET proc_success = 1;
+        INSERT INTO UserActivity VALUES (user_name_in, 
+		CONCAT('The user password has been updated for ', user_name_in), 
+		NOW());
+		END IF;
+
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to reset a user's credentials, requiring the user 
+*to create a new password 
+*CALL resetUserPassword(?, ?, ?);
+*1 = user_name
+*2 = admin_name
+*3 = proc_success
+*/
+DELIMITER //
+CREATE PROCEDURE resetUserPassword
+	(IN user_name_in VARCHAR(100), IN admin_name_in VARCHAR(100), 
+    OUT proc_success TINYINT(1))
+BEGIN
+	
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+
+	SET proc_success = 0;
+    
+    UPDATE UserCredentials uc 
+    SET uc.change_password = 1 
+    WHERE uc.user_name = user_name_in;
+
+	INSERT INTO UserActivity VALUES (admin_name_in, 
+	CONCAT(admin_name_in,' has reset the password for ', user_name_in), 
+    NOW());
+
+	SET proc_success = 1;
+
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to validate parameters given by a user are accurate 
+*before storing a password reset request message.
+*CALL requestPasswordReset(?, ?, ?);
+*1 = user_name
+*2 = user_email
+*3 = valid_user
+*/
+DELIMITER //
+CREATE PROCEDURE requestPasswordReset
+	(IN user_name_in VARCHAR(100), IN user_email_in VARCHAR(255), 
+    OUT valid_user TINYINT(1))
+BEGIN
+
+	DECLARE matching_count INT DEFAULT 0;	
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;    
+    
+	START TRANSACTION;
+
+	SET valid_user = 0;
+    
+    SELECT COUNT(*) INTO matching_count 
+    FROM UserEmailAddress uea 
+    WHERE uea.user_name = user_name_in 
+    AND uea.email_address = user_email_in;
+    
+    IF matching_count > 0 THEN 
+		SET valid_user = 1;
+        INSERT INTO UserActivity VALUES (user_name_in, 
+		CONCAT(user_name_in,' requests a password reset.'), 
+		NOW());
+        INSERT INTO PasswordResetRequest VALUES (NULL, 
+		user_name_in, NOW(), 0);
+	END IF;		
+
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to read all unread password reset request messages in 
+*the PasswordResetRequest table.
+*CALL readUnreadPasswordResetRequests();
+*/
+DELIMITER //
+CREATE PROCEDURE readUnreadPasswordResetRequests()
+BEGIN
+
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;    
+    
+	START TRANSACTION;
+
+	SELECT prr.request_id AS 'request id', prr.user_name AS 'user name', 
+    u.first_name AS 'first name', u.last_name AS 'last name', 
+    prr.time_requested AS 'time requested' 
+	FROM PasswordResetRequest prr, User u 
+    WHERE prr.user_name = u.user_name 
+    AND prr.marked_as_read = 0 
+    ORDER BY prr.time_requested DESC;
+
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to mark the unread password reset request message in 
+*the PasswordResetRequest table identified by the given ID 
+*as read.
+*CALL markPasswordResetRequestAsRead(?, ?);
+*1 = request_id
+*/
+DELIMITER //
+CREATE PROCEDURE markPasswordResetRequestAsRead
+	(IN request_id_in INT)
+BEGIN
+
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;    
+    
+	START TRANSACTION;
+
+	UPDATE PasswordResetRequest prr 
+    SET prr.marked_as_read = 1 
+    WHERE prr.request_id = request_id_in;
+    
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to retrieve the list of all user names
+*CALL getAllUsers(?);
+*1 = proc_success
+*/
+DELIMITER //
+CREATE PROCEDURE getAllUsers
+	(OUT proc_success TINYINT(1))
+BEGIN
+		
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+
+	SET proc_success = 0;
+
+	/*Retrieving user names*/
+
+	SELECT u.user_name AS 'user name' FROM User u;
+
+SET proc_success = 1;
+
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to retrieve the user details for administration 
+*purposes
+*CALL getUserDetails(?, ?, ?);
+*1 = user_name
+*2 = proc_success
+*/
+DELIMITER //
+CREATE PROCEDURE getUserDetails
+	(IN user_name_in VARCHAR(100), OUT proc_success TINYINT(1))
+BEGIN
+		
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+
+	SET proc_success = 0;
+
+	/*Retrieving user information*/
+
+	SELECT u.first_name AS 'first name', u.last_name AS 'last name', 
+		u.job_title AS 'job title', u.administrator AS 'administrator', 
+		u.active AS 'active', u.date_joined AS 'date joined', 
+		u.last_login AS 'last login', uae.email_address AS 'email address' 
+		FROM User u 
+        LEFT JOIN UserEmailAddress uae 
+        ON u.user_name = uae.user_name 
+		WHERE u.user_name = user_name_in;
+
+SET proc_success = 1;
+
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to update user information in the registry
+*CALL updateUser(?, ?, ?, ?, ?, ?);
+*1 = user_name
+*2 = first_name
+*3 = last_name
+*4 = job_title
+*5 = email_address
+*6 = proc_success
+*/
+DELIMITER //
+CREATE PROCEDURE updateUser
+	(IN user_name_in VARCHAR(100), IN first_name_in VARCHAR(50), 
+	IN last_name_in VARCHAR(50), IN job_title_in VARCHAR(50), 
+	IN email_in VARCHAR(255), OUT proc_success TINYINT(1))
+BEGIN
+	DECLARE email_exists INT DEFAULT 0;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+    
+    SET proc_success = 0;
+
+	UPDATE User u SET u.first_name = first_name_in, 
+	u.last_name = last_name_in, u.job_title = job_title_in
+	WHERE u.user_name = user_name_in;
+	SELECT COUNT(*) INTO email_exists 
+	FROM UserEmailAddress uea 
+	WHERE uea.user_name = user_name_in;
+	IF email_exists > 0 THEN 
+		IF email_in IS NOT NULL THEN
+			UPDATE UserEmailAddress uea SET uea.email_address = email_in 
+			WHERE uea.user_name = user_name_in;
+        ELSE 
+			DELETE FROM UserEmailAddress 
+            WHERE user_name = user_name_in;
+        END IF;
+	ELSE 
+		IF email_in IS NOT NULL THEN
+			INSERT INTO UserEmailAddress VALUES (user_name_in, email_in);
+        END IF;
+	END IF;
+    
+    SET proc_success = 1;
+    
+	COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to update user information in the registry
+*CALL auditUser(?, ?, ?, ?);
+*1 = user_name
+*2 = begin_date
+*3 = end_date
+*4 = proc_success
+*/
+DELIMITER //
+CREATE PROCEDURE auditUser
+	(IN user_name_in VARCHAR(100), IN begin_date_in DATE, 
+	IN end_date_in DATE, OUT proc_success TINYINT(1))
+BEGIN
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+    
+    SET proc_success = 0;
+
+	SELECT ua.time_occurred AS 'time occurred', ua.activity AS 'activity' 
+    FROM UserActivity ua 
+    WHERE ua.user_name = user_name_in 
+    AND ua.time_occurred > begin_date_in 
+    AND ua.time_occurred < (end_date_in + INTERVAL 1 DAY) 
+    ORDER BY ua.time_occurred;
+    
+    SET proc_success = 1;
+    
+	COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to terminate user access and capability 
+* in the registry 
+*CALL terminateUser(?, ?, ?);
+*1 = user_name
+*2 = admin_name
+*/
+DELIMITER //
+CREATE PROCEDURE terminateUser
+	(IN user_name_in VARCHAR(100), IN admin_name_in VARCHAR(100))
+BEGIN
+
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+
+	UPDATE User u SET u.active = 0 
+		WHERE u.user_name = user_name_in;
+		DELETE FROM UserCredentials 
+		WHERE user_name = user_name_in;
+        INSERT INTO UserActivity VALUES (admin_name_in, 
+		CONCAT(admin_name_in, ' has terminated the user, ', user_name_in), 
+		NOW());
+    
+	COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to change clinic information in the database
+*CALL updateClinic(?, ?, ?, ?, ?, ?);
+*1 = clinic_id
+*2 = name
+*3 = address
+*4 = phone_number
+*5 = email
+*6 = admin_name
+*/
+DELIMITER //
+CREATE PROCEDURE updateClinic
+	(IN clinic_id_in INT, IN name_in VARCHAR(50), 
+	IN address_in VARCHAR(1000), IN phone_number_in VARCHAR(50), 
+	IN email_in VARCHAR(255), IN admin_name_in VARCHAR(100))
+BEGIN
+	DECLARE email_count INT DEFAULT 0;
+	DECLARE registration_count INT DEFAULT 0;	
+
+	/*Updating clinic information*/
+
+	UPDATE Clinic c SET c.name = name_in, 
+		c.address = address_in, c.phone_number = phone_number_in 
+		WHERE c.clinic_id = clinic_id_in;
+        
+	INSERT INTO UserActivity VALUES (admin_name_in, 
+		CONCAT(admin_name_in,
+        ' has updated the name, address, and phone number for clinic ', clinic_id_in), 
+		NOW());
+
+	IF email_in IS NOT NULL THEN 
+		SELECT COUNT(*) INTO email_count 
+		FROM ClinicEmailAddress ce 
+		WHERE ce.clinic_id = clinic_id_in;
+		IF email_count > 0 THEN 
+			UPDATE ClinicEmailAddress ce SET ce.email_address = email_in 
+			WHERE ce.clinic_id = clinic_id_in;             
+            INSERT INTO UserActivity VALUES (admin_name_in, 
+            CONCAT(admin_name_in,' has updated the email address for clinic ', clinic_id_in), 
+            NOW());
+		ELSE 
+			INSERT INTO ClinicEmailAddress VALUES 
+			(clinic_id_in, email_in);
+            INSERT INTO UserActivity VALUES (admin_name_in, 
+            CONCAT(admin_name_in,' has added an email address for clinic ', clinic_id_in), 
+            NOW());
+		END IF;
+	END IF;
+
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to find and return all reminder email message details, 
+*including recipient filter information
+*CALL retrieveEmailMessageConfigurations(?);
+*1 = clinic_id
+*/
+DELIMITER //
+CREATE PROCEDURE retrieveEmailMessageConfigurations
+	(IN clinic_id_in INT)
+BEGIN
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+
+	SELECT ems.subject AS 'subject', em.language AS 'language', 
+    em.message AS 'message', emrf.filter_description AS 'filter' 
+	FROM EmailMessage em, EmailMessageSubject ems, EmailMessageRecipientFilter emrf 
+	WHERE em.clinic_id = clinic_id_in 
+    AND em.subject_id = ems.subject_id 
+	AND ems.filter_id = emrf.filter_id;
+    
+    SELECT emrf.filter_description AS 'filter' 
+    FROM EmailMessageRecipientFilter emrf;
+
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to save a new or update an existing email reminder configuration
+*CALL saveEmailMessageConfiguration(?, ?, ?, ?, ?, ?);
+*1 = clinic_id
+*2 = subject
+*3 = language
+*4 = filter
+*5 = message
+*6 = proc_success
+*/
+DELIMITER //
+CREATE PROCEDURE saveEmailMessageConfiguration
+	(IN clinic_id_in INT, IN subject_in VARCHAR(50), 
+	IN language_in VARCHAR(50), IN filter_description_in VARCHAR(100), 
+	IN message_in VARCHAR(1000), OUT proc_success TINYINT(1))
+BEGIN
+	DECLARE message_exists INT DEFAULT 0; 
+    DECLARE subject_exists INT DEFAULT 0;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+    
+    SET proc_success = 0;
+
+	SELECT COUNT(*) INTO message_exists 
+    FROM EmailMessage em, EmailMessageSubject ems  
+    WHERE em.clinic_id = clinic_id_in 
+    AND em.subject_id = ems.subject_id 
+    AND ems.subject = subject_in 
+    AND em.language = language_in;
+    
+    SELECT COUNT(*) INTO subject_exists 
+    FROM EmailMessageSubject ems  
+    WHERE ems.subject = subject_in;
+    
+    IF message_exists > 0 THEN 
+		UPDATE EmailMessage SET message = message_in 
+		WHERE clinic_id = clinic_id_in
+		AND language = language_in 
+		AND subject_id IN (
+			SELECT ems.subject_id 
+			FROM EmailMessageSubject ems 
+			WHERE ems.subject = subject_in);
+	ELSEIF subject_exists > 0 THEN 
+		INSERT INTO EmailMessage (clinic_id, language, subject_id, message) 
+			SELECT clinic_id_in, language_in, ems.subject_id, message_in 
+			FROM EmailMessageSubject ems
+			WHERE ems.subject = subject_in;
+	ELSE 
+		INSERT INTO EmailMessageSubject (subject_id, subject, filter_id) 
+			SELECT NULL, subject_in, emrf.filter_id 
+            FROM EmailMessageRecipientFilter emrf 
+            WHERE emrf.filter_description = filter_description_in;
+		INSERT INTO EmailMessage VALUES (clinic_id_in, language_in, LAST_INSERT_ID(), message_in);
+	END IF;           
+    
+    SET proc_success = 1;
+
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to delete an existing email reminder configuration
+*CALL deleteEmailMessageConfiguration(?, ?, ?, ?);
+*1 = clinic_id
+*2 = subject
+*3 = language
+*4 = proc_success
+*/
+DELIMITER //
+CREATE PROCEDURE deleteEmailMessageConfiguration
+	(IN clinic_id_in INT, IN subject_in VARCHAR(50), 
+	IN language_in VARCHAR(50), OUT proc_success TINYINT(1))
+BEGIN
+	DECLARE subject_exists INT DEFAULT 0;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+    
+    SET proc_success = 0;
+    
+    DELETE FROM EmailMessage 
+    WHERE clinic_id = clinic_id_in 
+    AND language= language_in
+    AND subject_id IN (
+		SELECT subject_id 
+        FROM EmailMessageSubject 
+		WHERE subject = subject_in);
+
+	SELECT COUNT(*) INTO subject_exists 
+    FROM EmailMessage em
+    WHERE em.subject_id IN (
+		SELECT subject_id 
+        FROM EmailMessageSubject 
+		WHERE subject = subject_in);
+
+	IF subject_exists = 0 THEN 
+		
+        DROP TEMPORARY TABLE IF EXISTS TempEmailMessageSubject;
+
+		CREATE TEMPORARY TABLE TempEmailMessageSubject (
+			subject_id INT NOT NULL AUTO_INCREMENT, 
+			subject VARCHAR(50) NOT NULL, 
+			filter_id INT NOT NULL, 
+			PRIMARY KEY (subject_id), 
+            CONSTRAINT UK_TempEmailMessageSubject_subject 
+			UNIQUE KEY (subject)
+		);
+        
+        INSERT INTO TempEmailMessageSubject 
+		SELECT * FROM EmailMessageSubject;
+        
+		DELETE FROM EmailMessageSubject
+		WHERE subject_id IN (
+			SELECT t.subject_id 
+			FROM TempEmailMessageSubject t 
+			WHERE t.subject = subject_in);
+            
+		DROP TEMPORARY TABLE IF EXISTS TempEmailMessageSubject;
+        
+	END IF;           
+    
+    SET proc_success = 1;
+
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to find and return all quality reference configurations, 
+*including active or inactive status
+*CALL retrieveQualityReferenceConfigurations(?);
+*1 = proc_success
+*/
+DELIMITER //
+CREATE PROCEDURE retrieveQualityReferenceConfigurations
+	(OUT proc_success TINYINT(1))
+BEGIN
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+    
+    SET proc_success = 0;
+
+	SELECT q.role AS 'role', q.responsibility AS 'responsibility', 
+		q.active AS 'active' 
+		FROM Quality q 
+		ORDER BY q.role, q.active DESC;
+    
+    SET proc_success = 1;
+
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to change the given quality reference status from  
+*active to inactive or inactive to active
+*CALL retrieveQualityReferenceConfigurations(?, ?);
+*1 = responsibility 
+*2 = proc_success
+*/
+DELIMITER //
+CREATE PROCEDURE changeQualityReferenceStatus
+	(IN responsibility_in VARCHAR(255), OUT proc_success TINYINT(1))
+BEGIN
+	DECLARE current_status TINYINT DEFAULT 0;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+    
+    SET proc_success = 0;
+    
+    SELECT q.active INTO current_status 
+    FROM Quality q 
+    WHERE q.responsibility = responsibility_in;
+    
+    IF current_status = 1 THEN 
+		UPDATE Quality SET active = 0 
+        WHERE responsibility = responsibility_in;
+	ELSE 
+		UPDATE Quality SET active = 1 
+        WHERE responsibility = responsibility_in;
+	END IF;
+    
+    SET proc_success = 1;
+
+COMMIT;
+END ; //
+DELIMITER ;
+
+/**
+*USAGE: to add a new quality reference to the Quality table
+*CALL addQualityReference(?, ?, ?);
+*1 = role
+*2 = responsibility 
+*3 = proc_success
+*/
+DELIMITER //
+CREATE PROCEDURE addQualityReference
+	(IN role_in VARCHAR(50), IN responsibility_in VARCHAR(255), OUT proc_success TINYINT(1))
+BEGIN
+	DECLARE responsibility_exists TINYINT DEFAULT 0;
+    DECLARE role_exists TINYINT DEFAULT 0;
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
+	DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
+
+	START TRANSACTION;
+    
+    SET proc_success = 0;
+    
+    SELECT COUNT(*) INTO responsibility_exists 
+    FROM Quality q 
+    WHERE q.responsibility = responsibility_in;
+    
+    SELECT COUNT(*) INTO role_exists 
+    FROM Quality q 
+    WHERE q.role = role_in;
+    
+    IF responsibility_exists = 0 AND role_exists > 0 THEN 
+		INSERT INTO Quality VALUES (role_in, responsibility_in, 1);
+        SET proc_success = 1;
+	END IF;    
 
 COMMIT;
 END ; //
@@ -8086,4 +8520,5 @@ GRANT SELECT ON `mysql`.`proc` TO registry_user@localhost;
 GRANT EXECUTE 
 ON diabetes_registry.*
 TO registry_user@localhost;
+
 
