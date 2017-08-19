@@ -1,0 +1,98 @@
+/* 
+ * Copyright 2016 Bryan Daniel.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package registry;
+
+import java.io.Serializable;
+import java.sql.Date;
+
+/**
+ * Holds a true or false value and a date for patient status
+ *
+ * @author Bryan Daniel
+ * @version 2, March 16, 2017
+ */
+public class BooleanResult implements Serializable {
+    
+    /**
+     * Serial version UID
+     */
+    private static final long serialVersionUID = 741552610979477835L;
+
+    /**
+     * The date of the result
+     */
+    private Date date;
+    
+    /**
+     * The value of the result
+     */
+    private boolean value;
+
+    /**
+     * Default constructor
+     */
+    public BooleanResult() {
+        date = null;
+    }
+
+    /**
+     * Parameterized constructor
+     *
+     * @param date the date
+     * @param value the value
+     */
+    public BooleanResult(Date date, boolean value) {
+        this.date = date;
+        this.value = value;
+    }
+
+    /**
+     * Get the value of date
+     *
+     * @return the value of date
+     */
+    public Date getDate() {
+        return date;
+    }
+
+    /**
+     * Set the value of date
+     *
+     * @param date new value of date
+     */
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    /**
+     * Get the value of value
+     *
+     * @return the value of value
+     */
+    public boolean getValue() {
+        return value;
+    }
+
+    /**
+     * Set the value of value
+     *
+     * @param value new value of value
+     */
+    public void setValue(boolean value) {
+        this.value = value;
+    }
+
+}

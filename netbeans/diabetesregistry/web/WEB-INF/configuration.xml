@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<properties>
+    <host>
+        <value>smtphost.goes.here</value>
+    </host>
+    <clinic>
+        <number>clinicnumbergoeshere</number>
+    </clinic>
+    <datasource>
+        <jndi>java:/comp/env/jdbc/diabetes_registry</jndi>
+    </datasource>
+</properties>
