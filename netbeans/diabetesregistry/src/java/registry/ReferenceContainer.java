@@ -62,7 +62,7 @@ public class ReferenceContainer implements Serializable {
     private ArrayList<TelephoneFollowUpDefinition> telephoneFollowUpDefinitions;
 
     /**
-     * The list of
+     * The list of risk definitions for foot exams
      */
     private ArrayList<FootExamRiskDefinition> footExamRiskDefinitions;
 

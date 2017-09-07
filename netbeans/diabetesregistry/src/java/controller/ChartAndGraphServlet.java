@@ -113,10 +113,10 @@ public class ChartAndGraphServlet extends HttpServlet {
         HttpSession session = request.getSession();
         response.setContentType("image/png");
         OutputStream outputStream = response.getOutputStream();
-        final int WIDTH_INCREASE_THRESHOLD = 18;
-        final int INCREMENTAL_INCREASE_THRESHOLD = 22;
-        final int INCREMENTAL_INCREASE_IN_PIXELS = 45;
-        final int TREATMENT_CLASS_UNKNOWN_INDEX = 6;
+        final int widthIncreaseThreshold = 18;
+        final int incrementalIncreaseThreshold = 22;
+        final int incrementalIncreaseInPixels = 45;
+        final int treatmentClassUnknownIndex = 6;
         int width = 640;
         int height = 450;
         int bigWidth = 780;
@@ -171,13 +171,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                     plot.addRangeMarker(marker);
                 }
 
-                if (a1cHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (a1cHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (a1cHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = a1cHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (a1cHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = a1cHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -229,13 +229,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                     plot.addRangeMarker(marker);
                 }
 
-                if (psaHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (psaHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (psaHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = psaHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (psaHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = psaHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -287,13 +287,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                     plot.addRangeMarker(marker);
                 }
 
-                if (altHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (altHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (altHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = altHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (altHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = altHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -345,13 +345,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                     plot.addRangeMarker(marker);
                 }
 
-                if (astHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (astHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (astHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = astHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (astHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = astHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -405,13 +405,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                     plot.addRangeMarker(marker);
                 }
 
-                if (bpHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (bpHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (bpHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = bpHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (bpHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = bpHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -463,13 +463,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                     plot.addRangeMarker(marker);
                 }
 
-                if (bmiHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (bmiHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (bmiHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = bmiHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (bmiHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = bmiHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -521,13 +521,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                     plot.addRangeMarker(marker);
                 }
 
-                if (creatinineHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (creatinineHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (creatinineHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = creatinineHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (creatinineHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = creatinineHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -579,13 +579,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                     plot.addRangeMarker(marker);
                 }
 
-                if (egfrHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (egfrHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (egfrHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = egfrHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (egfrHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = egfrHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -637,13 +637,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                     plot.addRangeMarker(marker);
                 }
 
-                if (glucoseHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (glucoseHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (glucoseHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = glucoseHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (glucoseHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = glucoseHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -707,13 +707,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                     plot.addRangeMarker(marker);
                 }
 
-                if (hdlHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (hdlHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (hdlHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = hdlHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (hdlHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = hdlHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -765,13 +765,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                     plot.addRangeMarker(marker);
                 }
 
-                if (ldlHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (ldlHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (ldlHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = ldlHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (ldlHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = ldlHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -809,13 +809,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                 chart.setBorderStroke(new BasicStroke(5.0f));
                 chart.setBorderVisible(true);
 
-                if (complianceHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (complianceHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (complianceHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = complianceHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (complianceHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = complianceHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -867,13 +867,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                     plot.addRangeMarker(marker);
                 }
 
-                if (physicalActivityHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (physicalActivityHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (physicalActivityHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = physicalActivityHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (physicalActivityHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = physicalActivityHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -911,13 +911,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                 chart.setBorderStroke(new BasicStroke(5.0f));
                 chart.setBorderVisible(true);
 
-                if (psychologicalHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (psychologicalHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (psychologicalHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = psychologicalHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (psychologicalHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = psychologicalHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -969,13 +969,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                     plot.addRangeMarker(marker);
                 }
 
-                if (t4History.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (t4History.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (t4History.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = t4History.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (t4History.size() > incrementalIncreaseThreshold) {
+                    int increments = t4History.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -1027,13 +1027,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                     plot.addRangeMarker(marker);
                 }
 
-                if (triglyceridesHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (triglyceridesHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (triglyceridesHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = triglyceridesHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (triglyceridesHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = triglyceridesHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -1085,13 +1085,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                     plot.addRangeMarker(marker);
                 }
 
-                if (tshHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (tshHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (tshHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = tshHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (tshHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = tshHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -1143,13 +1143,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                     plot.addRangeMarker(marker);
                 }
 
-                if (uacrHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (uacrHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (uacrHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = uacrHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (uacrHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = uacrHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -1213,13 +1213,13 @@ public class ChartAndGraphServlet extends HttpServlet {
                     plot.addRangeMarker(marker);
                 }
 
-                if (waistHistory.size() > WIDTH_INCREASE_THRESHOLD) {
+                if (waistHistory.size() > widthIncreaseThreshold) {
                     width = bigWidth;
                 }
-                if (waistHistory.size() > INCREMENTAL_INCREASE_THRESHOLD) {
-                    int increments = waistHistory.size() % INCREMENTAL_INCREASE_THRESHOLD;
+                if (waistHistory.size() > incrementalIncreaseThreshold) {
+                    int increments = waistHistory.size() % incrementalIncreaseThreshold;
                     for (int i = 0; i < increments; i++) {
-                        width += INCREMENTAL_INCREASE_IN_PIXELS;
+                        width += incrementalIncreaseInPixels;
                     }
                 }
                 ChartUtilities.writeChartAsPNG(outputStream, chart, width, height);
@@ -1401,7 +1401,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 break;
             }
             case "lasta1cbyclassattendance": {
-                final int TOP_GROUP_INDEX = 4;
+                final int topGroupIndex = 4;
                 Stats glycemicStats
                         = (Stats) session.getAttribute(SessionObjectUtility.LAST_A1C_BY_CLASS_DATA);
 
@@ -1415,7 +1415,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                             for (CategoricalValue cv : glycemicStats.getGroups().get(i)) {
                                 values.add(cv.getValue());
                             }
-                            if (i == TOP_GROUP_INDEX) {
+                            if (i == topGroupIndex) {
                                 dataset.add(BoxAndWhiskerCalculator.calculateBoxAndWhiskerStatistics(values),
                                         "last A1C(%)", "5 or more");
                             } else {
@@ -1552,7 +1552,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 break;
             }
             case "lastbmimalesbyclassattendance": {
-                final int TOP_GROUP_INDEX = 4;
+                final int topGroupIndex = 4;
                 Stats bmiMalesStats
                         = (Stats) session.getAttribute(SessionObjectUtility.LAST_BMI_MALES_BY_CLASS_DATA);
 
@@ -1566,7 +1566,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                             for (CategoricalValue cv : bmiMalesStats.getGroups().get(i)) {
                                 values.add(cv.getValue());
                             }
-                            if (i == TOP_GROUP_INDEX) {
+                            if (i == topGroupIndex) {
                                 dataset.add(BoxAndWhiskerCalculator.calculateBoxAndWhiskerStatistics(values),
                                         "last BMI (males)", "5 or more");
                             } else {
@@ -1597,7 +1597,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 break;
             }
             case "lastbmifemalesbyclassattendance": {
-                final int TOP_GROUP_INDEX = 4;
+                final int topGroupIndex = 4;
                 Stats bmiFemalesStats
                         = (Stats) session.getAttribute(SessionObjectUtility.LAST_BMI_FEMALES_BY_CLASS_DATA);
 
@@ -1611,7 +1611,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                             for (CategoricalValue cv : bmiFemalesStats.getGroups().get(i)) {
                                 values.add(cv.getValue());
                             }
-                            if (i == TOP_GROUP_INDEX) {
+                            if (i == topGroupIndex) {
                                 dataset.add(BoxAndWhiskerCalculator.calculateBoxAndWhiskerStatistics(values),
                                         "last BMI (females)", "5 or more");
                             } else {
@@ -1642,7 +1642,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 break;
             }
             case "lasta1cbytreatment": {
-                final int FIRST_INDEX = 0;
+                final int firstIndex = 0;
                 Stats glycemicStats
                         = (Stats) session.getAttribute(SessionObjectUtility.LAST_A1C_BY_TREATMENT);
 
@@ -1653,8 +1653,8 @@ public class ChartAndGraphServlet extends HttpServlet {
                         if ((glycemicStats.getGroups().get(i) != null)
                                 && (!glycemicStats.getGroups().get(i).isEmpty())) {
                             String category = glycemicStats.getGroups().get(i)
-                                    .get(FIRST_INDEX) != null ? glycemicStats.getGroups()
-                                            .get(i).get(FIRST_INDEX).getCategory() : "";
+                                    .get(firstIndex) != null ? glycemicStats.getGroups()
+                                            .get(i).get(firstIndex).getCategory() : "";
                             List values = new ArrayList();
                             for (CategoricalValue cv : glycemicStats.getGroups().get(i)) {
                                 values.add(cv.getValue());
@@ -1692,7 +1692,7 @@ public class ChartAndGraphServlet extends HttpServlet {
                 DefaultPieDataset dataset = new DefaultPieDataset();
 
                 /* add the treatment data to the dataset */
-                for (int i = 0; i < TREATMENT_CLASS_UNKNOWN_INDEX + 1; i++) {
+                for (int i = 0; i < treatmentClassUnknownIndex + 1; i++) {
                     dataset.setValue(treatmentData.getGroups().get(treatmentClassCountsIndex).get(i).getCategory(),
                             treatmentData.getGroups().get(treatmentClassCountsIndex).get(i).getValue());
                 }
@@ -1739,7 +1739,7 @@ public class ChartAndGraphServlet extends HttpServlet {
 
                 /* load data for males and females into the dataset */
                 for (int i = femaleClassCountsIndex; i > maleClassCountsIndex - 1; i--) {
-                    for (int j = 0; j < TREATMENT_CLASS_UNKNOWN_INDEX + 1; j++) {
+                    for (int j = 0; j < treatmentClassUnknownIndex + 1; j++) {
                         dataset.addValue(treatmentData.getGroups().get(i).get(j).getValue(),
                                 genderMap.get(i), treatmentData.getGroups().get(i).get(j).getCategory());
                     }
@@ -1802,7 +1802,7 @@ public class ChartAndGraphServlet extends HttpServlet {
 
                 /* load data for each race into the dataset */
                 for (int i = whiteClassCountsIndex; i < otherClassCountsIndex + 1; i++) {
-                    for (int j = 0; j < TREATMENT_CLASS_UNKNOWN_INDEX + 1; j++) {
+                    for (int j = 0; j < treatmentClassUnknownIndex + 1; j++) {
                         dataset.addValue(treatmentData.getGroups().get(i).get(j).getValue(),
                                 raceMap.get(i), treatmentData.getGroups().get(i).get(j).getCategory());
                     }

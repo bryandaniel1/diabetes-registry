@@ -39,6 +39,11 @@ import registry.Patient;
  * @version 2, March 16, 2017
  */
 public class EmailUtility {
+    
+    /**
+     * The default language for email messages
+     */
+    private static final String DEFAULT_LANGUAGE = "English";
 
     /**
      * This method takes the given parameters and uses them to send an email
@@ -133,7 +138,6 @@ public class EmailUtility {
             String from, ArrayList<EmailMessage> messages, boolean bodyIsHTML,
             String emailPassword, HttpServletRequest request) {
 
-        final String DEFAULT_LANGUAGE = "English";
         String host = ConfigurationManager.getMailHost(request.getServletContext());
         if (host == null) {
             return false;
