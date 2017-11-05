@@ -1,19 +1,36 @@
 # diabetes-registry
 This diabetes registry source code can be used to build a system for saving and tracking health information on patients with diabetes.
 
+<figure>
+  <img src="img/main-menu.png" alt="Main Menu"/>
+  <figcaption>Main Menu</figcaption>
+</figure>
+<figure>
+  <img src="img/add-patient.png" alt="Add Patient"/>
+  <figcaption>Add Patient</figcaption>
+</figure>
+<figure>
+  <img src="img/data-entry.png" alt="Data Entry"/>
+  <figcaption>Data Entry</figcaption>
+</figure>
+<figure>
+  <img src="img/blood-pressure-history.png" alt="Blood Pressure History"/>
+  <figcaption>Blood Pressure History</figcaption>
+</figure>
+
 ## Diabetes Registry Setup and Run Instructions
 
 ## Sections
 
-A - requirements
+	A - requirements
 
-B - build MySQL database
+	B - build MySQL database
 
-C - build application
+	C - build application
 
-D - deploy application
+	D - deploy application
 
-E - notes
+	E - notes
 
 
 ### Section A - requirements
