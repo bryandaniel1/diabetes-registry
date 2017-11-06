@@ -4,22 +4,22 @@ This diabetes registry source code can be used to build a system for saving and 
 <figure>
   <img src="img/main-menu.png" alt="Main Menu"/>
   <figcaption>Figure 1. Main Menu</figcaption>
-</figure>
-<br>
+</figure>&nbsp;
+
 <figure>
   <img src="img/add-patient.png" alt="Add Patient"/>
   <figcaption>Figure 2. Add Patient</figcaption>
-</figure>
-<br>
+</figure>&nbsp;
+
 <figure>
   <img src="img/data-entry.png" alt="Data Entry"/>
   <figcaption>Figure 3. Data Entry</figcaption>
-</figure>
-<br>
+</figure>&nbsp;
+
 <figure>
   <img src="img/blood-pressure-history.png" alt="Blood Pressure History"/>
   <figcaption>Figure 4. Blood Pressure History</figcaption>
-</figure>
+</figure>&nbsp;
 
 ## Diabetes Registry Setup and Run Instructions
 
